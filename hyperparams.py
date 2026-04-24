@@ -21,7 +21,7 @@ AUDIO_SAMPLE_RATE: int = 16000  # WAV sample rate in Hz
 
 # ── AWS / Amazon Transcribe ───────────────────────────────────────────────────
 # Set AWS_S3_BUCKET to your bucket name, or leave empty to be prompted at runtime.
-AWS_S3_BUCKET: str = ""
+AWS_S3_BUCKET: str = "languagedetectionnowlocket"
 AWS_S3_PREFIX: str = "voice-money-inputs"
 AWS_BEDROCK_MODEL_ID: str = "amazon.nova-lite-v1:0"
 
