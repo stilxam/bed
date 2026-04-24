@@ -49,6 +49,7 @@ def _choose_mode() -> str:
 def run_visual() -> list[tuple[float, str]] | None:
     from extractor import extract_from_image, GeoContext
     from anthropic import Anthropic
+    from geo import get_location
 
     path_str = input("  Image path: ").strip().strip('"').strip("'")
     img_path = Path(path_str)
@@ -56,8 +57,17 @@ def run_visual() -> list[tuple[float, str]] | None:
         print(f"  File not found: {img_path}")
         return None
 
+    # Build GeoContext from live IP geolocation, fall back to hyperparams.
     geo: GeoContext | None = None
-    if hyperparams.DEFAULT_ISO_COUNTRY_CODE:
+    loc = get_location()
+    if loc:
+        geo = GeoContext(
+            country_name=loc.country_name,
+            iso_country_code=loc.iso_country_code,
+            likely_currency_iso=loc.currency_iso,
+        )
+        print(f"  Geolocation: {loc.country_name} ({loc.iso_country_code}) → {loc.currency_iso}")
+    elif hyperparams.DEFAULT_ISO_COUNTRY_CODE:
         geo = GeoContext(
             country_name=hyperparams.DEFAULT_COUNTRY_NAME or "",
             iso_country_code=hyperparams.DEFAULT_ISO_COUNTRY_CODE,
