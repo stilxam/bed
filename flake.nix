@@ -40,6 +40,7 @@
             pkgs.ruff
             pkgs.gcc
             pkgs.zlib
+            pkgs.ffmpeg
             
             pkgs.xorg.libxcb
             pkgs.xorg.libX11

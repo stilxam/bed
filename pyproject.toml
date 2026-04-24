@@ -4,4 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "anthropic>=0.97.0",
+    "dotenv>=0.9.9",
+    "gradio>=6.13.0",
+    "openai-whisper>=20250625",
+    "opencv-python>=4.13.0.92",
+]
