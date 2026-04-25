@@ -189,6 +189,14 @@
       position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 3;
     }
 
+    /* Live camera video */
+    #camera-video {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; border-radius: inherit;
+      display: none;
+    }
+    #camera-video.live { display: block; }
+
     /* Crosshair overlay when file selected */
     .vf-crosshair {
       position: absolute; z-index: 2; pointer-events: none;
@@ -501,9 +509,10 @@
     <div class="viewfinder" id="viewfinder">
       <div class="rc tl"></div><div class="rc tr"></div>
       <div class="rc bl"></div><div class="rc br"></div>
+      <video id="camera-video" autoplay playsinline muted></video>
       <div class="vf-status" id="vf-status">READY</div>
       <div class="vf-preview" id="vf-preview"></div>
-      <input type="file" class="vf-input" id="file-input" accept="image/*" capture="environment">
+      <input type="file" class="vf-input" id="file-input" accept="image/*">
     </div>
 
     <button class="cta-btn" id="scan-btn">SCAN PRICE</button>
@@ -612,6 +621,7 @@ document.querySelectorAll('.nav-tab').forEach(t => {
 });
 
 function showScreen(name) {
+  if (name !== 'scanner') stopCamera();
   document.querySelectorAll('.screen').forEach(s =>
     s.classList.toggle('active', s.id === `screen-${name}`)
   );
@@ -620,67 +630,113 @@ function showScreen(name) {
   );
   if (name === 'dashboard') loadDashboard();
   if (name === 'trips')     loadTrips();
+  if (name === 'scanner' && (S.scanMode === 'photo' || S.scanMode === 'menu') && cameraState === 'idle') {
+    startCamera();
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
    SCANNER
 ══════════════════════════════════════════════════════════ */
-const fileInput = document.getElementById('file-input');
-const vfStatus  = document.getElementById('vf-status');
-const vfPreview = document.getElementById('vf-preview');
+const fileInput  = document.getElementById('file-input');
+const cameraVideo = document.getElementById('camera-video');
+const vfStatus   = document.getElementById('vf-status');
+const vfPreview  = document.getElementById('vf-preview');
 const viewfinder = document.getElementById('viewfinder');
-const scanBtn   = document.getElementById('scan-btn');
+const scanBtn    = document.getElementById('scan-btn');
 const resultArea = document.getElementById('result-area');
+
+// 'idle' | 'live' | 'captured'
+let cameraState  = 'idle';
+let cameraStream = null;
 
 document.querySelectorAll('.mode-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     S.scanMode = tab.dataset.mode;
-    applyMode(S.scanMode);
     resetScan();
+    applyMode(S.scanMode);
   });
 });
 
 function applyMode(mode) {
-  if (mode === 'photo') {
-    fileInput.setAttribute('capture', 'environment');
+  if (mode === 'upload') {
     fileInput.removeAttribute('hidden');
-    scanBtn.textContent = 'SCAN PRICE';
+    scanBtn.textContent = 'SELECT IMAGE';
     vfStatus.textContent = 'READY';
-  } else if (mode === 'upload') {
-    fileInput.removeAttribute('capture');
-    fileInput.removeAttribute('hidden');
-    scanBtn.textContent = 'SCAN PRICE';
-    vfStatus.textContent = 'READY';
-  } else if (mode === 'menu') {
-    fileInput.setAttribute('capture', 'environment');
-    fileInput.removeAttribute('hidden');
-    scanBtn.textContent = 'READ MENU';
-    vfStatus.textContent = 'AIM AT MENU';
   } else if (mode === 'voice') {
     fileInput.setAttribute('hidden', '');
     scanBtn.textContent = 'RECORD PRICE';
     vfStatus.textContent = 'VOICE MODE · COMING SOON';
+  } else {
+    // photo or menu — start live camera
+    fileInput.setAttribute('hidden', '');
+    startCamera();
   }
 }
 
+async function startCamera() {
+  cameraState = 'idle';
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false,
+    });
+    cameraVideo.srcObject = cameraStream;
+    cameraVideo.classList.add('live');
+    cameraState = 'live';
+    vfStatus.textContent = 'LIVE';
+    vfStatus.classList.add('live');
+    scanBtn.textContent = S.scanMode === 'menu' ? 'CAPTURE MENU' : 'CAPTURE';
+  } catch (err) {
+    // Camera denied or unavailable — fall back to file picker
+    cameraVideo.classList.remove('live');
+    fileInput.removeAttribute('hidden');
+    vfStatus.textContent = 'CAMERA UNAVAILABLE — SELECT FILE';
+    scanBtn.textContent = S.scanMode === 'menu' ? 'SELECT MENU IMAGE' : 'SELECT IMAGE';
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  cameraVideo.srcObject = null;
+  cameraVideo.classList.remove('live');
+  cameraState = 'idle';
+}
+
+function captureFrame() {
+  const canvas = document.createElement('canvas');
+  canvas.width  = cameraVideo.videoWidth  || 1280;
+  canvas.height = cameraVideo.videoHeight || 720;
+  canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+  stopCamera();
+  canvas.toBlob(blob => {
+    S.selectedFile = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
+    const url = URL.createObjectURL(blob);
+    vfPreview.innerHTML = `<img src="${url}" alt="capture">`;
+    viewfinder.classList.add('has-file');
+    cameraState = 'captured';
+    vfStatus.textContent = 'PRICE DETECTED';
+    scanBtn.textContent = S.scanMode === 'menu' ? 'READ MENU' : 'SCAN PRICE';
+  }, 'image/jpeg', 0.92);
+}
+
+// Upload mode: file picker handler
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   if (!file) return;
   S.selectedFile = file;
+  cameraState = 'captured';
   const url = URL.createObjectURL(file);
   vfPreview.innerHTML = `<img src="${url}" alt="preview">`;
   vfStatus.textContent = 'PRICE DETECTED';
   vfStatus.classList.add('live');
   viewfinder.classList.add('has-file');
-  // Add crosshair
-  if (!viewfinder.querySelector('.vf-crosshair')) {
-    const ch = document.createElement('div');
-    ch.className = 'vf-crosshair';
-    ch.style.cssText = 'position:absolute;z-index:2;pointer-events:none;width:38px;height:38px;border:1px solid rgba(0,217,134,.65);border-radius:50%;box-shadow:0 0 0 5px rgba(0,217,134,.07)';
-    viewfinder.appendChild(ch);
-  }
+  scanBtn.textContent = 'SCAN PRICE';
 });
 
 scanBtn.addEventListener('click', async () => {
@@ -688,11 +744,21 @@ scanBtn.addEventListener('click', async () => {
     alert('VOICE MODE COMING SOON');
     return;
   }
-  if (!S.selectedFile) {
+  if (S.scanMode === 'upload' && !S.selectedFile) {
     fileInput.click();
     return;
   }
-  await performScan();
+  if (cameraState === 'live') {
+    captureFrame();
+    return;
+  }
+  if (cameraState === 'captured' && S.selectedFile) {
+    await performScan();
+    return;
+  }
+  // Fallback: no camera, no file — open picker
+  fileInput.removeAttribute('hidden');
+  fileInput.click();
 });
 
 async function performScan() {
@@ -771,12 +837,16 @@ function resetScan() {
   S.selectedFile = null;
   fileInput.value = '';
   vfPreview.innerHTML = '';
-  vfStatus.textContent = S.scanMode === 'menu' ? 'AIM AT MENU' : 'READY';
   vfStatus.classList.remove('live');
   viewfinder.classList.remove('has-file');
-  const ch = viewfinder.querySelector('.vf-crosshair');
-  if (ch) ch.remove();
   resultArea.innerHTML = '';
+  stopCamera();
+  // Restart camera for camera modes
+  if (S.scanMode === 'photo' || S.scanMode === 'menu') {
+    startCamera();
+  } else {
+    vfStatus.textContent = 'READY';
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
