@@ -161,7 +161,18 @@ def run_audio() -> list[tuple[float, str]] | None:
 
 # ── Pipeline ──────────────────────────────────────────────────────────────────
 
+def _print_balance() -> None:
+    """Fetch and display the bunq account balance before each session."""
+    try:
+        from bunq_balance import get_balance
+        balance = get_balance()
+        print(f"\n  bunq balance: EUR {balance:,.2f}")
+    except Exception as exc:
+        print(f"\n  bunq balance: unavailable ({exc})")
+
+
 def main() -> None:
+    _print_balance()
     while True:
         choice = _choose_mode()
 
