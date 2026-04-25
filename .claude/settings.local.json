@@ -2,7 +2,14 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:doc.bunq.com)",
-      "Bash(grep -rn \"from app\\\\|import app\\\\|from gui\\\\|import gui\\\\|from model_interface\\\\|from call_fx\\\\|from number_to\\\\|from extract_geo\\\\|from main\" /home/maxwell/bed/server.py /home/maxwell/bed/*.py)"
+      "Bash(grep -rn \"from app\\\\|import app\\\\|from gui\\\\|import gui\\\\|from model_interface\\\\|from call_fx\\\\|from number_to\\\\|from extract_geo\\\\|from main\" /home/maxwell/bed/server.py /home/maxwell/bed/*.py)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(/Users/annapro/Desktop/Desktop/bunq/bed/.venv/bin/python *)",
+      "Bash(.venv/bin/python *)"
     ]
   }
 }

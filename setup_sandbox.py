@@ -17,7 +17,7 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).parent / "hackathon_toolkit"))
+sys.path.append(str(Path(__file__).parent / "hackathon_toolkit" / "hackathon_toolkit"))
 
 from bunq_client import BunqClient  # noqa: E402
 
