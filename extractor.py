@@ -115,13 +115,23 @@ def _geo_context_str(geo: GeoContext | None) -> str:
     )
 
 
-def _image_message(image_path: Path, prompt: str) -> list[dict]:
-    suffix = image_path.suffix.lower()
-    media_type = _MEDIA_TYPES.get(suffix)
+def _detect_media_type(data: bytes, fallback_suffix: str) -> str:
+    if data[:3] == b"\xff\xd8\xff":
+        return "image/jpeg"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "image/png"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    media_type = _MEDIA_TYPES.get(fallback_suffix)
     if media_type is None:
-        raise ValueError(f"Unsupported image format '{suffix}'. Accepted: {list(_MEDIA_TYPES)}")
+        raise ValueError(f"Unsupported image format '{fallback_suffix}'. Accepted: {list(_MEDIA_TYPES)}")
+    return media_type
 
-    data = base64.standard_b64encode(image_path.read_bytes()).decode("utf-8")
+
+def _image_message(image_path: Path, prompt: str) -> list[dict]:
+    raw = image_path.read_bytes()
+    media_type = _detect_media_type(raw, image_path.suffix.lower())
+    data = base64.standard_b64encode(raw).decode("utf-8")
     return [
         {
             "role": "user",
@@ -203,13 +213,10 @@ def _extract(
     geo: GeoContext | None,
     client: Anthropic,
 ) -> ExtractionResult:
-    try:
-        parsed = _call(client, HAIKU, messages)
-        if _needs_retry(parsed):
-            parsed = _call(client, SONNET, messages)
-        return _to_result(parsed, geo)
-    except Exception:
-        return FailureResult(status="failure", reason="api_error")
+    parsed = _call(client, HAIKU, messages)
+    if _needs_retry(parsed):
+        parsed = _call(client, SONNET, messages)
+    return _to_result(parsed, geo)
 
 
 # ---------------------------------------------------------------------------
