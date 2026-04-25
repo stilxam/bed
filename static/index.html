@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Travel Buddy · bunq</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       DESIGN SYSTEM
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      --bg:            #080c14;
+      --bg-panel:      #0c1220;
+      --bg-panel2:     #101828;
+      --accent:        #00d986;
+      --accent-dim:    rgba(0,217,134,.1);
+      --accent-glow:   0 0 18px rgba(0,217,134,.5), 0 0 48px rgba(0,217,134,.18);
+      --accent-glow-s: 0 0 8px rgba(0,217,134,.45);
+      --amber:         #ffb347;
+      --amber-dim:     rgba(255,179,71,.12);
+      --red:           #ff4757;
+      --red-dim:       rgba(255,71,87,.12);
+      --text:          #bdd0e4;
+      --text-dim:      #354d6a;
+      --border:        rgba(0,217,134,.14);
+      --border-hi:     rgba(0,217,134,.42);
+      --mono:          'Share Tech Mono', monospace;
+      --ui:            'Rajdhani', sans-serif;
+      --r:             12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      height: 100%; overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ui);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    /* Scanlines */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+      background: repeating-linear-gradient(
+        0deg, transparent 0px, transparent 3px,
+        rgba(0,0,0,.07) 3px, rgba(0,0,0,.07) 4px
+      );
+    }
+
+    /* Grid */
+    body::after {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,217,134,.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,217,134,.022) 1px, transparent 1px);
+      background-size: 34px 34px;
+    }
+
+    /* ═══ APP SHELL ═══ */
+    #app {
+      position: relative; z-index: 1;
+      max-width: 430px; margin: 0 auto;
+      height: 100dvh;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* ═══ HEADER ═══ */
+    #header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px 9px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,12,20,.96);
+      backdrop-filter: blur(10px);
+      flex-shrink: 0; position: relative; z-index: 10;
+    }
+    .wordmark {
+      font-family: var(--mono); font-size: 14px; letter-spacing: .14em;
+      color: var(--accent); text-shadow: var(--accent-glow-s);
+    }
+    .cursor { display: inline-block; animation: blink 1s step-end infinite; }
+    .header-trip {
+      font-size: 11px; letter-spacing: .09em; color: var(--text-dim);
+      max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .bunq-badge {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
+      background: var(--accent); color: var(--bg);
+      padding: 3px 8px 2px; border-radius: 3px; font-weight: 700;
+    }
+
+    /* ═══ SCREENS ═══ */
+    .screen {
+      display: none; flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 14px 14px 6px;
+      flex-direction: column; gap: 11px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .screen::-webkit-scrollbar { display: none; }
+    .screen.active { display: flex; }
+
+    /* ═══ BOTTOM NAV ═══ */
+    #nav {
+      display: flex;
+      border-top: 1px solid var(--border);
+      background: rgba(8,12,20,.97);
+      backdrop-filter: blur(12px);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+      flex-shrink: 0; z-index: 10; position: relative;
+    }
+    .nav-tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 9px 0 7px;
+      background: none; border: none;
+      color: var(--text-dim); font-family: var(--ui); font-size: 10px;
+      font-weight: 600; letter-spacing: .12em; cursor: pointer;
+      transition: color .2s; text-transform: uppercase;
+    }
+    .nav-tab svg { width: 21px; height: 21px; transition: filter .2s; }
+    .nav-tab.active { color: var(--accent); }
+    .nav-tab.active svg { filter: drop-shadow(0 0 5px var(--accent)); }
+
+    /* ═══════════════════════════════════════════════════════
+       SCANNER
+    ═══════════════════════════════════════════════════════ */
+    .mode-tabs {
+      display: flex; gap: 5px;
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 4px;
+    }
+    .mode-tab {
+      flex: 1; background: none; border: none; border-radius: 7px;
+      padding: 7px 4px;
+      font-family: var(--ui); font-size: 11px; font-weight: 700;
+      letter-spacing: .1em; color: var(--text-dim);
+      cursor: pointer; transition: all .2s; text-transform: uppercase;
+    }
+    .mode-tab.active {
+      background: var(--accent-dim); color: var(--accent);
+      box-shadow: inset 0 0 0 1px rgba(0,217,134,.28);
+      text-shadow: 0 0 10px rgba(0,217,134,.5);
+    }
+
+    /* Viewfinder */
+    .viewfinder {
+      position: relative;
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r); min-height: 210px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; cursor: pointer; flex-shrink: 0;
+      transition: border-color .2s;
+    }
+    .viewfinder.has-file { border-color: var(--border-hi); }
+
+    /* Reticle corners */
+    .rc {
+      position: absolute; width: 20px; height: 20px;
+      animation: reticle-pulse 2.2s ease-in-out infinite;
+    }
+    .rc.tl { top:10px; left:10px;  border-top:2px solid var(--accent); border-left:2px solid var(--accent); border-radius:3px 0 0 0; }
+    .rc.tr { top:10px; right:10px; border-top:2px solid var(--accent); border-right:2px solid var(--accent); border-radius:0 3px 0 0; }
+    .rc.bl { bottom:10px; left:10px;  border-bottom:2px solid var(--accent); border-left:2px solid var(--accent); border-radius:0 0 0 3px; }
+    .rc.br { bottom:10px; right:10px; border-bottom:2px solid var(--accent); border-right:2px solid var(--accent); border-radius:0 0 3px 0; }
+    .rc.tl { animation-delay: 0s; }
+    .rc.tr { animation-delay: .2s; }
+    .rc.bl { animation-delay: .4s; }
+    .rc.br { animation-delay: .6s; }
+
+    .vf-status {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+      color: var(--text-dim); user-select: none; position: relative; z-index: 2;
+      transition: color .3s;
+    }
+    .vf-status.live { color: var(--accent); text-shadow: var(--accent-glow-s); }
+
+    .vf-preview {
+      position: absolute; inset: 0; border-radius: inherit; overflow: hidden;
+    }
+    .vf-preview img {
+      width: 100%; height: 100%; object-fit: cover; opacity: .65;
+    }
+    .vf-input {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 3;
+    }
+
+    /* Crosshair overlay when file selected */
+    .vf-crosshair {
+      position: absolute; z-index: 2; pointer-events: none;
+      width: 40px; height: 40px;
+      border: 1px solid rgba(0,217,134,.6);
+      border-radius: 50%;
+      box-shadow: 0 0 0 6px rgba(0,217,134,.06);
+      animation: crosshair-pulse 1.5s ease-in-out infinite;
+    }
+
+    /* ═══ BUTTONS ═══ */
+    .cta-btn {
+      width: 100%; padding: 15px;
+      background: var(--accent-dim); border: 1px solid var(--accent);
+      border-radius: 50px; color: var(--accent);
+      font-family: var(--ui); font-size: 14px; font-weight: 700; letter-spacing: .2em;
+      cursor: pointer; text-transform: uppercase;
+      box-shadow: var(--accent-glow); transition: all .15s;
+    }
+    .cta-btn:active { transform: scale(.97); box-shadow: var(--accent-glow-s); }
+    .cta-btn:disabled { opacity: .35; box-shadow: none; cursor: not-allowed; }
+    .cta-btn.amber {
+      color: var(--amber); border-color: var(--amber);
+      background: var(--amber-dim);
+      box-shadow: 0 0 16px rgba(255,179,71,.35);
+    }
+
+    .ghost-btn {
+      background: none; border: 1px solid var(--border);
+      border-radius: 50px; color: var(--text-dim);
+      font-family: var(--ui); font-size: 13px; font-weight: 600; letter-spacing: .12em;
+      cursor: pointer; padding: 10px 20px; transition: all .15s; text-transform: uppercase;
+    }
+    .ghost-btn:hover { border-color: var(--text-dim); color: var(--text); }
+    .ghost-btn:active { transform: scale(.97); }
+    .ghost-btn.full { width: 100%; }
+
+    /* ═══ RESULT PANEL ═══ */
+    .result-panel {
+      background: var(--bg-panel); border: 1px solid var(--border-hi);
+      border-radius: var(--r); padding: 20px;
+      box-shadow: var(--accent-glow);
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; text-align: center;
+      animation: fadeUp .35s ease forwards;
+    }
+    .result-original {
+      font-family: var(--mono); font-size: 13px;
+      color: var(--text-dim); letter-spacing: .08em;
+    }
+    .result-eur {
+      font-family: var(--mono); font-size: 44px; line-height: 1;
+      color: var(--accent); text-shadow: var(--accent-glow);
+      letter-spacing: .03em;
+    }
+    .result-meta {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--amber); letter-spacing: .06em;
+    }
+    .result-badge {
+      font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+      padding: 2px 9px; border-radius: 3px;
+      background: var(--accent-dim); color: var(--accent);
+      border: 1px solid rgba(0,217,134,.28);
+    }
+
+    /* ═══ MENU TABLE ═══ */
+    .menu-panel {
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r); overflow: hidden;
+      animation: fadeUp .35s ease forwards;
+    }
+    .menu-panel-header {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: .14em; color: var(--text-dim);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .menu-panel-header span { color: var(--accent); }
+    .menu-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .menu-table th {
+      font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+      color: var(--text-dim); text-align: left;
+      padding: 6px 12px; border-bottom: 1px solid var(--border);
+      text-transform: uppercase; background: rgba(0,217,134,.03);
+    }
+    .menu-table td {
+      padding: 7px 12px; border-bottom: 1px solid rgba(0,217,134,.04);
+      vertical-align: middle;
+    }
+    .menu-table tr:last-child td { border-bottom: none; }
+    .menu-table .td-name { color: var(--text); font-weight: 500; }
+    .menu-table .td-orig { color: var(--text-dim); font-size: 11px; font-family: var(--mono); }
+    .menu-table .td-price { font-family: var(--mono); color: var(--text-dim); white-space: nowrap; }
+    .menu-table .td-eur  { font-family: var(--mono); color: var(--accent); white-space: nowrap; text-align: right; font-weight: 600; }
+
+    /* ═══ ERROR / LOADING ═══ */
+    .error-panel {
+      background: var(--red-dim); border: 1px solid var(--red);
+      border-radius: var(--r); padding: 12px 16px;
+      font-family: var(--mono); font-size: 12px;
+      color: var(--red); letter-spacing: .06em;
+      animation: fadeUp .3s ease forwards;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       DASHBOARD
+    ═══════════════════════════════════════════════════════ */
+    .mission-title {
+      font-family: var(--mono); font-size: 12px; letter-spacing: .16em;
+      color: var(--text-dim); padding-bottom: 4px;
+      border-bottom: 1px solid var(--border); text-transform: uppercase;
+    }
+    .mission-title .hi { color: var(--accent); text-shadow: var(--accent-glow-s); }
+
+    /* Gauge */
+    .gauge-wrap {
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 18px;
+      display: flex; flex-direction: column; align-items: center; gap: 0;
+    }
+    .gauge-svg-wrap {
+      position: relative; width: 176px; height: 176px;
+    }
+    .gauge-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .g-track {
+      fill: none; stroke: rgba(0,217,134,.07); stroke-width: 11;
+    }
+    .g-arc {
+      fill: none; stroke: var(--accent); stroke-width: 11; stroke-linecap: round;
+      stroke-dasharray: 490.09; stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1), stroke .5s ease;
+      filter: drop-shadow(0 0 5px var(--accent));
+    }
+    .gauge-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1px;
+    }
+    .gauge-pct  { font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: .1em; }
+    .gauge-amt  { font-family: var(--mono); font-size: 21px; color: var(--accent); text-shadow: var(--accent-glow-s); line-height: 1.1; }
+    .gauge-lbl  { font-size: 10px; letter-spacing: .12em; color: var(--text-dim); text-transform: uppercase; }
+
+    /* Stat pills */
+    .stat-pills { display: flex; gap: 10px; }
+    .stat-pill {
+      flex: 1; background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 12px; text-align: center;
+    }
+    .stat-pill-lbl { font-size: 10px; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+    .stat-pill-val { font-family: var(--mono); font-size: 15px; color: var(--text); }
+
+    /* Currency toggle */
+    .ccy-toggle {
+      display: flex; background: var(--bg-panel);
+      border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 4px;
+    }
+    .ccy-btn {
+      flex: 1; background: none; border: none; border-radius: 6px;
+      padding: 8px; font-family: var(--mono); font-size: 13px; letter-spacing: .08em;
+      color: var(--text-dim); cursor: pointer; transition: all .2s; text-transform: uppercase;
+    }
+    .ccy-btn.active {
+      background: var(--accent-dim); color: var(--accent);
+      box-shadow: inset 0 0 0 1px rgba(0,217,134,.28);
+    }
+
+    /* Payment log */
+    .payment-section {
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r); overflow: hidden;
+      display: flex; flex-direction: column; min-height: 180px;
+    }
+    .payment-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 14px; border-bottom: 1px solid var(--border);
+    }
+    .payment-hdr-lbl {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--text-dim);
+    }
+    .refresh-btn {
+      background: none; border: none; color: var(--text-dim);
+      font-size: 17px; cursor: pointer; padding: 2px 6px;
+      border-radius: 4px; transition: all .2s; line-height: 1;
+    }
+    .refresh-btn:hover { color: var(--accent); }
+    .refresh-btn.spin { animation: spin .55s linear; }
+    .payment-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+    .payment-list::-webkit-scrollbar { display: none; }
+    .pay-row {
+      display: flex; align-items: center;
+      padding: 7px 14px; gap: 8px;
+      border-bottom: 1px solid rgba(0,217,134,.04);
+    }
+    .pay-row:last-child { border-bottom: none; }
+    .pay-date { font-family: var(--mono); font-size: 11px; color: var(--amber); letter-spacing: .05em; white-space: nowrap; flex-shrink: 0; }
+    .pay-desc { font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .pay-amt  { font-family: var(--mono); font-size: 13px; white-space: nowrap; flex-shrink: 0; }
+    .pay-amt.db { color: var(--red); }
+    .pay-amt.cr { color: var(--accent); }
+    .pay-empty { padding: 28px; text-align: center; font-family: var(--mono); font-size: 12px; color: var(--text-dim); letter-spacing: .1em; }
+
+    /* ═══════════════════════════════════════════════════════
+       TRIPS
+    ═══════════════════════════════════════════════════════ */
+    .section-lbl {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .16em; color: var(--text-dim);
+    }
+    .trip-list { display: flex; flex-direction: column; gap: 8px; }
+    .trip-card {
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      border-radius: var(--r); padding: 14px;
+      cursor: pointer; transition: all .2s; position: relative;
+    }
+    .trip-card.active {
+      border-left-color: var(--accent);
+      background: var(--bg-panel2);
+      box-shadow: -4px 0 20px rgba(0,217,134,.12);
+    }
+    .trip-card-name {
+      font-family: var(--mono); font-size: 14px; letter-spacing: .06em;
+      color: var(--text); margin-bottom: 3px; padding-right: 70px;
+    }
+    .trip-card.active .trip-card-name { color: var(--accent); }
+    .trip-card-meta { font-size: 12px; color: var(--text-dim); letter-spacing: .03em; }
+    .trip-card-budget {
+      position: absolute; top: 14px; right: 14px;
+      font-family: var(--mono); font-size: 14px; color: var(--amber);
+    }
+    .trip-active-pill {
+      position: absolute; bottom: 10px; right: 12px;
+      font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--accent);
+    }
+
+    .new-mission-btn {
+      width: 100%; padding: 14px;
+      background: none; border: 1px dashed var(--border);
+      border-radius: var(--r); color: var(--text-dim);
+      font-family: var(--ui); font-size: 13px; font-weight: 700; letter-spacing: .14em;
+      cursor: pointer; transition: all .2s; text-transform: uppercase;
+    }
+    .new-mission-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Trip form */
+    .trip-form {
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      animation: fadeUp .25s ease forwards;
+    }
+    .form-title {
+      font-family: var(--mono); font-size: 12px; letter-spacing: .14em;
+      color: var(--accent); margin-bottom: 2px;
+    }
+    .form-field { display: flex; flex-direction: column; gap: 3px; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-field { flex: 1; }
+    .rf-label { font-size: 11px; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; }
+    .rf-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
+      color: var(--text); font-family: var(--mono); font-size: 13px; letter-spacing: .06em;
+      outline: none; transition: border-color .2s;
+    }
+    .rf-input:focus { border-color: var(--accent); }
+    .rf-input::placeholder { color: var(--text-dim); }
+    .rf-input[type="date"] { color-scheme: dark; }
+    .form-actions { display: flex; gap: 10px; margin-top: 2px; }
+    .form-actions .ghost-btn { flex: 1; text-align: center; }
+    .form-actions .cta-btn  { flex: 2; padding: 12px; font-size: 13px; }
+
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes reticle-pulse {
+      0%,100%{ opacity:.55; }
+      50%{ opacity:1; filter:drop-shadow(0 0 5px var(--accent)); }
+    }
+    @keyframes crosshair-pulse {
+      0%,100%{ transform:scale(1); opacity:.7; }
+      50%{ transform:scale(1.15); opacity:1; }
+    }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes fadeUp {
+      from{ opacity:0; transform:translateY(8px); }
+      to{   opacity:1; transform:translateY(0);   }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════ HEADER ══════════ -->
+  <header id="header">
+    <div class="wordmark">TRAVEL BUDDY<span class="cursor">_</span></div>
+    <div class="header-trip" id="header-trip">NO MISSION</div>
+    <div class="bunq-badge">bunq</div>
+  </header>
+
+  <!-- ══════════ SCREEN: SCANNER ══════════ -->
+  <div id="screen-scanner" class="screen active">
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="photo">PHOTO</button>
+      <button class="mode-tab" data-mode="upload">UPLOAD</button>
+      <button class="mode-tab" data-mode="voice">VOICE</button>
+      <button class="mode-tab" data-mode="menu">MENU</button>
+    </div>
+
+    <div class="viewfinder" id="viewfinder">
+      <div class="rc tl"></div><div class="rc tr"></div>
+      <div class="rc bl"></div><div class="rc br"></div>
+      <div class="vf-status" id="vf-status">AWAITING INPUT</div>
+      <div class="vf-preview" id="vf-preview"></div>
+      <input type="file" class="vf-input" id="file-input" accept="image/*" capture="environment">
+    </div>
+
+    <button class="cta-btn" id="scan-btn">ACQUIRE TARGET</button>
+    <div id="result-area"></div>
+
+  </div>
+
+  <!-- ══════════ SCREEN: DASHBOARD ══════════ -->
+  <div id="screen-dashboard" class="screen">
+
+    <div class="mission-title">MISSION: <span class="hi" id="mission-name">—</span></div>
+
+    <div class="gauge-wrap">
+      <div class="gauge-svg-wrap">
+        <svg class="gauge-svg" viewBox="0 0 200 200">
+          <circle class="g-track" cx="100" cy="100" r="78"/>
+          <circle class="g-arc" id="g-arc" cx="100" cy="100" r="78"/>
+        </svg>
+        <div class="gauge-center">
+          <div class="gauge-pct" id="gauge-pct">—%</div>
+          <div class="gauge-amt" id="gauge-amt">—</div>
+          <div class="gauge-lbl">REMAINING</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-pills">
+      <div class="stat-pill">
+        <div class="stat-pill-lbl">TOTAL BUDGET</div>
+        <div class="stat-pill-val" id="stat-budget">—</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-pill-lbl">PER DAY LEFT</div>
+        <div class="stat-pill-val" id="stat-per-day">—</div>
+      </div>
+    </div>
+
+    <div class="ccy-toggle" id="ccy-toggle" style="display:none">
+      <button class="ccy-btn active" id="ccy-own-btn">EUR</button>
+      <button class="ccy-btn" id="ccy-dest-btn">—</button>
+    </div>
+
+    <div class="payment-section">
+      <div class="payment-hdr">
+        <span class="payment-hdr-lbl">PAYMENT LOG</span>
+        <button class="refresh-btn" id="refresh-btn" title="Refresh">↺</button>
+      </div>
+      <div class="payment-list" id="payment-list">
+        <div class="pay-empty">SELECT A MISSION IN TRIPS</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════ SCREEN: TRIPS ══════════ -->
+  <div id="screen-trips" class="screen">
+    <div class="section-lbl">// ACTIVE MISSIONS</div>
+    <div class="trip-list" id="trip-list"></div>
+    <button class="new-mission-btn" id="new-mission-btn">+ NEW MISSION</button>
+    <div id="trip-form-wrap"></div>
+  </div>
+
+  <!-- ══════════ BOTTOM NAV ══════════ -->
+  <nav id="nav">
+    <button class="nav-tab active" data-screen="scanner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 9V6a1 1 0 011-1h3M3 15v3a1 1 0 001 1h3m9-16h3a1 1 0 011 1v3m0 9v3a1 1 0 01-1 1h-3"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      SCAN
+    </button>
+    <button class="nav-tab" data-screen="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3.5 3.5"/>
+      </svg>
+      MISSION
+    </button>
+    <button class="nav-tab" data-screen="trips">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 17l9-13 9 13H3z"/>
+        <path d="M12 4v3M9 17v2M15 17v2"/>
+      </svg>
+      TRIPS
+    </button>
+  </nav>
+
+</div><!-- #app -->
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════════ */
+const S = {
+  activeTrip: null,
+  trips: [],
+  scanMode: 'photo',
+  selectedFile: null,
+};
+
+/* ══════════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════════ */
+document.querySelectorAll('.nav-tab').forEach(t => {
+  t.addEventListener('click', () => showScreen(t.dataset.screen));
+});
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s =>
+    s.classList.toggle('active', s.id === `screen-${name}`)
+  );
+  document.querySelectorAll('.nav-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.screen === name)
+  );
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'trips')     loadTrips();
+}
+
+/* ══════════════════════════════════════════════════════════
+   SCANNER
+══════════════════════════════════════════════════════════ */
+const fileInput = document.getElementById('file-input');
+const vfStatus  = document.getElementById('vf-status');
+const vfPreview = document.getElementById('vf-preview');
+const viewfinder = document.getElementById('viewfinder');
+const scanBtn   = document.getElementById('scan-btn');
+const resultArea = document.getElementById('result-area');
+
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    S.scanMode = tab.dataset.mode;
+    applyMode(S.scanMode);
+    resetScan();
+  });
+});
+
+function applyMode(mode) {
+  if (mode === 'photo') {
+    fileInput.setAttribute('capture', 'environment');
+    fileInput.removeAttribute('hidden');
+    scanBtn.textContent = 'ACQUIRE TARGET';
+    vfStatus.textContent = 'AWAITING INPUT';
+  } else if (mode === 'upload') {
+    fileInput.removeAttribute('capture');
+    fileInput.removeAttribute('hidden');
+    scanBtn.textContent = 'ACQUIRE TARGET';
+    vfStatus.textContent = 'AWAITING INPUT';
+  } else if (mode === 'menu') {
+    fileInput.setAttribute('capture', 'environment');
+    fileInput.removeAttribute('hidden');
+    scanBtn.textContent = 'SCAN MENU';
+    vfStatus.textContent = 'POINT AT MENU';
+  } else if (mode === 'voice') {
+    fileInput.setAttribute('hidden', '');
+    scanBtn.textContent = 'RECORD PRICE';
+    vfStatus.textContent = 'VOICE MODE · COMING SOON';
+  }
+}
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  S.selectedFile = file;
+  const url = URL.createObjectURL(file);
+  vfPreview.innerHTML = `<img src="${url}" alt="preview">`;
+  vfStatus.textContent = 'TARGET LOCKED';
+  vfStatus.classList.add('live');
+  viewfinder.classList.add('has-file');
+  // Add crosshair
+  if (!viewfinder.querySelector('.vf-crosshair')) {
+    const ch = document.createElement('div');
+    ch.className = 'vf-crosshair';
+    ch.style.cssText = 'position:absolute;z-index:2;pointer-events:none;width:38px;height:38px;border:1px solid rgba(0,217,134,.65);border-radius:50%;box-shadow:0 0 0 5px rgba(0,217,134,.07)';
+    viewfinder.appendChild(ch);
+  }
+});
+
+scanBtn.addEventListener('click', async () => {
+  if (S.scanMode === 'voice') {
+    alert('VOICE MODE AVAILABLE IN FULL APP');
+    return;
+  }
+  if (!S.selectedFile) {
+    fileInput.click();
+    return;
+  }
+  await performScan();
+});
+
+async function performScan() {
+  const file = S.selectedFile;
+  if (!file) return;
+
+  const label = S.scanMode === 'menu' ? 'SCAN MENU' : 'ACQUIRE TARGET';
+  scanBtn.textContent = 'PROCESSING...';
+  scanBtn.classList.add('amber');
+  scanBtn.disabled = true;
+  resultArea.innerHTML = '';
+
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('payment_type', 'card');
+
+  const endpoint = S.scanMode === 'menu' ? '/api/menu' : '/api/scan';
+
+  try {
+    const res = await fetch(endpoint, { method: 'POST', body: fd });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.detail || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    if (S.scanMode === 'menu') renderMenuResult(data);
+    else renderScanResult(data);
+  } catch (err) {
+    resultArea.innerHTML = `<div class="error-panel">⚠ ACQUISITION FAILED<br>${esc(err.message)}</div>`;
+  } finally {
+    scanBtn.textContent = label;
+    scanBtn.classList.remove('amber');
+    scanBtn.disabled = false;
+  }
+}
+
+function renderScanResult(d) {
+  const badge = d.payment_type === 'card' ? '💳 CARD' : '🏦 WIRE';
+  resultArea.innerHTML = `
+    <div class="result-panel">
+      <div class="result-original">${esc(String(d.input_amount))} ${esc(d.input_currency)}</div>
+      <div class="result-eur">€ ${fmt2(d.total_eur)}</div>
+      <div class="result-meta">+€${fmt4(d.total_fees)} FEES · ${esc(d.source || '')}</div>
+      <span class="result-badge">${badge}</span>
+      <button class="ghost-btn full" onclick="resetScan()">NEW SCAN</button>
+    </div>`;
+}
+
+function renderMenuResult(d) {
+  if (!d.items || d.items.length === 0) {
+    resultArea.innerHTML = `<div class="error-panel">NO MENU ITEMS DETECTED</div>`;
+    return;
+  }
+  const rows = d.items.map(item => `
+    <tr>
+      <td><div class="td-name">${esc(item.translated_name)}</div>
+          <div class="td-orig">${esc(item.original_name)}</div></td>
+      <td class="td-price">${esc(item.original_price || '—')}</td>
+      <td class="td-eur">${item.eur != null ? '€' + fmt2(item.eur) : '—'}</td>
+    </tr>`).join('');
+
+  resultArea.innerHTML = `
+    <div class="menu-panel">
+      <div class="menu-panel-header">
+        MENU SCAN · <span>${d.items.length} ITEMS</span> · ${esc(d.currency_iso || '—')}
+      </div>
+      <table class="menu-table">
+        <thead><tr><th>ITEM</th><th>PRICE</th><th>EUR</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <button class="ghost-btn full" onclick="resetScan()">NEW SCAN</button>`;
+}
+
+function resetScan() {
+  S.selectedFile = null;
+  fileInput.value = '';
+  vfPreview.innerHTML = '';
+  vfStatus.textContent = S.scanMode === 'menu' ? 'POINT AT MENU' : 'AWAITING INPUT';
+  vfStatus.classList.remove('live');
+  viewfinder.classList.remove('has-file');
+  const ch = viewfinder.querySelector('.vf-crosshair');
+  if (ch) ch.remove();
+  resultArea.innerHTML = '';
+}
+
+/* ══════════════════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════════════════ */
+const CIRC = 2 * Math.PI * 78; // ≈ 490.09
+
+async function loadDashboard() {
+  if (!S.activeTrip) {
+    document.getElementById('mission-name').textContent = 'NONE SELECTED';
+    setGauge(0, 0, 1);
+    document.getElementById('stat-budget').textContent = '—';
+    document.getElementById('stat-per-day').textContent = '—';
+    document.getElementById('payment-list').innerHTML =
+      '<div class="pay-empty">SELECT A MISSION IN TRIPS</div>';
+    return;
+  }
+
+  const trip = S.activeTrip;
+  document.getElementById('mission-name').textContent = trip.name.toUpperCase();
+  document.getElementById('payment-list').innerHTML =
+    '<div class="pay-empty">LOADING...</div>';
+
+  try {
+    const res = await fetch(`/api/trips/${trip.id}/dashboard`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+
+    const spent     = d.spent || 0;
+    const remaining = trip.budget_eur - spent;
+    const pct       = Math.max(0, Math.min(1, remaining / trip.budget_eur));
+    const ownCcy    = d.own_ccy || 'EUR';
+
+    setGauge(pct, remaining, trip.budget_eur);
+    document.getElementById('stat-budget').textContent = `${ownCcy} ${fmt2(trip.budget_eur)}`;
+
+    let perDay = '—';
+    if (trip.end_date) {
+      const daysLeft = Math.max(1, Math.ceil((new Date(trip.end_date) - new Date()) / 86400000));
+      perDay = `${ownCcy} ${fmt2(remaining / daysLeft)}`;
+    }
+    document.getElementById('stat-per-day').textContent = perDay;
+
+    // Currency toggle
+    const toggle = document.getElementById('ccy-toggle');
+    if (trip.default_currency && trip.default_currency !== ownCcy) {
+      document.getElementById('ccy-own-btn').textContent = ownCcy;
+      document.getElementById('ccy-dest-btn').textContent = trip.default_currency;
+      toggle.style.display = 'flex';
+    } else {
+      toggle.style.display = 'none';
+    }
+
+    renderPayments(d.payments || [], ownCcy);
+  } catch (err) {
+    document.getElementById('payment-list').innerHTML =
+      `<div class="pay-empty">ERROR: ${esc(err.message)}</div>`;
+  }
+}
+
+function setGauge(pct, remaining, total) {
+  const arc = document.getElementById('g-arc');
+  arc.style.strokeDashoffset = CIRC * (1 - pct);
+  const color = pct > .6 ? 'var(--accent)' : pct > .3 ? 'var(--amber)' : 'var(--red)';
+  const glow  = pct > .6 ? '#00d986'        : pct > .3 ? '#ffb347'       : '#ff4757';
+  arc.style.stroke = color;
+  arc.style.filter = `drop-shadow(0 0 6px ${glow})`;
+  document.getElementById('gauge-pct').textContent = `${Math.round(pct * 100)}%`;
+  document.getElementById('gauge-amt').textContent = `€${fmt2(remaining)}`;
+  document.getElementById('gauge-amt').style.color = color;
+}
+
+function renderPayments(payments, ccy) {
+  const list = document.getElementById('payment-list');
+  if (!payments.length) {
+    list.innerHTML = '<div class="pay-empty">NO PAYMENTS FOUND</div>';
+    return;
+  }
+  list.innerHTML = payments.slice(0, 100).map(p => {
+    const isDb = p.type === 'debit';
+    const amt  = Math.abs(parseFloat(p.amount));
+    const sign = isDb ? '−' : '+';
+    const cls  = isDb ? 'db' : 'cr';
+    const date = fmtDate(p.date);
+    const desc = esc((p.description || p.counterparty || '—').slice(0, 32));
+    return `<div class="pay-row">
+      <span class="pay-date">${date}</span>
+      <span class="pay-desc">${desc}</span>
+      <span class="pay-amt ${cls}">${sign}${ccy} ${fmt2(amt)}</span>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('refresh-btn').addEventListener('click', function () {
+  this.classList.add('spin');
+  setTimeout(() => this.classList.remove('spin'), 550);
+  loadDashboard();
+});
+
+/* ══════════════════════════════════════════════════════════
+   TRIPS
+══════════════════════════════════════════════════════════ */
+async function loadTrips() {
+  try {
+    const res = await fetch('/api/trips');
+    S.trips = await res.json();
+    renderTripList();
+  } catch (err) {
+    document.getElementById('trip-list').innerHTML =
+      `<div class="error-panel">ERROR: ${esc(err.message)}</div>`;
+  }
+}
+
+function renderTripList() {
+  const el = document.getElementById('trip-list');
+  if (!S.trips.length) {
+    el.innerHTML = '<div class="pay-empty">NO MISSIONS — CREATE ONE BELOW</div>';
+    return;
+  }
+  el.innerHTML = S.trips.map(trip => {
+    const active = S.activeTrip && S.activeTrip.id === trip.id;
+    const dates  = trip.start_date
+      ? `${trip.start_date} → ${trip.end_date || '?'}`
+      : 'OPEN-ENDED';
+    return `<div class="trip-card ${active ? 'active' : ''}" data-id="${trip.id}">
+      <div class="trip-card-name">${esc(trip.name.toUpperCase())}</div>
+      <div class="trip-card-meta">${dates}</div>
+      <div class="trip-card-budget">€${fmt2(trip.budget_eur)}</div>
+      ${active ? '<div class="trip-active-pill">● ACTIVE</div>' : ''}
+    </div>`;
+  }).join('');
+
+  el.querySelectorAll('.trip-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const trip = S.trips.find(t => t.id === card.dataset.id);
+      if (!trip) return;
+      S.activeTrip = trip;
+      document.getElementById('header-trip').textContent = trip.name;
+      renderTripList();
+    });
+  });
+}
+
+document.getElementById('new-mission-btn').addEventListener('click', () => {
+  const wrap = document.getElementById('trip-form-wrap');
+  if (wrap.children.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `
+    <div class="trip-form">
+      <div class="form-title">// NEW MISSION</div>
+      <div class="form-field">
+        <div class="rf-label">MISSION NAME</div>
+        <input class="rf-input" id="tf-name" placeholder="e.g. TOKYO SPRING 2026">
+      </div>
+      <div class="form-field">
+        <div class="rf-label">BUDGET (EUR)</div>
+        <input class="rf-input" id="tf-budget" type="number" min="0" placeholder="1000">
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="rf-label">DEPARTURE</div>
+          <input class="rf-input" id="tf-start" type="date">
+        </div>
+        <div class="form-field">
+          <div class="rf-label">RETURN</div>
+          <input class="rf-input" id="tf-end" type="date">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="ghost-btn" id="tf-abort">ABORT</button>
+        <button class="cta-btn"   id="tf-launch">LAUNCH</button>
+      </div>
+    </div>`;
+
+  document.getElementById('tf-abort').addEventListener('click', () => {
+    wrap.innerHTML = '';
+  });
+  document.getElementById('tf-launch').addEventListener('click', saveTrip);
+});
+
+async function saveTrip() {
+  const name   = document.getElementById('tf-name').value.trim();
+  const budget = parseFloat(document.getElementById('tf-budget').value);
+  const start  = document.getElementById('tf-start').value || null;
+  const end    = document.getElementById('tf-end').value   || null;
+
+  if (!name || isNaN(budget) || budget <= 0) {
+    alert('MISSION NAME AND BUDGET REQUIRED');
+    return;
+  }
+  try {
+    const res = await fetch('/api/trips', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, budget_eur: budget, start_date: start, end_date: end }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const trip = await res.json();
+    S.trips.push(trip);
+    S.activeTrip = trip;
+    document.getElementById('header-trip').textContent = trip.name;
+    document.getElementById('trip-form-wrap').innerHTML = '';
+    renderTripList();
+  } catch (err) {
+    alert('LAUNCH FAILED: ' + err.message);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════════════════ */
+function fmt2(n) { return parseFloat(n||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt4(n) { return parseFloat(n||0).toLocaleString('en',{minimumFractionDigits:4,maximumFractionDigits:4}); }
+function esc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(s) {
+  try { return new Date(s).toLocaleDateString('en',{month:'short',day:'2-digit'}).toUpperCase(); }
+  catch { return s||'—'; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════ */
+(async () => {
+  try {
+    const res = await fetch('/api/trips');
+    S.trips = await res.json();
+    if (S.trips.length === 1) {
+      S.activeTrip = S.trips[0];
+      document.getElementById('header-trip').textContent = S.trips[0].name;
+    }
+  } catch { /* silent — trips screen will load on demand */ }
+})();
+</script>
+</body>
+</html>
