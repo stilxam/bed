@@ -207,7 +207,7 @@
 
     /* ─── SECTION CARD ─── */
     .section-card, .recs-section, .events-section {
-      background: var(--card); border-radius: var(--r); overflow: hidden; box-shadow: var(--sh-sm); margin: 12px 16px 0;
+      background: var(--card); border-radius: var(--r); overflow: clip; box-shadow: var(--sh-sm); margin: 12px 16px 0;
     }
     .section-card-hdr, .recs-hdr, .events-hdr {
       display: flex; align-items: center; justify-content: space-between;
@@ -226,7 +226,7 @@
     .icon-btn.spin, .refresh-btn.spin { animation: spin .5s linear; }
 
     /* ─── PAYMENT LIST ─── */
-    .payment-list { display: flex; flex-direction: column; max-height: 128px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .payment-list { display: flex; flex-direction: column; max-height: 128px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
     .payment-list::-webkit-scrollbar { width: 3px; }
     .payment-list::-webkit-scrollbar-track { background: transparent; }
     .payment-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -485,7 +485,7 @@
     #gauge-pct, #gauge-amt, .g-arc, .g-track { display: none; }
 
     /* ─── CARD ACTIVITY (Mastercard Actions) ─── */
-    #ctxn-list { max-height: 128px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    #ctxn-list { max-height: 160px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
     #ctxn-list::-webkit-scrollbar { width: 3px; }
     #ctxn-list::-webkit-scrollbar-track { background: transparent; }
     #ctxn-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
