@@ -545,7 +545,7 @@
   </header>
 
   <!-- ══ HOME SCREEN ══ -->
-  <div id="screen-home" class="screen">
+  <div id="screen-home" class="screen active">
 
     <div class="screen-title-bar">
       <div class="screen-title">Home</div>
@@ -687,7 +687,7 @@
   </div>
 
   <!-- ══ SCANNER SCREEN ══ -->
-  <div id="screen-scanner" class="screen active">
+  <div id="screen-scanner" class="screen">
 
     <div class="screen-title-bar">
       <div class="screen-title">Smart scanner</div>
@@ -831,7 +831,7 @@
   <!-- ══ BOTTOM NAV ══ -->
   <nav id="nav">
 
-    <button class="nav-tab" data-screen="home">
+    <button class="nav-tab active" data-screen="home">
       <div class="nav-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 12L12 3l9 9"/>
@@ -854,7 +854,7 @@
       Explore
     </button>
 
-    <button class="nav-tab nav-scan active" data-screen="scanner">
+    <button class="nav-tab nav-scan" data-screen="scanner">
       <div class="nav-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 9V6a1 1 0 011-1h3M3 15v3a1 1 0 001 1h3m9-16h3a1 1 0 011 1v3m0 9v3a1 1 0 01-1 1h-3"/>
@@ -1810,7 +1810,7 @@ function fmtDate(s) { try { return new Date(s).toLocaleDateString('en',{month:'s
     // Pre-populate explore trip card if trip was auto-selected
     if (S.activeTrip) renderExploreTripCard();
   } catch { /* silent */ }
-  startCamera();
+  loadHome();
 })();
 </script>
 </body>
