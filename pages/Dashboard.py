@@ -13,6 +13,7 @@ import requests as _req
 import streamlit as st
 
 from trips import get_trip, load_trips, update_trip
+import payment_tags as _pt
 
 st.set_page_config(
     page_title="Dashboard · bunq Travel Buddy",
@@ -123,12 +124,22 @@ else:
 
 until_date = trip.end_date
 
-payments, pay_err = _fetch_payments(since_date, until_date)
+# Tagged payments (SQLite) are the source of truth for spent calculation.
+tagged_payments = _pt.get_tagged_payments(trip.id)
 
-# Total spent: sum of outgoing payments in the own currency
+# Date-range payments from bunq serve as tagging candidates only.
+_all_tagged_ids: set[str] = set()
+candidate_payments: list[dict] = []
+pay_err = ""
+if since_date or until_date:
+    _raw, pay_err = _fetch_payments(since_date, until_date)
+    _all_tagged_ids = _pt.get_all_tagged_ids()
+    candidate_payments = [p for p in _raw if str(p["id"]) not in _all_tagged_ids]
+
+# Spent = explicitly tagged debits in the home currency.
 spent = sum(
     abs(p["amount"])
-    for p in payments
+    for p in tagged_payments
     if p["type"] == "debit" and p["currency"] == own_ccy
 )
 budget_left = trip.budget_eur - spent
@@ -241,55 +252,84 @@ with st.container(border=True):
 
 
 # ── Payments section ───────────────────────────────────────────────────────────
+
+def _pay_row(p: dict, *, btn_key: str, btn_label: str, btn_help: str) -> bool:
+    """Render one payment row with an action button. Returns True if clicked."""
+    amount    = abs(float(p["amount"]))
+    is_debit  = p["type"] == "debit"
+    sign      = "−" if is_debit else "+"
+    color     = "#D32F2F" if is_debit else "#1C7C3A"
+
+    if in_dest and conv_rate:
+        amt_str = f"{sign}{dest_ccy} {amount * conv_rate:,.2f}"
+    else:
+        amt_str = f"{sign}{own_ccy} {amount:,.2f}"
+
+    desc = (p["description"] or p["counterparty"] or "—")[:33]
+    sub  = (p["counterparty"] or "")[:28] if p["description"] else ""
+
+    date_str = p.get("date", "")
+    try:
+        date_fmt = datetime.date.fromisoformat(date_str).strftime("%b %d")
+    except (ValueError, TypeError):
+        date_fmt = date_str or "—"
+
+    c_date, c_desc, c_amt, c_btn = st.columns([1.2, 3.5, 2, 0.8])
+    c_date.markdown(f'<div class="pay-meta" style="padding-top:6px">{date_fmt}</div>', unsafe_allow_html=True)
+    c_desc.markdown(
+        f'<div class="pay-desc">{desc}</div>'
+        + (f'<div class="pay-meta">{sub}</div>' if sub else ""),
+        unsafe_allow_html=True,
+    )
+    c_amt.markdown(
+        f'<div style="color:{color};font-weight:700;font-size:0.95rem;padding-top:4px">{amt_str}</div>',
+        unsafe_allow_html=True,
+    )
+    clicked = c_btn.button(btn_label, key=btn_key, use_container_width=True, help=btn_help)
+    st.markdown('<div style="border-bottom:1px solid #F2F2F7;margin:2px 0 4px"></div>', unsafe_allow_html=True)
+    return clicked
+
+
 with st.container(border=True):
     pay_hdr, pay_btn = st.columns([4, 1])
     with pay_hdr:
-        spent_label = _fmt(spent)
-        st.markdown(f"**🧾 Trip Payments** &nbsp; spent: {spent_label}", unsafe_allow_html=True)
+        st.markdown(f"**🧾 Trip Payments** &nbsp; spent: {_fmt(spent)}", unsafe_allow_html=True)
     with pay_btn:
-        if st.button("↺", key="refresh_pay", use_container_width=True, help="Refresh payments"):
+        if st.button("↺", key="refresh_pay", use_container_width=True, help="Refresh from bunq"):
             _fetch_payments.clear()
             st.rerun()
 
-    if pay_err:
-        st.warning(f"Could not load bunq payments: `{pay_err}`")
-    elif not payments:
-        st.caption("No payments found for this trip period.")
+    # ── Tagged payments (source of truth) ──────────────────────────────────
+    if tagged_payments:
+        st.caption(f"🏷 {len(tagged_payments)} tagged expense{'s' if len(tagged_payments) != 1 else ''}")
+        for p in tagged_payments:
+            if _pay_row(p, btn_key=f"untag_{p['id']}", btn_label="✕", btn_help="Remove from trip"):
+                _pt.untag_payment(p["id"])
+                st.rerun()
     else:
-        rows_html = ""
-        for p in payments[:100]:
-            amount    = abs(float(p["amount"]))
-            is_debit  = p["type"] == "debit"
-            sign      = "−" if is_debit else "+"
-            amt_class = "pay-debit" if is_debit else "pay-credit"
+        st.caption("No expenses tagged yet — add some from bunq below.")
 
-            if in_dest and conv_rate:
-                amt_str = f"{sign}{dest_ccy} {amount * conv_rate:,.2f}"
-            else:
-                amt_str = f"{sign}{own_ccy} {amount:,.2f}"
-
-            desc = p["description"] or p["counterparty"] or "—"
-            # Truncate long descriptions
-            if len(desc) > 35:
-                desc = desc[:33] + "…"
-
-            date_str = p["date"]
-            try:
-                d = datetime.date.fromisoformat(date_str)
-                date_fmt = d.strftime("%b %d")
-            except (ValueError, TypeError):
-                date_fmt = date_str
-
-            rows_html += f"""
-            <div class="pay-row">
-              <div>
-                <div class="pay-meta">{date_fmt}</div>
-                <div class="pay-desc">{desc}</div>
-              </div>
-              <div class="{amt_class}">{amt_str}</div>
-            </div>"""
-
-        st.markdown(rows_html, unsafe_allow_html=True)
-
-        if len(payments) > 100:
-            st.caption(f"Showing 100 of {len(payments)} payments.")
+    # ── Candidate payments from bunq ────────────────────────────────────────
+    if since_date or until_date:
+        st.divider()
+        if pay_err:
+            st.warning(f"Could not load bunq payments: `{pay_err}`")
+        elif not candidate_payments:
+            st.caption("No untagged bunq payments in the trip date range.")
+        else:
+            st.caption(f"📥 {len(candidate_payments)} bunq payment{'s' if len(candidate_payments) != 1 else ''} in date range — tap + to add")
+            for p in candidate_payments[:100]:
+                if _pay_row(p, btn_key=f"tag_{p['id']}", btn_label="+", btn_help="Add to trip"):
+                    _pt.tag_payment(p, trip.id)
+                    try:
+                        from bunq_balance import push_note_text
+                        if push_note_text(p["id"], f"trip:{trip.name}"):
+                            _pt.mark_note_pushed(p["id"])
+                    except Exception:
+                        pass
+                    st.rerun()
+            if len(candidate_payments) > 100:
+                st.caption(f"Showing 100 of {len(candidate_payments)} payments.")
+    else:
+        st.divider()
+        st.caption("Set trip dates to see bunq payment candidates.")

@@ -136,6 +136,24 @@ def get_payments(
     return payments
 
 
+def push_note_text(payment_id: int | str, content: str) -> bool:
+    """
+    POST a text note to an existing bunq payment. Returns True on success.
+    Best-effort — callers should not rely on this succeeding.
+    """
+    try:
+        client = _client()
+        account_id = client.get_primary_account_id()
+        client.post(
+            f"user/{client.user_id}/monetary-account/{account_id}"
+            f"/payment/{payment_id}/note-text",
+            {"content": content},
+        )
+        return True
+    except Exception:
+        return False
+
+
 # ── Quick test ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
