@@ -606,9 +606,28 @@ async def card_transactions(trip_id: str):
         raise HTTPException(404, detail="Trip not found")
     since = trip.start_date or (trip.created_at[:10] if trip.created_at else None)
     try:
-        from bunq_balance import get_mastercard_actions
+        from bunq_balance import get_mastercard_actions, get_payments
         actions = get_mastercard_actions(since_date=since)
-        return actions  # flat list consumed directly by the frontend
+        if not actions:
+            # Sandbox fallback: format debit payments as card-activity entries.
+            # Real Mastercard Actions only appear for physical/virtual card swipes.
+            payments = get_payments(since_date=since, until_date=trip.end_date, count=50)
+            if not payments:
+                payments = get_payments(count=20)
+            actions = [
+                {
+                    "id": p["id"],
+                    "date": p["date"],
+                    "description": p["description"],
+                    "amount_local": abs(float(p["amount"])),
+                    "currency_local": p.get("currency", "EUR"),
+                    "amount_eur": abs(float(p["amount"])),
+                    "status": "settled",
+                }
+                for p in payments
+                if p.get("type") == "debit"
+            ]
+        return actions
     except Exception as exc:
         raise HTTPException(502, detail=str(exc))
 

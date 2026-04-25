@@ -28,37 +28,37 @@ CTX_FILE = Path(__file__).parent / "bunq_context.json"
 # Travel payments: (description, eur_amount, merchant_name)
 TRAVEL_PAYMENTS = [
     # Accommodation
-    ("Hotel V Nesplein - Check-in night 1",      94.00, "Hotel V Nesplein"),
-    ("Hotel V Nesplein - Night 2",                94.00, "Hotel V Nesplein"),
+    ("Shinjuku Granbell Hotel - night 1",         89.00, "Shinjuku Granbell Hotel"),
+    ("Shinjuku Granbell Hotel - night 2",         89.00, "Shinjuku Granbell Hotel"),
+    ("Shinjuku Granbell Hotel - night 3",         89.00, "Shinjuku Granbell Hotel"),
     # Food & drink
-    ("Dinner - Restaurant Rijks",                 54.80, "Restaurant Rijks"),
-    ("Lunch - Foodhallen Amsterdam",              22.40, "Foodhallen"),
-    ("Dinner - NEMO Brasserie",                   38.60, "NEMO Brasserie"),
-    ("Breakfast - Broodje Bert",                   9.60, "Broodje Bert"),
-    ("Coffee - Starbucks Leidsestraat",            7.20, "Starbucks"),
-    ("Stroopwafels & snacks - HEMA",              11.30, "HEMA"),
+    ("Tsukiji Outer Market - tuna sashimi set",   18.50, "Tsukiji Outer Market"),
+    ("Ramen dinner - Fuunji Shinjuku",            11.20, "Fuunji Ramen"),
+    ("Omakase sushi - Sushi Saito Roppongi",      74.00, "Sushi Saito"),
+    ("Conveyor belt sushi - Uobei Shibuya",       14.80, "Uobei Sushi"),
+    ("Izakaya night - Omoide Yokocho",            32.00, "Omoide Yokocho"),
+    ("Matcha & wagashi - % Arabica Omotesando",    7.40, "% Arabica"),
+    ("Konbini breakfast - FamilyMart",             4.90, "FamilyMart"),
     # Transport
-    ("NS Train - Schiphol -> Amsterdam Centraal",   5.90, "NS Trains"),
-    ("GVB Tram - 24-hr day pass",                  9.00, "GVB Amsterdam"),
-    ("Uber - AMS airport pickup",                 38.50, "Uber"),
-    ("Lime scooter - 40 min",                      6.40, "Lime"),
+    ("Suica IC card top-up",                      28.00, "JR East"),
+    ("Narita Express - airport to Shinjuku",      24.60, "Narita Express"),
+    ("Shinkansen - Tokyo to Nikko day trip",      48.00, "JR Shinkansen"),
+    ("Tokyo taxi - Shibuya to Akihabara",         16.20, "Nihon Kotsu Taxi"),
     # Attractions
-    ("Rijksmuseum - admission",                   22.50, "Rijksmuseum"),
-    ("Van Gogh Museum - admission",               22.00, "Van Gogh Museum"),
-    ("Anne Frank House - timed entry",            16.00, "Anne Frank House"),
-    ("Heineken Experience - ticket",              28.00, "Heineken Experience"),
-    ("Canal cruise - Lovers Cruises",             17.50, "Lovers Canal Cruises"),
+    ("teamLab Planets Toyosu - ticket",           28.00, "teamLab Planets"),
+    ("Tokyo Skytree - observation deck",          22.50, "Tokyo Skytree"),
+    ("Shibuya Sky - sunset ticket",               18.00, "Shibuya Sky"),
+    ("Senso-ji Temple area - rickshaw tour",      25.00, "Asakusa Rickshaw"),
     # Shopping & misc
-    ("Albert Heijn - groceries",                  34.20, "Albert Heijn"),
-    ("Etos Pharmacy - toiletries",                 8.90, "Etos"),
-    ("Souvenir shop - Albert Cuyp markt",         14.50, "Albert Cuyp Market"),
+    ("Don Quijote Shibuya - snacks & gifts",      41.00, "Don Quijote"),
+    ("Yodobashi Camera Akihabara",                55.00, "Yodobashi Camera"),
 ]
 
 # Funding rounds: (amount_str, description)
 FUNDING_ROUNDS = [
-    ("500.00", "Amsterdam trip - initial budget"),
-    ("500.00", "Amsterdam trip - top-up"),
-    ("300.00", "Amsterdam trip - extra spending money"),
+    ("500.00", "Tokyo trip - initial budget"),
+    ("500.00", "Tokyo trip - top-up"),
+    ("300.00", "Tokyo trip - extra spending money"),
 ]
 
 
@@ -262,6 +262,7 @@ def main() -> None:
     print("  Budget Guard   set limit to remaining  [OK]")
     print("  BunqMe Split   generate share link     [OK]")
     print()
+    print("  Then create the Tokyo Spring 2026 trip and load it on the Home tab.")
     print("  uvicorn server:app --reload --port 8000")
     print("=" * 56)
     print()
