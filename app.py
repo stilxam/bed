@@ -82,6 +82,7 @@ from extractor import (
     CurrencyAmbiguousResult, FailureResult,
 )
 from fx_converter import convert_to_eur, FXResult
+from trips import get_trip, load_trips
 
 UPLOAD_DIR = Path("streamlit_uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
@@ -263,6 +264,39 @@ with st.sidebar:
             f"Wise mid-market rate + ~{pct:.1f}% service fee.\n\n"
             "Weekend: +0.30% for bunq FX account conversions."
         )
+
+    st.divider()
+
+    # Active trip
+    st.markdown("**Active Trip**")
+    if "active_trip_id" not in st.session_state:
+        st.session_state["active_trip_id"] = None
+
+    active_trip_id: str | None = st.session_state["active_trip_id"]
+    if active_trip_id:
+        active_trip = get_trip(active_trip_id)
+        if active_trip:
+            st.info(f"🧳 **{active_trip.name}**\n\nBudget: **€ {active_trip.budget_eur:,.2f}**")
+        else:
+            st.warning("Saved trip no longer exists.")
+            st.session_state["active_trip_id"] = None
+    else:
+        all_trips = load_trips()
+        if all_trips:
+            options = {t.id: t.name for t in all_trips}
+            chosen = st.selectbox(
+                "Select a trip",
+                options=list(options.keys()),
+                format_func=lambda tid: options[tid],
+                index=None,
+                placeholder="Choose trip…",
+                label_visibility="collapsed",
+            )
+            if chosen:
+                st.session_state["active_trip_id"] = chosen
+                st.rerun()
+        else:
+            st.caption("No trips yet — go to **My Trips** to create one.")
 
     # Recompute FX if payment type switched while a result is showing
     if (
