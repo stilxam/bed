@@ -480,6 +480,83 @@ async def events_nearby(radius: int = 20, size: int = 8):
         raise HTTPException(500, detail=str(exc))
 
 
+# ── AI Recommendations ────────────────────────────────────────────────────────
+
+@app.get("/api/recommendations")
+async def recommendations(trip_id: str, limit: int = 5):
+    """Claude-powered nearby place recommendations based on location, time, and budget."""
+    try:
+        import dataclasses
+        from anthropic import Anthropic
+        from geo1 import (
+            BudgetInfo, get_geo_context, get_nearby_recommendations, get_time_context,
+        )
+
+        geo = get_geo_context()
+        if geo is None or geo.latitude is None or geo.longitude is None:
+            raise HTTPException(503, detail="Could not determine location for recommendations")
+
+        time_ctx = get_time_context(geo)
+
+        trip = get_trip(trip_id)
+        if not trip:
+            raise HTTPException(404, detail="Trip not found")
+
+        spent = 0.0
+        try:
+            from bunq_balance import get_payments
+            own_ccy = trip.default_own_currency or "EUR"
+            since = trip.start_date or (trip.created_at[:10] if trip.created_at else None)
+            payments = get_payments(since_date=since, until_date=trip.end_date)
+            spent = sum(
+                abs(float(p["amount"]))
+                for p in payments
+                if p.get("type") == "debit" and p.get("currency") == own_ccy
+            )
+        except Exception:
+            pass
+
+        remaining = trip.budget_eur - spent
+        days_total = days_remaining = None
+        if trip.start_date and trip.end_date:
+            from datetime import date as _date
+            start_d = _date.fromisoformat(trip.start_date)
+            end_d   = _date.fromisoformat(trip.end_date)
+            days_total     = max(1, (end_d - start_d).days)
+            days_remaining = max(1, (end_d - _date.today()).days)
+
+        budget_info = BudgetInfo(
+            total_budget_eur=trip.budget_eur,
+            spent_eur=spent,
+            remaining_eur=remaining,
+            home_currency=trip.default_own_currency or "EUR",
+            days_total=days_total,
+            days_remaining=days_remaining,
+            budget_per_day_eur=(trip.budget_eur / days_total) if days_total else None,
+            budget_left_per_day_eur=(remaining / days_remaining) if days_remaining else None,
+        )
+
+        client = Anthropic()
+        recs = get_nearby_recommendations(
+            geo=geo,
+            time_context=time_ctx,
+            budget_info=budget_info,
+            client=client,
+            limit=limit,
+        )
+
+        return {
+            "recommendations": [dataclasses.asdict(r) for r in recs],
+            "geo_city":    geo.city,
+            "geo_country": geo.country_name,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(500, detail=str(exc))
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _build_geo():

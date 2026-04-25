@@ -517,6 +517,43 @@
     .form-actions .ghost-btn { flex: 1; text-align: center; }
     .form-actions .cta-btn  { flex: 2; padding: 12px; font-size: 13px; }
 
+    /* ═══ AI RECOMMENDATIONS ═══ */
+    .recs-section {
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r); overflow: hidden;
+    }
+    .recs-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 14px; border-bottom: 1px solid var(--border);
+    }
+    .recs-hdr-left { display: flex; flex-direction: column; gap: 1px; }
+    .recs-hdr-lbl {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--text-dim);
+    }
+    .recs-geo-note {
+      font-family: var(--mono); font-size: 9px; letter-spacing: .07em; color: var(--accent); opacity: .75;
+    }
+    .rec-card {
+      padding: 12px 14px; border-bottom: 1px solid rgba(0,217,134,.04);
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .rec-card:last-child { border-bottom: none; }
+    .rec-name-row {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    }
+    .rec-name { font-size: 14px; font-weight: 600; color: var(--accent); }
+    .rec-dist { font-family: var(--mono); font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+    .rec-meta { font-family: var(--mono); font-size: 10px; color: var(--amber); letter-spacing: .05em; }
+    .rec-why  { font-size: 12px; color: var(--text); line-height: 1.55; }
+    .rec-address { font-size: 11px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rec-maps-link {
+      display: inline-block; margin-top: 4px; align-self: flex-start;
+      font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+      color: var(--accent); text-decoration: none;
+      padding: 3px 9px; border: 1px solid rgba(0,217,134,.28);
+      border-radius: 3px; background: var(--accent-dim);
+    }
+
     /* ═══ EVENTS ═══ */
     .events-section {
       background: var(--bg-panel); border: 1px solid var(--border);
@@ -529,7 +566,15 @@
     .events-hdr-lbl {
       font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--text-dim);
     }
-    .events-list { display: flex; flex-direction: column; }
+    .events-list {
+      display: flex; flex-direction: column;
+      max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .events-list::-webkit-scrollbar { display: none; }
+    #recs-list {
+      max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    #recs-list::-webkit-scrollbar { display: none; }
     .event-card {
       display: flex; gap: 10px; align-items: flex-start;
       padding: 10px 14px; border-bottom: 1px solid rgba(0,217,134,.04);
@@ -675,6 +720,19 @@
       </div>
       <div class="payment-list" id="payment-list">
         <div class="pay-empty">SELECT A JOURNEY IN TRIPS</div>
+      </div>
+    </div>
+
+    <div class="recs-section">
+      <div class="recs-hdr">
+        <div class="recs-hdr-left">
+          <span class="recs-hdr-lbl">AI NEARBY</span>
+          <span class="recs-geo-note" id="recs-geo-note" style="display:none"></span>
+        </div>
+        <button class="refresh-btn" id="recs-refresh-btn" title="Get AI recommendations">↺</button>
+      </div>
+      <div id="recs-list">
+        <button class="events-find-btn" onclick="loadRecommendations()">⊕ GET AI RECOMMENDATIONS</button>
       </div>
     </div>
 
@@ -1385,6 +1443,64 @@ document.getElementById('refresh-btn').addEventListener('click', function () {
   setTimeout(() => this.classList.remove('spin'), 550);
   loadDashboard();
 });
+
+document.getElementById('recs-refresh-btn').addEventListener('click', function () {
+  this.classList.add('spin');
+  setTimeout(() => this.classList.remove('spin'), 550);
+  loadRecommendations();
+});
+
+async function loadRecommendations() {
+  const list = document.getElementById('recs-list');
+  if (!S.activeTrip) {
+    list.innerHTML = '<div class="events-empty">SELECT A JOURNEY FIRST</div>';
+    return;
+  }
+  list.innerHTML = '<div class="events-empty">CONSULTING AI AGENT...</div>';
+  try {
+    const res = await fetch(`/api/recommendations?trip_id=${encodeURIComponent(S.activeTrip.id)}&limit=5`);
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.detail || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    renderRecommendations(data.recommendations || []);
+    const geoEl = document.getElementById('recs-geo-note');
+    if (geoEl) {
+      const loc = [data.geo_city, data.geo_country].filter(Boolean).join(', ');
+      if (loc) { geoEl.textContent = `loc: ${loc}`; geoEl.style.display = ''; }
+    }
+  } catch (err) {
+    list.innerHTML = `<div class="events-empty">⚠ ${esc(err.message)}</div>`;
+  }
+}
+
+function renderRecommendations(recs) {
+  const list = document.getElementById('recs-list');
+  if (!recs.length) {
+    list.innerHTML = '<div class="events-empty">NO RECOMMENDATIONS FOUND</div>';
+    return;
+  }
+  list.innerHTML = recs.map(r => {
+    const dist  = r.distance_m != null ? `${Math.round(r.distance_m)}m away` : '';
+    const stars = r.rating != null ? `★ ${r.rating}` : '';
+    const price = r.price_level_label || '';
+    const meta  = [r.category, stars, price].filter(Boolean).join(' · ');
+    const mapsBtn = r.google_maps_uri
+      ? `<a class="rec-maps-link" href="${esc(r.google_maps_uri)}" target="_blank" rel="noopener">↗ MAPS</a>`
+      : '';
+    return `<div class="rec-card">
+      <div class="rec-name-row">
+        <span class="rec-name">${esc(r.place_name)}</span>
+        ${dist ? `<span class="rec-dist">${esc(dist)}</span>` : ''}
+      </div>
+      ${meta ? `<div class="rec-meta">${esc(meta)}</div>` : ''}
+      <div class="rec-why">${esc(r.why)}</div>
+      ${r.formatted_address ? `<div class="rec-address">${esc(r.formatted_address)}</div>` : ''}
+      ${mapsBtn}
+    </div>`;
+  }).join('');
+}
 
 document.getElementById('events-refresh-btn').addEventListener('click', function () {
   this.classList.add('spin');
