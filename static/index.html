@@ -559,6 +559,7 @@
     </div>
 
     <button class="cta-btn" id="scan-btn">SCAN PRICE</button>
+    <button class="ghost-btn full" id="upload-alt-btn" style="display:none">or upload image</button>
     <div id="result-area"></div>
 
   </div>
@@ -681,13 +682,19 @@ function showScreen(name) {
 /* ══════════════════════════════════════════════════════════
    SCANNER
 ══════════════════════════════════════════════════════════ */
-const fileInput  = document.getElementById('file-input');
-const cameraVideo = document.getElementById('camera-video');
-const vfStatus   = document.getElementById('vf-status');
-const vfPreview  = document.getElementById('vf-preview');
-const viewfinder = document.getElementById('viewfinder');
-const scanBtn    = document.getElementById('scan-btn');
-const resultArea = document.getElementById('result-area');
+const fileInput     = document.getElementById('file-input');
+const cameraVideo   = document.getElementById('camera-video');
+const vfStatus      = document.getElementById('vf-status');
+const vfPreview     = document.getElementById('vf-preview');
+const viewfinder    = document.getElementById('viewfinder');
+const scanBtn       = document.getElementById('scan-btn');
+const uploadAltBtn  = document.getElementById('upload-alt-btn');
+const resultArea    = document.getElementById('result-area');
+
+uploadAltBtn.addEventListener('click', () => {
+  fileInput.removeAttribute('hidden');
+  fileInput.click();
+});
 
 // Camera state: 'idle' | 'live' | 'captured'
 let cameraState  = 'idle';
@@ -713,9 +720,11 @@ document.querySelectorAll('.mode-tab').forEach(tab => {
 function applyMode(mode) {
   if (mode === 'upload') {
     fileInput.removeAttribute('hidden');
+    uploadAltBtn.style.display = 'none';
     scanBtn.textContent = 'SELECT IMAGE';
     vfStatus.textContent = 'READY';
   } else if (mode === 'voice') {
+    uploadAltBtn.style.display = 'none';
     fileInput.setAttribute('hidden', '');
     vfPreview.innerHTML = `
       <div class="vf-voice">
@@ -729,6 +738,7 @@ function applyMode(mode) {
   } else {
     // photo or menu — start live camera
     fileInput.setAttribute('hidden', '');
+    uploadAltBtn.style.display = mode === 'menu' ? '' : 'none';
     startCamera();
   }
 }
@@ -902,6 +912,7 @@ function resetScan() {
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   stopCamera();
   // Restart for camera modes; re-draw mic UI for voice
+  uploadAltBtn.style.display = S.scanMode === 'menu' ? '' : 'none';
   if (S.scanMode === 'photo' || S.scanMode === 'menu') {
     startCamera();
   } else if (S.scanMode === 'voice') {
