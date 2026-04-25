@@ -27,7 +27,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Make hackathon_toolkit importable without package restructuring.
-sys.path.insert(0, str(Path(__file__).parent / "hackathon_toolkit"))
+sys.path.append(str(Path(__file__).parent / "hackathon_toolkit"))
 
 from bunq_client import BunqClient  # noqa: E402  (after sys.path mutation)
 from api_keys import get_bunq_api_key
