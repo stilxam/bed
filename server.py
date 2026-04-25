@@ -388,7 +388,11 @@ async def trip_dashboard(trip_id: str):
     pay_error = ""
     try:
         from bunq_balance import get_payments
-        payments = get_payments(since_date=since, until_date=until)
+        payments = get_payments(since_date=since, until_date=until, count=200)
+        # Fallback: if date filter yields nothing, return latest payments unfiltered
+        # (common in sandbox where all transactions are created on the same day)
+        if not payments:
+            payments = get_payments(count=50)
     except Exception as exc:
         pay_error = str(exc)
 
@@ -397,12 +401,18 @@ async def trip_dashboard(trip_id: str):
         for p in payments
         if p.get("type") == "debit" and p.get("currency") == own_ccy
     )
+    remaining = max(0.0, trip.budget_eur - spent)
 
     return {
-        "spent":     spent,
-        "own_ccy":   own_ccy,
-        "payments":  payments,
-        "pay_error": pay_error,
+        # Fields used by the home payment log
+        "spent":        spent,
+        "own_ccy":      own_ccy,
+        "payments":     payments,
+        "pay_error":    pay_error,
+        # Fields used by the explore trip card
+        "budget_eur":   trip.budget_eur,
+        "spent_eur":    spent,
+        "remaining_eur": remaining,
     }
 
 
@@ -598,7 +608,7 @@ async def card_transactions(trip_id: str):
     try:
         from bunq_balance import get_mastercard_actions
         actions = get_mastercard_actions(since_date=since)
-        return {"transactions": actions}
+        return actions  # flat list consumed directly by the frontend
     except Exception as exc:
         raise HTTPException(502, detail=str(exc))
 

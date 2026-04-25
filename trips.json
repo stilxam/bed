@@ -3,9 +3,9 @@
     "id": "964dc923e9164855bbd71b8564ffd52b",
     "name": "TOKYO SPRING 2026",
     "budget_eur": 1000.0,
-    "start_date": "2026-05-03",
-    "end_date": "2026-04-28",
-    "default_currency": null,
+    "start_date": "2026-04-20",
+    "end_date": "2026-05-10",
+    "default_currency": "JPY",
     "default_own_currency": null,
     "created_at": "2026-04-25T07:22:14.584548+00:00"
   }
