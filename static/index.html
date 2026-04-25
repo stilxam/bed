@@ -13,7 +13,6 @@
     :root {
       --bg:        #F2F3F5;
       --card:      #FFFFFF;
-      --card2:     #F9FAFB;
       --green:     #1EC86A;
       --green-dk:  #17A85A;
       --green-lt:  rgba(30,200,106,.10);
@@ -34,27 +33,21 @@
       --r-pill:    100px;
       --ui:        'Nunito', sans-serif;
       --mono:      'DM Mono', monospace;
-      /* JS-readable compat aliases */
-      --accent: #1EC86A;
-      --amber:  #F59E0B;
+      --accent: #1EC86A; --amber: #F59E0B; /* JS compat */
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { height: 100%; -webkit-tap-highlight-color: transparent; }
-
     body {
       height: 100%; overflow: hidden;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--ui);
-      font-size: 15px; line-height: 1.5;
+      background: var(--bg); color: var(--text);
+      font-family: var(--ui); font-size: 15px; line-height: 1.5;
     }
 
     /* ─── SHELL ─── */
     #app {
       max-width: 430px; margin: 0 auto;
-      height: 100dvh;
-      display: flex; flex-direction: column; overflow: hidden;
+      height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
       background: var(--bg);
     }
 
@@ -62,14 +55,10 @@
     #header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 20px 12px;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
+      background: var(--card); border-bottom: 1px solid var(--border);
       flex-shrink: 0; z-index: 10;
     }
-    .bunq-logo {
-      font-size: 22px; font-weight: 900; color: var(--green);
-      letter-spacing: -.6px; line-height: 1;
-    }
+    .bunq-logo { font-size: 22px; font-weight: 900; color: var(--green); letter-spacing: -.6px; }
     .header-center {
       font-size: 13px; font-weight: 700; color: var(--text-sec);
       max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -78,67 +67,37 @@
       width: 36px; height: 36px; border-radius: 50%;
       background: var(--bg); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      color: var(--text-sec); flex-shrink: 0;
-      transition: background .18s;
+      color: var(--text-sec); transition: background .18s;
     }
     .avatar-btn:hover { background: var(--green-lt); color: var(--green); }
 
     /* ─── SCREENS ─── */
     .screen {
       display: none; flex: 1; overflow-y: auto; overflow-x: hidden;
-      flex-direction: column;
-      -webkit-overflow-scrolling: touch;
+      flex-direction: column; -webkit-overflow-scrolling: touch;
       padding-bottom: 90px;
     }
     .screen.active { display: flex; }
 
     /* ─── SCREEN TITLE BAR ─── */
     .screen-title-bar { padding: 20px 20px 14px; }
-    .screen-title {
-      font-size: 28px; font-weight: 900; color: var(--text);
-      letter-spacing: -.5px; line-height: 1.1;
-    }
-    .screen-subtitle {
-      font-size: 14px; color: var(--text-sec); font-weight: 600;
-      margin-top: 5px; line-height: 1.45;
-    }
+    .screen-title { font-size: 28px; font-weight: 900; color: var(--text); letter-spacing: -.5px; line-height: 1.1; }
+    .screen-subtitle { font-size: 14px; color: var(--text-sec); font-weight: 600; margin-top: 5px; line-height: 1.45; }
     .assist-badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      margin-top: 12px;
+      display: inline-flex; align-items: center; gap: 7px; margin-top: 12px;
       background: var(--green-lt); color: var(--green);
-      font-size: 12px; font-weight: 800;
-      padding: 7px 16px; border-radius: var(--r-pill);
+      font-size: 12px; font-weight: 800; padding: 7px 16px; border-radius: var(--r-pill);
     }
     .assist-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--green);
+      width: 7px; height: 7px; border-radius: 50%; background: var(--green);
       animation: pulse-dot 1.6s ease-in-out infinite;
     }
-    @keyframes pulse-dot {
-      0%,100% { opacity:1; transform:scale(1); }
-      50%      { opacity:.4; transform:scale(.65); }
-    }
-
-    /* ─── WHITE CARD ─── */
-    .wcard {
-      background: var(--card);
-      border-radius: var(--r);
-      box-shadow: var(--sh-sm);
-    }
-    .wcard-hdr {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 18px 12px;
-      border-bottom: 1px solid var(--border);
-    }
-    .wcard-lbl {
-      font-size: 13px; font-weight: 800; color: var(--text);
-    }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.65)} }
 
     /* ─── BOTTOM NAV ─── */
     #nav {
       display: flex; flex-shrink: 0;
-      background: var(--card);
-      border-top: 1px solid var(--border);
+      background: var(--card); border-top: 1px solid var(--border);
       padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
       position: relative; z-index: 10;
     }
@@ -149,428 +108,158 @@
       color: var(--text-dim); transition: color .2s;
     }
     .nav-tab.active { color: var(--green); }
-    .nav-icon {
-      width: 28px; height: 28px;
-      display: flex; align-items: center; justify-content: center;
-    }
+    .nav-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
     .nav-icon svg { width: 22px; height: 22px; }
-    /* Active indicator */
-    .nav-pip {
-      width: 4px; height: 4px; border-radius: 50%;
-      background: transparent; transition: background .2s;
-    }
+    .nav-pip { width: 4px; height: 4px; border-radius: 50%; background: transparent; transition: background .2s; }
     .nav-tab.active .nav-pip { background: var(--green); }
-    /* Center scan tab */
-    .nav-tab.nav-scan {
-      flex: 1.1;
-    }
+    /* Scan centre tab */
+    .nav-tab.nav-scan { flex: 1.1; color: var(--green); font-weight: 800; }
     .nav-tab.nav-scan .nav-icon {
       width: 54px; height: 54px; border-radius: 50%;
-      background: var(--green); color: #fff;
-      box-shadow: var(--sh-green);
-      margin-top: -14px;
-      transition: background .18s, transform .14s;
+      background: var(--green); color: #fff; box-shadow: var(--sh-green);
+      margin-top: -14px; transition: background .18s, transform .14s;
     }
     .nav-tab.nav-scan .nav-icon svg { width: 24px; height: 24px; }
     .nav-tab.nav-scan:active .nav-icon { transform: scale(.93); }
     .nav-tab.nav-scan.active .nav-icon { background: var(--green-dk); }
     .nav-tab.nav-scan .nav-pip { display: none; }
-    .nav-tab.nav-scan { color: var(--green); font-weight: 800; }
 
-    /* ─── MODE TABS (Scanner) ─── */
-    .mode-tabs {
-      display: flex; background: var(--card); border-radius: var(--r-pill);
-      padding: 4px; gap: 3px;
-      margin: 0 16px;
-      box-shadow: var(--sh-sm);
-      flex-shrink: 0;
+    /* ─── TRIP SELECTOR CHIP ─── */
+    .trip-selector {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 0 16px; padding: 14px 18px;
+      background: var(--card); border-radius: var(--r); border: none;
+      box-shadow: var(--sh-sm); cursor: pointer; width: calc(100% - 32px);
+      text-align: left; transition: box-shadow .18s; gap: 12px;
     }
-    .mode-tab {
-      flex: 1; padding: 10px 4px; border: none; background: none; cursor: pointer;
-      font-family: var(--ui); font-size: 13px; font-weight: 800;
-      color: var(--text-dim); border-radius: var(--r-pill);
-      transition: all .18s;
-      display: flex; align-items: center; justify-content: center; gap: 5px;
+    .trip-selector:hover { box-shadow: var(--sh); }
+    .trip-selector-left { flex: 1; min-width: 0; }
+    .trip-selector-eyebrow {
+      font-size: 11px; font-weight: 800; letter-spacing: .06em;
+      color: var(--text-dim); text-transform: uppercase; margin-bottom: 3px;
     }
-    .mode-tab[data-mode="photo"].active { background: var(--green);  color: #fff; }
-    .mode-tab[data-mode="voice"].active { background: var(--purple); color: #fff; }
-    .mode-tab[data-mode="menu"].active  { background: var(--orange); color: #fff; }
+    .trip-selector-name {
+      font-size: 16px; font-weight: 900; color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .trip-selector-chevron { color: var(--text-sec); flex-shrink: 0; }
 
-    /* ─── VIEWFINDER ─── */
-    .viewfinder {
-      position: relative; border-radius: var(--r);
-      background: #1C1C1E; overflow: hidden;
-      aspect-ratio: 4/3; flex-shrink: 0;
-      margin: 12px 16px 0;
-      box-shadow: var(--sh);
+    /* ─── HOME EMPTY STATE ─── */
+    .home-empty {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 48px 32px 32px; gap: 12px;
     }
-    #camera-video {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; opacity: 0; transition: opacity .3s;
-    }
-    #camera-video.live { opacity: 1; }
-    .vf-ring {
-      position: absolute; inset: 16px; border-radius: calc(var(--r) - 4px);
-      border: 2px solid rgba(30,200,106,.5);
-      pointer-events: none;
-      animation: ring-pulse 2.4s ease-in-out infinite;
-    }
-    @keyframes ring-pulse {
-      0%,100% { opacity:.3; border-color:rgba(30,200,106,.3); }
-      50%      { opacity:1;  border-color:rgba(30,200,106,.8); }
-    }
-    .vf-status {
-      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-      font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
-      background: rgba(0,0,0,.5); color: rgba(255,255,255,.85);
-      backdrop-filter: blur(12px);
-      padding: 5px 16px; border-radius: var(--r-pill);
-      pointer-events: none; white-space: nowrap;
-    }
-    .vf-status.live { background: var(--green); color: #fff; }
-    .vf-preview {
-      position: absolute; inset: 0; border-radius: inherit; overflow: hidden;
-    }
-    .vf-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .vf-input {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer;
-      width: 100%; height: 100%;
-    }
-    .vf-voice {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 16px;
-      background: #1C1C1E;
-    }
-    .vf-voice svg { width: 52px; height: 52px; color: rgba(255,255,255,.25); }
-    .rec-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: var(--red); animation: rec-blink .9s step-end infinite;
-    }
-    @keyframes rec-blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    .rec-timer {
-      font-family: var(--mono); font-size: 15px; color: #fff; letter-spacing: .12em;
-    }
-
-    /* ─── SCANNER SCREEN LAYOUT ─── */
-    #screen-scanner .scan-actions {
-      display: flex; flex-direction: column; gap: 10px;
-      padding: 14px 16px 0;
-    }
-    #result-area { padding: 0 16px; }
-    #result-area:not(:empty) { padding-top: 14px; }
-
-    /* ─── BUTTONS ─── */
-    .cta-btn {
-      width: 100%; padding: 17px;
-      background: var(--green); color: #fff;
-      border: none; border-radius: var(--r-pill); cursor: pointer;
-      font-family: var(--ui); font-size: 15px; font-weight: 900;
-      transition: transform .14s, opacity .14s, background .14s;
-      flex-shrink: 0;
-      box-shadow: 0 4px 14px rgba(30,200,106,.28);
-    }
-    .cta-btn:active { transform: scale(.97); opacity: .88; }
-    .cta-btn:disabled { background: #E5E7EB; color: #9CA3AF; cursor: default; transform: none; box-shadow: none; }
-    .cta-btn.amber { background: var(--orange); box-shadow: 0 4px 14px rgba(245,158,11,.25); }
-
-    .ghost-btn {
-      background: none; border: 1.5px solid var(--border);
-      border-radius: var(--r-pill); cursor: pointer; padding: 13px 24px;
-      font-family: var(--ui); font-size: 14px; font-weight: 800; color: var(--text-sec);
-      transition: border-color .2s, color .2s; flex-shrink: 0;
-    }
-    .ghost-btn:hover { border-color: var(--green); color: var(--green); }
-    .ghost-btn.full { width: 100%; }
-
-    #upload-alt-btn {
-      background: none; border: none; cursor: pointer;
-      font-family: var(--ui); font-size: 13px; font-weight: 700;
-      color: var(--text-dim); text-decoration: underline; text-underline-offset: 3px;
-      padding: 2px 0; text-align: center; flex-shrink: 0;
-    }
-    #upload-alt-btn:hover { color: var(--text-sec); }
-
-    /* ─── ICON BUTTON ─── */
-    .icon-btn, .refresh-btn {
-      background: var(--bg); border: none; cursor: pointer;
-      font-size: 16px; color: var(--text-sec); line-height: 1;
-      padding: 0; width: 32px; height: 32px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .18s; flex-shrink: 0;
-    }
-    .icon-btn:hover, .refresh-btn:hover { background: var(--green-lt); color: var(--green); }
-    .icon-btn.spin, .refresh-btn.spin { animation: spin .5s linear; }
-
-    /* ─── RESULT PANELS ─── */
-    .result-panel {
-      background: var(--card); border-radius: var(--r);
-      padding: 22px; display: flex; flex-direction: column; gap: 10px;
-      box-shadow: var(--sh-sm);
-      border: 1.5px solid rgba(30,200,106,.18);
-      animation: fadeUp .2s ease;
-    }
-    .result-original { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
-    .result-eur {
-      font-size: 42px; font-weight: 900;
-      color: var(--text); letter-spacing: -.6px; line-height: 1.1;
-    }
-    .result-meta { font-size: 12px; color: var(--text-sec); font-weight: 600; }
-    .result-badge {
-      display: inline-flex; align-items: center;
-      font-size: 11px; font-weight: 800; letter-spacing: .04em;
-      background: var(--green-lt); color: var(--green);
-      padding: 5px 14px; border-radius: var(--r-pill);
-    }
-    .error-panel {
-      background: var(--card); border-radius: var(--r);
-      padding: 16px; color: var(--red); font-size: 13px; font-weight: 700;
-      box-shadow: var(--sh-sm); border: 1.5px solid rgba(239,68,68,.15);
-      animation: fadeUp .2s ease;
-    }
-
-    /* ─── MENU PANEL ─── */
-    .menu-panel {
-      background: var(--card); border-radius: var(--r);
-      overflow: hidden; animation: fadeUp .2s ease; box-shadow: var(--sh-sm);
-    }
-    .menu-panel-header {
-      padding: 12px 16px; font-size: 11px; font-weight: 800; letter-spacing: .1em;
-      color: var(--text-sec); text-transform: uppercase;
-      border-bottom: 1px solid var(--border);
-      background: rgba(30,200,106,.05);
-    }
-    .menu-table { width: 100%; border-collapse: collapse; }
-    .menu-table thead th {
-      padding: 9px 12px; font-size: 10px; font-weight: 800; letter-spacing: .1em;
-      color: var(--text-dim); text-transform: uppercase; text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    .menu-table tbody tr { border-bottom: 1px solid var(--border); }
-    .menu-table tbody tr:last-child { border-bottom: none; }
-    .menu-table tbody td { padding: 10px 12px; vertical-align: top; }
-    .td-name { font-size: 13px; font-weight: 700; color: var(--text); }
-    .td-orig { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-    .td-price { font-family: var(--mono); font-size: 12px; color: var(--text-sec); white-space: nowrap; }
-    .td-eur   { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--green); white-space: nowrap; }
-
-    /* ─── CURRENCY PICKER ─── */
-    .ccy-picker {
-      background: var(--card); border-radius: var(--r);
-      padding: 20px; display: flex; flex-direction: column; gap: 10px;
-      animation: fadeUp .2s ease; box-shadow: var(--sh-sm);
-    }
-    .ccy-picker-transcript { font-size: 13px; color: var(--text-sec); font-style: italic; }
-    .ccy-picker-label { font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; }
-    .ccy-picker-amount { font-size: 32px; font-weight: 900; color: var(--text); }
-    .ccy-picker-row { display: flex; gap: 8px; }
+    .home-empty-icon { font-size: 56px; line-height: 1; }
+    .home-empty-title { font-size: 22px; font-weight: 900; color: var(--text); }
+    .home-empty-sub { font-size: 14px; color: var(--text-sec); font-weight: 600; line-height: 1.5; max-width: 240px; }
 
     /* ─── TRIP HERO CARD ─── */
     .trip-hero {
-      margin: 0 16px;
+      margin: 12px 16px 0;
       background: linear-gradient(140deg, #20CF6E 0%, #16A357 60%, #0F7D40 100%);
-      border-radius: var(--r);
-      padding: 22px 22px 20px;
-      position: relative; overflow: hidden;
-      color: #fff;
-      box-shadow: var(--sh-green);
-      flex-shrink: 0;
+      border-radius: var(--r); padding: 22px 22px 20px;
+      position: relative; overflow: hidden; color: #fff;
+      box-shadow: var(--sh-green); flex-shrink: 0;
     }
-    /* wave shapes */
     .trip-hero::before {
-      content: '';
-      position: absolute;
-      bottom: -30px; left: -40px; right: -40px;
-      height: 90px;
-      background: rgba(255,255,255,.07);
-      border-radius: 60% 60% 0 0 / 100% 100% 0 0;
+      content: ''; position: absolute;
+      bottom: -30px; left: -40px; right: -40px; height: 90px;
+      background: rgba(255,255,255,.07); border-radius: 60% 60% 0 0 / 100% 100% 0 0;
     }
     .trip-hero::after {
-      content: '';
-      position: absolute;
-      bottom: -50px; right: -30px;
-      width: 160px; height: 160px;
-      background: rgba(255,255,255,.06);
-      border-radius: 50%;
+      content: ''; position: absolute;
+      bottom: -50px; right: -30px; width: 160px; height: 160px;
+      background: rgba(255,255,255,.06); border-radius: 50%;
     }
-    .trip-hero.empty {
-      background: linear-gradient(140deg, #9CA3AF 0%, #6B7280 100%);
-      box-shadow: 0 6px 20px rgba(0,0,0,.1);
-    }
+    .trip-hero.empty { background: linear-gradient(140deg,#9CA3AF 0%,#6B7280 100%); box-shadow: 0 6px 20px rgba(0,0,0,.1); }
     .trip-hero-badge {
       display: inline-flex; align-items: center; gap: 6px;
       background: rgba(255,255,255,.22); color: #fff;
       font-size: 11px; font-weight: 800; letter-spacing: .04em;
-      padding: 5px 13px; border-radius: var(--r-pill);
-      margin-bottom: 14px;
+      padding: 5px 13px; border-radius: var(--r-pill); margin-bottom: 14px;
     }
     .trip-hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; }
-    .trip-hero-name {
-      font-size: 22px; font-weight: 900; letter-spacing: -.3px;
-      margin-bottom: 3px; position: relative; z-index: 1;
-    }
-    .trip-hero-dates {
-      font-size: 13px; font-weight: 600; opacity: .8;
-      margin-bottom: 18px; position: relative; z-index: 1;
-    }
-    .trip-hero-budget-row {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 12px; position: relative; z-index: 1;
-    }
-    .trip-hero-budget-lbl {
-      font-size: 11px; font-weight: 700; opacity: .7;
-      text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px;
-    }
-    .trip-hero-budget-val {
-      font-size: 20px; font-weight: 900; letter-spacing: -.25px;
-    }
-    .trip-progress-track {
-      height: 6px; background: rgba(255,255,255,.25); border-radius: 3px;
-      margin-bottom: 6px; overflow: hidden; position: relative; z-index: 1;
-    }
-    .trip-progress-fill {
-      height: 100%; background: #fff; border-radius: 3px;
-      transition: width .85s cubic-bezier(.4,0,.2,1);
-    }
-    .trip-progress-label {
-      font-size: 11px; font-weight: 700; opacity: .7;
-      text-align: right; position: relative; z-index: 1;
-    }
+    .trip-hero-name { font-size: 22px; font-weight: 900; letter-spacing: -.3px; margin-bottom: 3px; position: relative; z-index: 1; }
+    .trip-hero-dates { font-size: 13px; font-weight: 600; opacity: .8; margin-bottom: 18px; position: relative; z-index: 1; }
+    .trip-hero-budget-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; position: relative; z-index: 1; }
+    .trip-hero-budget-lbl { font-size: 11px; font-weight: 700; opacity: .7; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+    .trip-hero-budget-val { font-size: 20px; font-weight: 900; letter-spacing: -.25px; }
+    .trip-progress-track { height: 6px; background: rgba(255,255,255,.25); border-radius: 3px; margin-bottom: 6px; overflow: hidden; position: relative; z-index: 1; }
+    .trip-progress-fill { height: 100%; background: #fff; border-radius: 3px; transition: width .85s cubic-bezier(.4,0,.2,1); }
+    .trip-progress-label { font-size: 11px; font-weight: 700; opacity: .7; text-align: right; position: relative; z-index: 1; }
 
     /* ─── STAT GRID ─── */
-    .stat-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-      margin: 0 16px;
-    }
-    .stat-card {
-      border-radius: var(--r-sm); padding: 16px 14px;
-      display: flex; flex-direction: column; gap: 8px;
-      position: relative; overflow: hidden;
-    }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 16px 0; }
+    .stat-card { border-radius: var(--r-sm); padding: 16px 14px; display: flex; flex-direction: column; gap: 8px; }
     .stat-card--purple { background: var(--purple); }
-    .stat-card--orange { background: var(--orange); }
-    .stat-card--amber  { background: var(--orange); }  /* compat alias */
+    .stat-card--orange, .stat-card--amber { background: var(--orange); }
     .stat-card--blue   { background: var(--blue); }
     .stat-card--teal   { background: var(--teal); }
     .stat-card-icon { font-size: 22px; }
-    .stat-card-lbl {
-      font-size: 10px; font-weight: 800; letter-spacing: .08em;
-      color: rgba(255,255,255,.7); text-transform: uppercase;
-    }
+    .stat-card-lbl { font-size: 10px; font-weight: 800; letter-spacing: .08em; color: rgba(255,255,255,.7); text-transform: uppercase; }
     .stat-card-val { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: -.1px; }
 
     /* ─── CURRENCY TOGGLE ─── */
-    .ccy-toggle {
-      display: flex; background: var(--card); border-radius: var(--r-pill);
-      padding: 4px; margin: 0 16px; box-shadow: var(--sh-sm);
-    }
-    .ccy-btn {
-      flex: 1; background: none; border: none; border-radius: var(--r-pill);
-      padding: 10px; font-family: var(--ui); font-size: 13px; font-weight: 800;
-      color: var(--text-dim); cursor: pointer; transition: all .18s;
-    }
+    .ccy-toggle { display: flex; background: var(--card); border-radius: var(--r-pill); padding: 4px; margin: 12px 16px 0; box-shadow: var(--sh-sm); }
+    .ccy-btn { flex: 1; background: none; border: none; border-radius: var(--r-pill); padding: 10px; font-family: var(--ui); font-size: 13px; font-weight: 800; color: var(--text-dim); cursor: pointer; transition: all .18s; }
     .ccy-btn.active { background: var(--green); color: #fff; }
-    .ccy-rate-row {
-      font-family: var(--mono); font-size: 11px; color: var(--text-dim);
-      text-align: center; letter-spacing: .05em; padding: 0 16px;
-    }
+    .ccy-rate-row { font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-align: center; letter-spacing: .05em; padding: 6px 16px 0; }
 
     /* ─── SECTION CARD ─── */
     .section-card, .recs-section, .events-section {
-      background: var(--card); border-radius: var(--r);
-      overflow: hidden; box-shadow: var(--sh-sm); margin: 0 16px;
+      background: var(--card); border-radius: var(--r); overflow: hidden; box-shadow: var(--sh-sm); margin: 12px 16px 0;
     }
     .section-card-hdr, .recs-hdr, .events-hdr {
       display: flex; align-items: center; justify-content: space-between;
       padding: 15px 18px; border-bottom: 1px solid var(--border);
     }
-    .section-card-lbl, .recs-hdr-lbl, .events-hdr-lbl {
-      font-size: 14px; font-weight: 800; color: var(--text);
+    .section-card-lbl, .recs-hdr-lbl, .events-hdr-lbl { font-size: 14px; font-weight: 800; color: var(--text); }
+
+    /* ─── ICON BUTTON ─── */
+    .icon-btn, .refresh-btn {
+      background: var(--bg); border: none; cursor: pointer;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--text-sec); transition: all .18s;
     }
+    .icon-btn:hover, .refresh-btn:hover { background: var(--green-lt); color: var(--green); }
+    .icon-btn.spin, .refresh-btn.spin { animation: spin .5s linear; }
 
     /* ─── PAYMENT LIST ─── */
-    .payment-list {
-      display: flex; flex-direction: column;
-      max-height: 280px; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    }
+    .payment-list { display: flex; flex-direction: column; max-height: 280px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .payment-list::-webkit-scrollbar { display: none; }
-    .pay-empty {
-      padding: 26px; text-align: center;
-      font-size: 14px; font-weight: 600; color: var(--text-dim);
-    }
-    .pay-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 13px 18px; border-bottom: 1px solid var(--border);
-    }
+    .pay-empty { padding: 26px; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-dim); }
+    .pay-row { display: flex; align-items: center; gap: 10px; padding: 13px 18px; border-bottom: 1px solid var(--border); }
     .pay-row:last-child { border-bottom: none; }
-    .pay-icon {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: var(--bg); display: flex; align-items: center; justify-content: center;
-      font-size: 15px; flex-shrink: 0;
-    }
+    .pay-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
     .pay-date { font-family: var(--mono); font-size: 10px; color: var(--text-dim); min-width: 40px; }
-    .pay-desc {
-      flex: 1; font-size: 13px; font-weight: 700; color: var(--text);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
+    .pay-desc { flex: 1; font-size: 13px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pay-amt { font-family: var(--mono); font-size: 13px; font-weight: 600; white-space: nowrap; }
     .pay-amt.db { color: var(--red); }
     .pay-amt.cr { color: var(--green); }
 
     /* ─── EVENTS ─── */
-    .events-list { display: flex; flex-direction: column; }
-    #recs-list    { display: flex; flex-direction: column; }
-    .event-card {
-      display: flex; gap: 12px; align-items: center;
-      padding: 13px 18px; border-bottom: 1px solid var(--border);
-      text-decoration: none; transition: background .15s;
-    }
+    .events-list, #recs-list { display: flex; flex-direction: column; }
+    .event-card { display: flex; gap: 12px; align-items: center; padding: 13px 18px; border-bottom: 1px solid var(--border); text-decoration: none; transition: background .15s; }
     .event-card:last-child { border-bottom: none; }
     .event-card:hover { background: var(--bg); }
-    .event-img {
-      width: 52px; height: 52px; flex-shrink: 0;
-      border-radius: var(--r-sm); object-fit: cover; background: var(--bg);
-    }
-    .event-img-placeholder {
-      width: 52px; height: 52px; flex-shrink: 0; border-radius: var(--r-sm);
-      background: var(--bg); display: flex; align-items: center;
-      justify-content: center; font-size: 22px;
-    }
+    .event-img { width: 52px; height: 52px; flex-shrink: 0; border-radius: var(--r-sm); object-fit: cover; background: var(--bg); }
+    .event-img-placeholder { width: 52px; height: 52px; flex-shrink: 0; border-radius: var(--r-sm); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 22px; }
     .event-info { flex: 1; min-width: 0; }
-    .event-name {
-      font-size: 13px; font-weight: 800; color: var(--text);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px;
-    }
+    .event-name { font-size: 13px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
     .event-meta { font-size: 11px; color: var(--text-dim); margin-bottom: 1px; }
-    .event-venue {
-      font-size: 11px; color: var(--text-sec);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .event-price {
-      font-family: var(--mono); font-size: 12px; color: var(--orange);
-      white-space: nowrap; flex-shrink: 0; font-weight: 600;
-    }
-    .find-btn, .events-find-btn {
-      width: 100%; padding: 22px; background: none; border: none;
-      font-family: var(--ui); font-size: 13px; font-weight: 800;
-      color: var(--text-dim); cursor: pointer; transition: color .2s;
-    }
+    .event-venue { font-size: 11px; color: var(--text-sec); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .event-price { font-family: var(--mono); font-size: 12px; color: var(--orange); white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+    .find-btn, .events-find-btn { width: 100%; padding: 22px; background: none; border: none; font-family: var(--ui); font-size: 13px; font-weight: 800; color: var(--text-dim); cursor: pointer; transition: color .2s; }
     .find-btn:hover, .events-find-btn:hover { color: var(--green); }
-    .events-empty {
-      padding: 26px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-dim);
-    }
+    .events-empty { padding: 26px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-dim); }
 
     /* ─── AI RECOMMENDATIONS ─── */
-    #recs-list {
-      max-height: 340px; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    }
+    #recs-list { max-height: 340px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     #recs-list::-webkit-scrollbar { display: none; }
     .recs-hdr-left { display: flex; flex-direction: column; gap: 2px; }
     .recs-geo-note { font-size: 11px; color: var(--green); font-weight: 700; }
-    .rec-card {
-      padding: 14px 18px; border-bottom: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 5px;
-    }
+    .rec-card { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; }
     .rec-card:last-child { border-bottom: none; }
     .rec-name-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
     .rec-name { font-size: 14px; font-weight: 900; color: var(--text); }
@@ -578,78 +267,87 @@
     .rec-meta { font-size: 11px; color: var(--orange); font-weight: 700; }
     .rec-why  { font-size: 13px; color: var(--text-sec); line-height: 1.5; }
     .rec-address { font-size: 11px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .rec-maps-link {
-      display: inline-flex; align-items: center; margin-top: 5px; align-self: flex-start;
-      font-size: 11px; font-weight: 800; letter-spacing: .04em;
-      color: var(--green); text-decoration: none;
-      padding: 5px 14px; border-radius: var(--r-pill);
-      border: 1.5px solid rgba(30,200,106,.3); transition: background .15s;
-    }
+    .rec-maps-link { display: inline-flex; align-items: center; margin-top: 5px; align-self: flex-start; font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--green); text-decoration: none; padding: 5px 14px; border-radius: var(--r-pill); border: 1.5px solid rgba(30,200,106,.3); transition: background .15s; }
     .rec-maps-link:hover { background: var(--green-lt); }
 
-    /* ─── TRIPS SCREEN ─── */
-    .section-lbl {
-      font-size: 12px; font-weight: 800; letter-spacing: .08em;
-      color: var(--text-dim); text-transform: uppercase; padding: 0 16px;
+    /* ─── BUTTONS ─── */
+    .cta-btn {
+      width: 100%; padding: 17px; background: var(--green); color: #fff;
+      border: none; border-radius: var(--r-pill); cursor: pointer;
+      font-family: var(--ui); font-size: 15px; font-weight: 900;
+      transition: transform .14s, opacity .14s; flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(30,200,106,.28);
     }
-    .trip-list { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
-    .trip-card {
-      background: var(--card); border-radius: var(--r);
-      padding: 18px;
-      cursor: pointer; transition: all .18s; position: relative;
-      box-shadow: var(--sh-sm);
-      border: 2px solid transparent;
-    }
-    .trip-card:hover  { border-color: rgba(30,200,106,.3); }
-    .trip-card:active { transform: scale(.99); }
-    .trip-card.active {
-      border-color: var(--green);
-      box-shadow: 0 4px 20px rgba(30,200,106,.14);
-    }
-    .trip-card-name {
-      font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 4px;
-      padding-right: 72px;
-    }
-    .trip-card-meta { font-size: 12px; color: var(--text-sec); margin-bottom: 6px; font-weight: 600; }
-    .trip-card-budget {
-      font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--green);
-    }
-    .trip-active-pill {
-      position: absolute; top: 16px; right: 16px;
-      font-size: 10px; font-weight: 900; letter-spacing: .04em;
-      background: var(--green-lt); color: var(--green);
-      padding: 4px 12px; border-radius: var(--r-pill);
-    }
+    .cta-btn:active { transform: scale(.97); opacity: .88; }
+    .cta-btn:disabled { background: #E5E7EB; color: #9CA3AF; cursor: default; transform: none; box-shadow: none; }
+    .cta-btn.amber { background: var(--orange); box-shadow: 0 4px 14px rgba(245,158,11,.25); }
+    .ghost-btn { background: none; border: 1.5px solid var(--border); border-radius: var(--r-pill); cursor: pointer; padding: 13px 24px; font-family: var(--ui); font-size: 14px; font-weight: 800; color: var(--text-sec); transition: border-color .2s, color .2s; flex-shrink: 0; }
+    .ghost-btn:hover { border-color: var(--green); color: var(--green); }
+    .ghost-btn.full { width: 100%; }
+    #upload-alt-btn { background: none; border: none; cursor: pointer; font-family: var(--ui); font-size: 13px; font-weight: 700; color: var(--text-dim); text-decoration: underline; text-underline-offset: 3px; padding: 2px 0; text-align: center; flex-shrink: 0; }
+    #upload-alt-btn:hover { color: var(--text-sec); }
 
-    .new-mission-btn {
-      width: calc(100% - 32px); margin: 0 16px; padding: 18px;
-      background: none; border: 2px dashed rgba(30,200,106,.3); border-radius: var(--r);
-      font-family: var(--ui); font-size: 14px; font-weight: 900; color: var(--green);
-      cursor: pointer; transition: all .18s;
-    }
-    .new-mission-btn:hover { background: rgba(30,200,106,.04); border-color: var(--green); }
-    #trip-form-wrap { padding: 0 16px; }
+    /* ─── MODE TABS (Scanner) ─── */
+    .mode-tabs { display: flex; background: var(--card); border-radius: var(--r-pill); padding: 4px; gap: 3px; margin: 0 16px; box-shadow: var(--sh-sm); flex-shrink: 0; }
+    .mode-tab { flex: 1; padding: 10px 4px; border: none; background: none; cursor: pointer; font-family: var(--ui); font-size: 13px; font-weight: 800; color: var(--text-dim); border-radius: var(--r-pill); transition: all .18s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .mode-tab[data-mode="photo"].active { background: var(--green);  color: #fff; }
+    .mode-tab[data-mode="voice"].active { background: var(--purple); color: #fff; }
+    .mode-tab[data-mode="menu"].active  { background: var(--orange); color: #fff; }
 
-    /* ─── TRIP FORM ─── */
-    .trip-form {
-      background: var(--card); border-radius: var(--r); padding: 22px;
-      display: flex; flex-direction: column; gap: 14px;
-      animation: fadeUp .2s ease; box-shadow: var(--sh-sm);
-    }
+    /* ─── VIEWFINDER ─── */
+    .viewfinder { position: relative; border-radius: var(--r); background: #1C1C1E; overflow: hidden; aspect-ratio: 4/3; flex-shrink: 0; margin: 12px 16px 0; box-shadow: var(--sh); }
+    #camera-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s; }
+    #camera-video.live { opacity: 1; }
+    .vf-ring { position: absolute; inset: 16px; border-radius: calc(var(--r) - 4px); border: 2px solid rgba(30,200,106,.5); pointer-events: none; animation: ring-pulse 2.4s ease-in-out infinite; }
+    @keyframes ring-pulse { 0%,100%{opacity:.3;border-color:rgba(30,200,106,.3)} 50%{opacity:1;border-color:rgba(30,200,106,.8)} }
+    .vf-status { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; background: rgba(0,0,0,.5); color: rgba(255,255,255,.85); backdrop-filter: blur(12px); padding: 5px 16px; border-radius: var(--r-pill); pointer-events: none; white-space: nowrap; }
+    .vf-status.live { background: var(--green); color: #fff; }
+    .vf-preview { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; }
+    .vf-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .vf-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .vf-voice { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #1C1C1E; }
+    .vf-voice svg { width: 52px; height: 52px; color: rgba(255,255,255,.25); }
+    .rec-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--red); animation: rec-blink .9s step-end infinite; }
+    @keyframes rec-blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .rec-timer { font-family: var(--mono); font-size: 15px; color: #fff; letter-spacing: .12em; }
+
+    /* ─── SCANNER LAYOUT ─── */
+    #screen-scanner .scan-actions { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 0; }
+    #result-area { padding: 0 16px; }
+    #result-area:not(:empty) { padding-top: 14px; }
+
+    /* ─── RESULT PANELS ─── */
+    .result-panel { background: var(--card); border-radius: var(--r); padding: 22px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--sh-sm); border: 1.5px solid rgba(30,200,106,.18); animation: fadeUp .2s ease; }
+    .result-original { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+    .result-eur { font-size: 42px; font-weight: 900; color: var(--text); letter-spacing: -.6px; line-height: 1.1; }
+    .result-meta { font-size: 12px; color: var(--text-sec); font-weight: 600; }
+    .result-badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 800; letter-spacing: .04em; background: var(--green-lt); color: var(--green); padding: 5px 14px; border-radius: var(--r-pill); }
+    .error-panel { background: var(--card); border-radius: var(--r); padding: 16px; color: var(--red); font-size: 13px; font-weight: 700; box-shadow: var(--sh-sm); border: 1.5px solid rgba(239,68,68,.15); animation: fadeUp .2s ease; }
+    .menu-panel { background: var(--card); border-radius: var(--r); overflow: hidden; animation: fadeUp .2s ease; box-shadow: var(--sh-sm); }
+    .menu-panel-header { padding: 12px 16px; font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--text-sec); text-transform: uppercase; border-bottom: 1px solid var(--border); background: rgba(30,200,106,.05); }
+    .menu-table { width: 100%; border-collapse: collapse; }
+    .menu-table thead th { padding: 9px 12px; font-size: 10px; font-weight: 800; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; text-align: left; border-bottom: 1px solid var(--border); }
+    .menu-table tbody tr { border-bottom: 1px solid var(--border); }
+    .menu-table tbody tr:last-child { border-bottom: none; }
+    .menu-table tbody td { padding: 10px 12px; vertical-align: top; }
+    .td-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .td-orig { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .td-price { font-family: var(--mono); font-size: 12px; color: var(--text-sec); white-space: nowrap; }
+    .td-eur   { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--green); white-space: nowrap; }
+    .ccy-picker { background: var(--card); border-radius: var(--r); padding: 20px; display: flex; flex-direction: column; gap: 10px; animation: fadeUp .2s ease; box-shadow: var(--sh-sm); }
+    .ccy-picker-transcript { font-size: 13px; color: var(--text-sec); font-style: italic; }
+    .ccy-picker-label { font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; }
+    .ccy-picker-amount { font-size: 32px; font-weight: 900; color: var(--text); }
+    .ccy-picker-row { display: flex; gap: 8px; }
+
+    /* ─── FORM ─── */
+    .trip-form { background: var(--card); border-radius: var(--r); padding: 22px; display: flex; flex-direction: column; gap: 14px; animation: fadeUp .2s ease; box-shadow: var(--sh-sm); }
     .form-title { font-size: 18px; font-weight: 900; color: var(--text); }
     .form-field { display: flex; flex-direction: column; gap: 6px; }
     .form-row { display: flex; gap: 10px; }
     .form-row .form-field { flex: 1; }
-    .rf-label {
-      font-size: 11px; font-weight: 800; letter-spacing: .08em;
-      color: var(--text-dim); text-transform: uppercase;
-    }
-    .rf-input {
-      width: 100%; background: var(--bg); border: 1.5px solid var(--border);
-      border-radius: 12px; padding: 12px 14px;
-      color: var(--text); font-family: var(--ui); font-size: 14px; font-weight: 700;
-      outline: none; transition: border-color .18s, background .18s;
-    }
+    .rf-label { font-size: 11px; font-weight: 800; letter-spacing: .08em; color: var(--text-dim); text-transform: uppercase; }
+    .rf-input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--text); font-family: var(--ui); font-size: 14px; font-weight: 700; outline: none; transition: border-color .18s, background .18s; }
     .rf-input:focus { border-color: var(--green); background: #fff; }
     .rf-input::placeholder { color: var(--text-dim); }
     .rf-input[type="date"] { color-scheme: light; }
@@ -657,36 +355,92 @@
     .form-actions .ghost-btn { flex: 1; text-align: center; }
     .form-actions .cta-btn  { flex: 2; padding: 14px; font-size: 14px; }
 
-    /* ─── SPACING HELPERS ─── */
+    /* ─── BOTTOM SHEET ─── */
+    .sheet-backdrop {
+      position: fixed; inset: 0; z-index: 40;
+      background: rgba(0,0,0,.38); opacity: 0; pointer-events: none;
+      transition: opacity .28s; backdrop-filter: blur(2px);
+    }
+    .sheet-backdrop.open { opacity: 1; pointer-events: all; }
+    .sheet {
+      position: fixed; bottom: 0; left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 430px; z-index: 50;
+      background: var(--card); border-radius: var(--r) var(--r) 0 0;
+      transition: transform .3s cubic-bezier(.32,0,.67,0);
+      max-height: 82vh; display: flex; flex-direction: column;
+    }
+    .sheet.open {
+      transform: translateX(-50%) translateY(0);
+      transition-timing-function: cubic-bezier(.33,1,.68,1);
+    }
+    .sheet-handle-wrap { display: flex; justify-content: center; padding: 12px 0 4px; flex-shrink: 0; }
+    .sheet-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); }
+    .sheet-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 20px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .sheet-title { font-size: 18px; font-weight: 900; color: var(--text); }
+    .sheet-close-btn {
+      background: var(--bg); border: none; cursor: pointer;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-sec); transition: all .18s;
+    }
+    .sheet-close-btn:hover { background: var(--green-lt); color: var(--green); }
+    .sheet-body {
+      overflow-y: auto; flex: 1;
+      padding: 16px 16px 40px;
+      display: flex; flex-direction: column; gap: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .sheet-body::-webkit-scrollbar { display: none; }
+
+    /* Trip items inside sheet */
+    .sheet-trip-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg); border-radius: var(--r-sm); padding: 14px 16px;
+      cursor: pointer; border: 2px solid transparent; transition: all .18s;
+      gap: 12px;
+    }
+    .sheet-trip-item:hover { border-color: rgba(30,200,106,.3); }
+    .sheet-trip-item.active { background: var(--green-lt); border-color: var(--green); }
+    .sheet-trip-item-info { flex: 1; min-width: 0; }
+    .sheet-trip-item-name { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sheet-trip-item-meta { font-size: 12px; color: var(--text-sec); margin-bottom: 3px; }
+    .sheet-trip-item-budget { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--green); }
+    .sheet-trip-check {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--green); color: #fff; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900;
+    }
+    .sheet-divider {
+      height: 1px; background: var(--border); margin: 2px 0;
+    }
+    .sheet-new-btn {
+      width: 100%; padding: 16px;
+      background: none; border: 2px dashed rgba(30,200,106,.3); border-radius: var(--r-sm);
+      font-family: var(--ui); font-size: 14px; font-weight: 900; color: var(--green);
+      cursor: pointer; transition: all .18s;
+    }
+    .sheet-new-btn:hover { background: rgba(30,200,106,.04); border-color: var(--green); }
+    .sheet-new-btn.cancel { border-color: var(--border); color: var(--text-sec); border-style: solid; }
+    .sheet-new-btn.cancel:hover { border-color: var(--red); color: var(--red); background: none; }
+
+    /* ─── HIDDEN GAUGE COMPAT ─── */
+    .gauge-card { display: none; }
+    #gauge-pct, #gauge-amt, .g-arc, .g-track { display: none; }
+
+    /* ─── GAPS ─── */
     .gap-8  { height: 8px;  flex-shrink: 0; }
     .gap-12 { height: 12px; flex-shrink: 0; }
     .gap-16 { height: 16px; flex-shrink: 0; }
-
-    /* ─── EXPLORE SCREEN INNER ─── */
-    #screen-explore .explore-inner {
-      display: flex; flex-direction: column; gap: 12px;
-      padding: 0;
-    }
-
-    /* ─── DASHBOARD SECTIONS ─── */
-    .dash-sections { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; }
-
-    /* ─── SKELETON ─── */
-    .skeleton {
-      background: linear-gradient(90deg,#F3F4F6 25%,#E9EAEC 50%,#F3F4F6 75%);
-      background-size: 600px 100%; border-radius: 8px; height: 14px;
-      animation: shimmer 1.4s infinite;
-    }
-
-    /* ─── GAUGE (hidden, kept for JS compat) ─── */
-    .gauge-card { display: none; }
-    .g-arc, .g-track { display: none; }
-    #gauge-pct, #gauge-amt { display: none; }
 
     /* ─── ANIMATIONS ─── */
     @keyframes spin    { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes fadeUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
     @keyframes shimmer { 0%{background-position:-300px 0} 100%{background-position:300px 0} }
+    .skeleton { background: linear-gradient(90deg,#F3F4F6 25%,#E9EAEC 50%,#F3F4F6 75%); background-size:600px 100%; border-radius:8px; height:14px; animation:shimmer 1.4s infinite; }
   </style>
 </head>
 <body>
@@ -703,6 +457,106 @@
       </svg>
     </button>
   </header>
+
+  <!-- ══ HOME SCREEN ══ -->
+  <div id="screen-home" class="screen">
+
+    <div class="screen-title-bar">
+      <div class="screen-title">Home</div>
+    </div>
+
+    <!-- Trip selector chip -->
+    <button class="trip-selector" id="trip-selector-btn" onclick="openSheet()">
+      <div class="trip-selector-left">
+        <div class="trip-selector-eyebrow">Active trip</div>
+        <div class="trip-selector-name" id="trip-selector-name">No trip selected</div>
+      </div>
+      <div class="trip-selector-chevron">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </div>
+    </button>
+
+    <!-- Empty state -->
+    <div class="home-empty" id="home-empty" style="display:none">
+      <div class="home-empty-icon">✈️</div>
+      <div class="home-empty-title">Plan your first trip</div>
+      <div class="home-empty-sub">Create a trip to start tracking your budget and spending.</div>
+      <div style="width:100%;padding:0 16px;margin-top:4px">
+        <button class="cta-btn" onclick="openSheet()">+ Create trip</button>
+      </div>
+    </div>
+
+    <!-- Trip content (hidden until trip selected) -->
+    <div id="home-content" style="display:none">
+
+      <!-- Green gradient hero card -->
+      <div class="trip-hero empty" id="trip-hero">
+        <div class="trip-hero-badge">
+          <div class="trip-hero-badge-dot"></div>
+          <span id="trip-active-label">Active trip</span>
+        </div>
+        <div class="trip-hero-name" id="mission-name">—</div>
+        <div class="trip-hero-dates" id="trip-hero-dates">—</div>
+        <div class="trip-hero-budget-row">
+          <div>
+            <div class="trip-hero-budget-lbl">Total budget</div>
+            <div class="trip-hero-budget-val" id="trip-hero-total">—</div>
+          </div>
+          <div style="text-align:right">
+            <div class="trip-hero-budget-lbl">Remaining</div>
+            <div class="trip-hero-budget-val" id="trip-hero-remaining">—</div>
+          </div>
+        </div>
+        <div class="trip-progress-track">
+          <div class="trip-progress-fill" id="trip-progress-fill" style="width:0%"></div>
+        </div>
+        <div class="trip-progress-label" id="trip-progress-label"></div>
+      </div>
+
+      <!-- Stat grid -->
+      <div class="stat-grid">
+        <div class="stat-card stat-card--purple">
+          <div class="stat-card-icon">💰</div>
+          <div class="stat-card-lbl">Total Budget</div>
+          <div class="stat-card-val" id="stat-budget">—</div>
+        </div>
+        <div class="stat-card stat-card--orange">
+          <div class="stat-card-icon">📅</div>
+          <div class="stat-card-lbl">Per Day Left</div>
+          <div class="stat-card-val" id="stat-per-day">—</div>
+        </div>
+      </div>
+
+      <!-- Currency toggle -->
+      <div class="ccy-toggle" id="ccy-toggle" style="display:none">
+        <button class="ccy-btn active" id="ccy-own-btn">EUR</button>
+        <button class="ccy-btn"        id="ccy-dest-btn">—</button>
+      </div>
+      <div class="ccy-rate-row" id="ccy-rate" style="display:none"></div>
+
+      <!-- Payment log -->
+      <div class="section-card">
+        <div class="section-card-hdr">
+          <span class="section-card-lbl">Payment Log</span>
+          <button class="icon-btn" id="refresh-btn">↺</button>
+        </div>
+        <div class="payment-list" id="payment-list">
+          <div class="pay-empty">Loading payments...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Hidden gauge compat -->
+    <div class="gauge-card" aria-hidden="true">
+      <svg style="display:none"><circle class="g-arc" id="g-arc"/></svg>
+      <div id="gauge-pct"></div><div id="gauge-amt"></div>
+    </div>
+
+    <div class="gap-16"></div>
+  </div>
 
   <!-- ══ SCANNER SCREEN ══ -->
   <div id="screen-scanner" class="screen active">
@@ -749,79 +603,6 @@
 
   </div>
 
-  <!-- ══ DASHBOARD SCREEN ══ -->
-  <div id="screen-dashboard" class="screen">
-
-    <div class="screen-title-bar">
-      <div class="screen-title">Trip planner</div>
-    </div>
-
-    <!-- Green gradient trip hero card -->
-    <div class="trip-hero empty" id="trip-hero">
-      <div class="trip-hero-badge">
-        <div class="trip-hero-badge-dot"></div>
-        <span id="trip-active-label">No active trip</span>
-      </div>
-      <div class="trip-hero-name" id="mission-name">—</div>
-      <div class="trip-hero-dates" id="trip-hero-dates">Select a trip to get started</div>
-      <div class="trip-hero-budget-row">
-        <div>
-          <div class="trip-hero-budget-lbl">Total budget</div>
-          <div class="trip-hero-budget-val" id="trip-hero-total">—</div>
-        </div>
-        <div style="text-align:right">
-          <div class="trip-hero-budget-lbl">Remaining</div>
-          <div class="trip-hero-budget-val" id="trip-hero-remaining">—</div>
-        </div>
-      </div>
-      <div class="trip-progress-track">
-        <div class="trip-progress-fill" id="trip-progress-fill" style="width:0%"></div>
-      </div>
-      <div class="trip-progress-label" id="trip-progress-label"></div>
-    </div>
-
-    <!-- Hidden gauge elements kept for JS compatibility -->
-    <div class="gauge-card" aria-hidden="true">
-      <svg style="display:none"><circle class="g-arc" id="g-arc"/></svg>
-      <div id="gauge-pct"></div>
-      <div id="gauge-amt"></div>
-    </div>
-
-    <div class="dash-sections">
-
-      <div class="stat-grid">
-        <div class="stat-card stat-card--purple">
-          <div class="stat-card-icon">💰</div>
-          <div class="stat-card-lbl">Total Budget</div>
-          <div class="stat-card-val" id="stat-budget">—</div>
-        </div>
-        <div class="stat-card stat-card--orange">
-          <div class="stat-card-icon">📅</div>
-          <div class="stat-card-lbl">Per Day Left</div>
-          <div class="stat-card-val" id="stat-per-day">—</div>
-        </div>
-      </div>
-
-      <div class="ccy-toggle" id="ccy-toggle" style="display:none">
-        <button class="ccy-btn active" id="ccy-own-btn">EUR</button>
-        <button class="ccy-btn"        id="ccy-dest-btn">—</button>
-      </div>
-      <div class="ccy-rate-row" id="ccy-rate" style="display:none"></div>
-
-      <div class="section-card">
-        <div class="section-card-hdr">
-          <span class="section-card-lbl">Payment Log</span>
-          <button class="icon-btn" id="refresh-btn">↺</button>
-        </div>
-        <div class="payment-list" id="payment-list">
-          <div class="pay-empty">Select a trip to see payments</div>
-        </div>
-      </div>
-
-    </div>
-    <div class="gap-16"></div>
-  </div>
-
   <!-- ══ EXPLORE SCREEN ══ -->
   <div id="screen-explore" class="screen">
 
@@ -830,89 +611,45 @@
       <div class="screen-subtitle">AI recommendations and local events near you.</div>
     </div>
 
-    <div class="explore-inner">
-
-      <div class="recs-section">
-        <div class="recs-hdr">
-          <div class="recs-hdr-left">
-            <span class="recs-hdr-lbl">AI Nearby</span>
-            <span class="recs-geo-note" id="recs-geo-note" style="display:none"></span>
-          </div>
-          <button class="icon-btn" id="recs-refresh-btn">↺</button>
+    <div class="recs-section">
+      <div class="recs-hdr">
+        <div class="recs-hdr-left">
+          <span class="recs-hdr-lbl">AI Nearby</span>
+          <span class="recs-geo-note" id="recs-geo-note" style="display:none"></span>
         </div>
-        <div id="recs-list">
-          <button class="find-btn" onclick="loadRecommendations()">+ Get AI recommendations</button>
-        </div>
+        <button class="icon-btn" id="recs-refresh-btn">↺</button>
       </div>
-
-      <div class="events-section">
-        <div class="events-hdr">
-          <span class="events-hdr-lbl">Events Nearby</span>
-          <button class="icon-btn" id="events-refresh-btn">↺</button>
-        </div>
-        <div class="events-list" id="events-list">
-          <button class="events-find-btn" id="events-find-btn" onclick="loadEvents()">+ Find local events</button>
-        </div>
+      <div id="recs-list">
+        <button class="find-btn" onclick="loadRecommendations()">+ Get AI recommendations</button>
       </div>
-
-      <div class="gap-8"></div>
     </div>
 
-  </div>
-
-  <!-- ══ TRIPS SCREEN ══ -->
-  <div id="screen-trips" class="screen">
-
-    <div class="screen-title-bar">
-      <div class="screen-title">My trips</div>
-      <div class="screen-subtitle">Tap a trip to set it as active.</div>
+    <div class="events-section">
+      <div class="events-hdr">
+        <span class="events-hdr-lbl">Events Nearby</span>
+        <button class="icon-btn" id="events-refresh-btn">↺</button>
+      </div>
+      <div class="events-list" id="events-list">
+        <button class="events-find-btn" id="events-find-btn" onclick="loadEvents()">+ Find local events</button>
+      </div>
     </div>
 
-    <div class="trip-list" id="trip-list"></div>
-    <div class="gap-12"></div>
-    <button class="new-mission-btn" id="new-mission-btn">+ New trip</button>
-    <div class="gap-12"></div>
-    <div id="trip-form-wrap"></div>
-    <div class="gap-8"></div>
-
+    <div class="gap-16"></div>
   </div>
 
   <!-- ══ BOTTOM NAV ══ -->
   <nav id="nav">
 
-    <button class="nav-tab" data-screen="dashboard">
+    <button class="nav-tab" data-screen="home">
       <div class="nav-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="7.5" height="7.5" rx="2"/>
-          <rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/>
-          <rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/>
-          <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>
+          <path d="M3 12L12 3l9 9"/>
+          <path d="M9 21V12h6v9"/>
+          <path d="M4 12v9h16v-9"/>
         </svg>
       </div>
       <div class="nav-pip"></div>
-      Dashboard
-    </button>
-
-    <button class="nav-tab" data-screen="trips">
-      <div class="nav-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17.6 6.8A7.5 7.5 0 1 0 19 11h2"/>
-          <path d="M21 11l-2-2-2 2"/>
-        </svg>
-      </div>
-      <div class="nav-pip"></div>
-      Trips
-    </button>
-
-    <button class="nav-tab nav-scan active" data-screen="scanner">
-      <div class="nav-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9V6a1 1 0 011-1h3M3 15v3a1 1 0 001 1h3m9-16h3a1 1 0 011 1v3m0 9v3a1 1 0 01-1 1h-3"/>
-          <circle cx="12" cy="12" r="3"/>
-        </svg>
-      </div>
-      <div class="nav-pip"></div>
-      Scan
+      Home
     </button>
 
     <button class="nav-tab" data-screen="explore">
@@ -926,7 +663,39 @@
       Explore
     </button>
 
+    <button class="nav-tab nav-scan active" data-screen="scanner">
+      <div class="nav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9V6a1 1 0 011-1h3M3 15v3a1 1 0 001 1h3m9-16h3a1 1 0 011 1v3m0 9v3a1 1 0 01-1 1h-3"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+      <div class="nav-pip"></div>
+      Scan
+    </button>
+
   </nav>
+
+  <!-- ══ BOTTOM SHEET ══ -->
+  <div id="sheet-backdrop" class="sheet-backdrop" onclick="closeSheet()"></div>
+
+  <div id="trip-sheet" class="sheet">
+    <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+    <div class="sheet-hdr">
+      <span class="sheet-title">Your trips</span>
+      <button class="sheet-close-btn" onclick="closeSheet()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="sheet-body">
+      <div id="sheet-trip-list"></div>
+      <div class="sheet-divider"></div>
+      <button class="sheet-new-btn" id="sheet-new-btn" onclick="toggleSheetForm()">+ Plan a new trip</button>
+      <div id="sheet-form-wrap"></div>
+    </div>
+  </div>
 
 </div><!-- #app -->
 
@@ -958,455 +727,159 @@ function showScreen(name) {
   document.querySelectorAll('.nav-tab').forEach(t =>
     t.classList.toggle('active', t.dataset.screen === name)
   );
-  if (name === 'dashboard') loadDashboard();
-  if (name === 'trips')     loadTrips();
-  if (name === 'explore')   loadExplore();
+  if (name === 'home')    loadHome();
+  if (name === 'explore') loadExplore();
   if (name === 'scanner' && (S.scanMode === 'photo' || S.scanMode === 'menu') && cameraState === 'idle') {
     startCamera();
   }
 }
 
 /* ══════════════════════════════════════════════════════════
-   SCANNER
+   BOTTOM SHEET
 ══════════════════════════════════════════════════════════ */
-const fileInput    = document.getElementById('file-input');
-const cameraVideo  = document.getElementById('camera-video');
-const vfStatus     = document.getElementById('vf-status');
-const vfPreview    = document.getElementById('vf-preview');
-const viewfinder   = document.getElementById('viewfinder');
-const scanBtn      = document.getElementById('scan-btn');
-const uploadAltBtn = document.getElementById('upload-alt-btn');
-const resultArea   = document.getElementById('result-area');
-
-uploadAltBtn.addEventListener('click', () => {
-  fileInput.removeAttribute('hidden');
-  fileInput.click();
-});
-
-let cameraState  = 'idle';
-let cameraStream = null;
-
-let voiceState    = 'idle';
-let mediaRecorder = null;
-let audioChunks   = [];
-let recTimer      = null;
-let recSecs       = 0;
-let audioCtx      = null;
-let analyser      = null;
-let animFrame     = null;
-
-document.querySelectorAll('.mode-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    S.scanMode = tab.dataset.mode;
-    resetScan();
-    applyMode(S.scanMode);
-  });
-});
-
-function applyMode(mode) {
-  if (mode === 'voice') {
-    uploadAltBtn.style.display = 'none';
-    fileInput.setAttribute('hidden', '');
-    vfPreview.innerHTML = `
-      <div class="vf-voice">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="9" y="2" width="6" height="12" rx="3"/>
-          <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
-        </svg>
-      </div>`;
-    vfStatus.textContent = 'Ready to record';
-    scanBtn.textContent = 'Start Recording';
-  } else {
-    fileInput.setAttribute('hidden', '');
-    uploadAltBtn.style.display = '';
-    startCamera();
-  }
+function openSheet() {
+  renderSheetTripList();
+  document.getElementById('sheet-backdrop').classList.add('open');
+  document.getElementById('trip-sheet').classList.add('open');
 }
 
-async function startCamera() {
-  cameraState = 'idle';
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-      audio: false,
-    });
-    cameraVideo.srcObject = cameraStream;
-    cameraVideo.classList.add('live');
-    cameraState = 'live';
-    vfStatus.textContent = '';
-    scanBtn.textContent = S.scanMode === 'menu' ? 'Capture Menu' : 'Capture';
-  } catch {
-    cameraVideo.classList.remove('live');
-    fileInput.removeAttribute('hidden');
-    vfStatus.textContent = 'Camera unavailable — select file';
-    scanBtn.textContent = S.scanMode === 'menu' ? 'Select Menu Image' : 'Select Image';
-  }
+function closeSheet() {
+  document.getElementById('sheet-backdrop').classList.remove('open');
+  document.getElementById('trip-sheet').classList.remove('open');
+  // Reset form state
+  document.getElementById('sheet-form-wrap').innerHTML = '';
+  const btn = document.getElementById('sheet-new-btn');
+  if (btn) { btn.textContent = '+ Plan a new trip'; btn.className = 'sheet-new-btn'; }
 }
 
-function stopCamera() {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(t => t.stop());
-    cameraStream = null;
-  }
-  cameraVideo.srcObject = null;
-  cameraVideo.classList.remove('live');
-  cameraState = 'idle';
-}
-
-function captureFrame() {
-  const canvas = document.createElement('canvas');
-  canvas.width  = cameraVideo.videoWidth  || 1280;
-  canvas.height = cameraVideo.videoHeight || 720;
-  canvas.getContext('2d').drawImage(cameraVideo, 0, 0);
-  stopCamera();
-  canvas.toBlob(blob => {
-    S.selectedFile = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
-    const url = URL.createObjectURL(blob);
-    vfPreview.innerHTML = `<img src="${url}" alt="capture">`;
-    viewfinder.classList.add('has-file');
-    cameraState = 'captured';
-    vfStatus.textContent = 'Ready to scan';
-    scanBtn.textContent = S.scanMode === 'menu' ? 'Read Menu' : 'Scan Price';
-  }, 'image/jpeg', 0.92);
-}
-
-fileInput.addEventListener('change', () => {
-  const file = fileInput.files[0];
-  if (!file) return;
-  S.selectedFile = file;
-  stopCamera();
-  cameraState = 'captured';
-  const url = URL.createObjectURL(file);
-  vfPreview.innerHTML = `<img src="${url}" alt="preview" style="opacity:1">`;
-  vfStatus.textContent = 'Ready to scan';
-  vfStatus.classList.add('live');
-  viewfinder.classList.add('has-file');
-  scanBtn.textContent = 'Scan Price';
-});
-
-scanBtn.addEventListener('click', async () => {
-  if (S.scanMode === 'voice') {
-    if (voiceState === 'idle')           startRecording();
-    else if (voiceState === 'recording') stopRecording();
+function renderSheetTripList() {
+  const list = document.getElementById('sheet-trip-list');
+  if (!S.trips.length) {
+    list.innerHTML = '<div class="pay-empty" style="padding:8px 0 4px">No trips yet — create one below</div>';
     return;
   }
-  if (cameraState === 'live')    { captureFrame(); return; }
-  if (cameraState === 'captured' && S.selectedFile) { await performScan(); return; }
-  fileInput.removeAttribute('hidden');
-  fileInput.click();
-});
-
-async function performScan() {
-  const file = S.selectedFile;
-  if (!file) return;
-
-  scanBtn.textContent = 'Reading...';
-  scanBtn.classList.add('amber');
-  scanBtn.disabled = true;
-  resultArea.innerHTML = '';
-
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('payment_type', 'card');
-  const endpoint = S.scanMode === 'menu' ? '/api/menu' : '/api/scan';
-
-  try {
-    const res = await fetch(endpoint, { method: 'POST', body: fd });
-    if (!res.ok) {
-      const e = await res.json().catch(() => ({}));
-      throw new Error(e.detail || `HTTP ${res.status}`);
-    }
-    const data = await res.json();
-    if (S.scanMode === 'menu') renderMenuResult(data);
-    else renderScanResult(data);
-  } catch (err) {
-    resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`;
-  } finally {
-    const label = S.scanMode === 'menu' ? 'Read Menu' : 'Scan Price';
-    scanBtn.textContent = label;
-    scanBtn.classList.remove('amber');
-    scanBtn.disabled = false;
-  }
-}
-
-function renderScanResult(d) {
-  const badge = d.payment_type === 'card' ? '💳 Card' : '🏦 Wire';
-  resultArea.innerHTML = `
-    <div class="result-panel">
-      <div class="result-original">${esc(String(d.input_amount))} ${esc(d.input_currency)}</div>
-      <div class="result-eur">€ ${fmt2(d.total_eur)}</div>
-      <div class="result-meta">+€${fmt4(d.total_fees)} fees · ${esc(d.source || '')}</div>
-      <span class="result-badge">${badge}</span>
-      <button class="ghost-btn full" onclick="resetScan()">New Scan</button>
-    </div>`;
-}
-
-function renderMenuResult(d) {
-  if (!d.items || d.items.length === 0) {
-    resultArea.innerHTML = `<div class="error-panel">No menu items detected</div>`;
-    return;
-  }
-  const rows = d.items.map(item => `
-    <tr>
-      <td><div class="td-name">${esc(item.translated_name)}</div>
-          <div class="td-orig">${esc(item.original_name)}</div></td>
-      <td class="td-price">${esc(item.original_price || '—')}</td>
-      <td class="td-eur">${item.eur != null ? '€' + fmt2(item.eur) : '—'}</td>
-    </tr>`).join('');
-  resultArea.innerHTML = `
-    <div class="menu-panel">
-      <div class="menu-panel-header">Menu · ${d.items.length} items · ${esc(d.currency_iso || '—')}</div>
-      <table class="menu-table">
-        <thead><tr><th>Item</th><th>Price</th><th>EUR</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-    <div class="gap-8"></div>
-    <button class="ghost-btn full" onclick="resetScan()">New Scan</button>`;
-}
-
-function resetScan() {
-  S.selectedFile = null;
-  fileInput.value = '';
-  vfPreview.innerHTML = '';
-  vfStatus.classList.remove('live');
-  viewfinder.classList.remove('has-file');
-  resultArea.innerHTML = '';
-  clearInterval(recTimer);
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-  stopCamera();
-  uploadAltBtn.style.display = (S.scanMode === 'photo' || S.scanMode === 'menu') ? '' : 'none';
-  if (S.scanMode === 'photo' || S.scanMode === 'menu') {
-    startCamera();
-  } else if (S.scanMode === 'voice') {
-    resetVoice(true);
-  } else {
-    vfStatus.textContent = 'Ready';
-  }
-}
-
-/* ══════════════════════════════════════════════════════════
-   VOICE
-══════════════════════════════════════════════════════════ */
-async function startRecording() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mimeType = ['audio/webm;codecs=opus','audio/webm','audio/mp4']
-      .find(t => MediaRecorder.isTypeSupported(t)) || 'audio/webm';
-    mediaRecorder = new MediaRecorder(stream, { mimeType });
-    audioChunks = [];
-
-    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-    mediaRecorder.onstop = () => {
-      stream.getTracks().forEach(t => t.stop());
-      const blob = new Blob(audioChunks, { type: mimeType });
-      submitVoice(blob, mimeType);
-    };
-
-    mediaRecorder.start(200);
-    voiceState = 'recording';
-    recSecs = 0;
-
-    vfStatus.textContent = 'REC 00:00';
-    vfStatus.classList.add('live');
-
-    vfPreview.innerHTML = `
-      <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1C1C1E;">
-        <canvas id="wave-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
-        <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;">
-          <div class="rec-dot"></div>
-          <div class="rec-timer" id="rec-timer">00:00</div>
-        </div>
-      </div>`;
-
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser  = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
-    audioCtx.createMediaStreamSource(stream).connect(analyser);
-
-    const canvas  = document.getElementById('wave-canvas');
-    canvas.width  = canvas.offsetWidth  || 300;
-    canvas.height = canvas.offsetHeight || 200;
-    const wCtx   = canvas.getContext('2d');
-    const bufLen  = analyser.frequencyBinCount;
-    const dataArr = new Uint8Array(bufLen);
-
-    function drawWaveform() {
-      animFrame = requestAnimationFrame(drawWaveform);
-      analyser.getByteTimeDomainData(dataArr);
-      wCtx.clearRect(0, 0, canvas.width, canvas.height);
-      wCtx.lineWidth   = 2;
-      wCtx.strokeStyle = 'rgba(30,200,106,0.9)';
-      wCtx.shadowBlur  = 10;
-      wCtx.shadowColor = 'rgba(30,200,106,0.5)';
-      wCtx.beginPath();
-      const sliceW = canvas.width / bufLen;
-      let x = 0;
-      for (let i = 0; i < bufLen; i++) {
-        const v = dataArr[i] / 128;
-        const y = (v * canvas.height) / 2;
-        i === 0 ? wCtx.moveTo(x, y) : wCtx.lineTo(x, y);
-        x += sliceW;
-      }
-      wCtx.lineTo(canvas.width, canvas.height / 2);
-      wCtx.stroke();
-    }
-    drawWaveform();
-
-    scanBtn.textContent = 'Stop';
-    recTimer = setInterval(() => {
-      recSecs++;
-      const mm = String(Math.floor(recSecs / 60)).padStart(2, '0');
-      const ss = String(recSecs % 60).padStart(2, '0');
-      const t = document.getElementById('rec-timer');
-      if (t) t.textContent = `${mm}:${ss}`;
-      vfStatus.textContent = `REC ${mm}:${ss}`;
-    }, 1000);
-
-  } catch {
-    vfStatus.textContent = 'Mic unavailable';
-    vfStatus.classList.remove('live');
-  }
-}
-
-function stopRecording() {
-  clearInterval(recTimer);
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
-  if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
-  voiceState = 'processing';
-  vfStatus.textContent = 'Analysing...';
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:.12em;';
-  overlay.textContent = 'ANALYSING AUDIO...';
-  const wrapper = vfPreview.querySelector('div');
-  if (wrapper) wrapper.appendChild(overlay);
-  scanBtn.textContent = 'Reading...';
-  scanBtn.disabled = true;
-}
-
-async function submitVoice(blob, mimeType) {
-  const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-  const fd = new FormData();
-  fd.append('file', new File([blob], `voice.${ext}`, { type: mimeType }));
-  fd.append('payment_type', 'card');
-
-  try {
-    const res = await fetch('/api/voice', { method: 'POST', body: fd });
-    if (!res.ok) {
-      const e = await res.json().catch(() => ({}));
-      throw new Error(e.detail || `HTTP ${res.status}`);
-    }
-    const data = await res.json();
-
-    if (data.status === 'no_amount') {
-      resultArea.innerHTML = `
-        <div class="error-panel">No amount detected
-          ${data.transcript ? `<br><span style="opacity:.7;font-size:11px">"${esc(data.transcript)}"</span>` : ''}
-        </div>`;
-      resetVoice();
-    } else if (data.status === 'needs_currency') {
-      showCurrencyPicker(data);
-    } else {
-      if (data.transcript) {
-        resultArea.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);padding:4px 2px;letter-spacing:.06em">"${esc(data.transcript)}"</div>`;
-      }
-      renderScanResult({
-        input_amount: data.amount, input_currency: data.currency,
-        total_eur: data.total_eur, total_fees: data.total_fees,
-        source: data.source, payment_type: data.payment_type,
-      });
-      resetVoice(false);
-    }
-  } catch (err) {
-    resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`;
-    resetVoice();
-  }
-}
-
-function showCurrencyPicker(data) {
-  resultArea.innerHTML = `
-    <div class="ccy-picker">
-      <div class="ccy-picker-transcript">"${esc(data.transcript || '')}"</div>
-      <div class="ccy-picker-label">Detected Amount</div>
-      <div class="ccy-picker-amount">${esc(String(data.amount))}</div>
-      <div class="ccy-picker-label">Currency not detected — enter below</div>
-      <div class="ccy-picker-row">
-        <input class="rf-input" id="voice-ccy" placeholder="e.g. JPY" maxlength="3" style="text-transform:uppercase">
-        <button class="cta-btn" style="width:auto;padding:10px 18px;font-size:13px"
-                onclick="convertVoice(${data.amount})">Convert</button>
+  list.innerHTML = S.trips.map(trip => {
+    const active = S.activeTrip && S.activeTrip.id === trip.id;
+    const dates  = trip.start_date ? `${trip.start_date} → ${trip.end_date || '?'}` : 'Open-ended';
+    return `<div class="sheet-trip-item ${active ? 'active' : ''}" onclick="selectTrip('${esc(trip.id)}')">
+      <div class="sheet-trip-item-info">
+        <div class="sheet-trip-item-name">${esc(trip.name)}</div>
+        <div class="sheet-trip-item-meta">${dates}</div>
+        <div class="sheet-trip-item-budget">€${fmt2(trip.budget_eur)}</div>
       </div>
+      ${active ? '<div class="sheet-trip-check">✓</div>' : ''}
     </div>`;
-  resetVoice(false);
+  }).join('');
 }
 
-async function convertVoice(amount) {
-  const ccy = (document.getElementById('voice-ccy').value || '').trim().toUpperCase();
-  if (!ccy || ccy.length !== 3) { alert('Enter a 3-letter currency code'); return; }
+function selectTrip(tripId) {
+  const trip = S.trips.find(t => t.id === tripId);
+  if (!trip) return;
+  S.activeTrip = trip;
+  document.getElementById('header-trip').textContent = trip.name;
+  document.getElementById('trip-selector-name').textContent = trip.name;
+  closeSheet();
+  loadHome();
+}
+
+function toggleSheetForm() {
+  const wrap = document.getElementById('sheet-form-wrap');
+  const btn  = document.getElementById('sheet-new-btn');
+  if (wrap.children.length) {
+    wrap.innerHTML = '';
+    btn.textContent = '+ Plan a new trip';
+    btn.className = 'sheet-new-btn';
+    return;
+  }
+  btn.textContent = '− Cancel';
+  btn.className = 'sheet-new-btn cancel';
+  wrap.innerHTML = `
+    <div class="trip-form">
+      <div class="form-title">New trip</div>
+      <div class="form-field">
+        <div class="rf-label">Trip Name</div>
+        <input class="rf-input" id="tf-name" placeholder="e.g. Tokyo Spring 2026">
+      </div>
+      <div class="form-field">
+        <div class="rf-label">Budget (EUR)</div>
+        <input class="rf-input" id="tf-budget" type="number" min="0" placeholder="1000">
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <div class="rf-label">Departure</div>
+          <input class="rf-input" id="tf-start" type="date">
+        </div>
+        <div class="form-field">
+          <div class="rf-label">Return</div>
+          <input class="rf-input" id="tf-end" type="date">
+        </div>
+      </div>
+      <div class="form-field">
+        <div class="rf-label">Destination Currency (optional)</div>
+        <input class="rf-input" id="tf-ccy" placeholder="e.g. JPY" maxlength="3" style="text-transform:uppercase">
+      </div>
+      <button class="cta-btn" id="tf-launch">Create Trip</button>
+    </div>`;
+  document.getElementById('tf-launch').addEventListener('click', saveTrip);
+  // Scroll to form
+  setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+async function saveTrip() {
+  const name   = document.getElementById('tf-name').value.trim();
+  const budget = parseFloat(document.getElementById('tf-budget').value);
+  const start  = document.getElementById('tf-start').value || null;
+  const end    = document.getElementById('tf-end').value   || null;
+  const ccy    = (document.getElementById('tf-ccy').value || '').trim().toUpperCase() || null;
+
+  if (!name || isNaN(budget) || budget <= 0) { alert('Trip name and budget are required'); return; }
+  if (start && end && end < start) { alert('Return date must be after departure'); return; }
+
+  const btn = document.getElementById('tf-launch');
+  btn.textContent = 'Creating...'; btn.disabled = true;
+
   try {
-    const res = await fetch('/api/convert', {
+    const res = await fetch('/api/trips', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, currency: ccy, payment_type: 'card' }),
+      body: JSON.stringify({ name, budget_eur: budget, start_date: start, end_date: end, default_currency: ccy }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const fx = await res.json();
-    renderScanResult({
-      input_amount: amount, input_currency: ccy,
-      total_eur: fx.total_eur, total_fees: fx.total_fees,
-      source: fx.source, payment_type: fx.payment_type,
-    });
+    const trip = await res.json();
+    S.trips.push(trip);
+    S.activeTrip = trip;
+    document.getElementById('header-trip').textContent = trip.name;
+    document.getElementById('trip-selector-name').textContent = trip.name;
+    closeSheet();
+    loadHome();
   } catch (err) {
-    alert('Conversion failed: ' + err.message);
-  }
-}
-
-function resetVoice(resetUI = true) {
-  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
-  if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
-  voiceState = 'idle';
-  scanBtn.disabled = false;
-  scanBtn.textContent = 'Start Recording';
-  if (resetUI) {
-    vfStatus.textContent = 'Ready to record';
-    vfStatus.classList.remove('live');
-    vfPreview.innerHTML = `
-      <div class="vf-voice">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="9" y="2" width="6" height="12" rx="3"/>
-          <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
-        </svg>
-      </div>`;
-    resultArea.innerHTML = '';
+    alert('Creation failed: ' + err.message);
+    btn.textContent = 'Create Trip'; btn.disabled = false;
   }
 }
 
 /* ══════════════════════════════════════════════════════════
-   DASHBOARD
+   HOME
 ══════════════════════════════════════════════════════════ */
 const CIRC = 2 * Math.PI * 78;
 
-async function loadDashboard() {
-  if (!S.activeTrip) {
-    document.getElementById('mission-name').textContent = '—';
+async function loadHome() {
+  // Show/hide empty state vs content
+  const noTrips  = S.trips.length === 0;
+  const noActive = !S.activeTrip;
+
+  document.getElementById('home-empty').style.display   = (noTrips || noActive) ? 'flex' : 'none';
+  document.getElementById('home-content').style.display = (!noTrips && !noActive) ? 'block' : 'none';
+
+  if (noTrips || noActive) {
     resetHeroCard();
-    setGauge(0, 0, 1, 'EUR');
-    document.getElementById('stat-budget').textContent = '—';
-    document.getElementById('stat-per-day').textContent = '—';
-    document.getElementById('payment-list').innerHTML =
-      '<div class="pay-empty">Select a trip to see payments</div>';
-    document.getElementById('ccy-toggle').style.display = 'none';
-    document.getElementById('ccy-rate').style.display = 'none';
     return;
   }
 
   const trip = S.activeTrip;
   document.getElementById('mission-name').textContent = trip.name;
   initHeroCard(trip);
-  document.getElementById('payment-list').innerHTML =
-    '<div class="pay-empty">Loading...</div>';
+  document.getElementById('payment-list').innerHTML = '<div class="pay-empty">Loading...</div>';
 
   try {
     const res = await fetch(`/api/trips/${trip.id}/dashboard`);
@@ -1436,7 +909,6 @@ async function loadDashboard() {
     } else {
       toggle.style.display = 'none';
     }
-
     document.getElementById('ccy-rate').style.display = 'none';
     if (destCcy) fetchDestRate(destCcy);
 
@@ -1447,12 +919,11 @@ async function loadDashboard() {
   }
 }
 
-/* ── Hero card helpers ── */
 function resetHeroCard() {
   const hero = document.getElementById('trip-hero');
   if (hero) hero.classList.add('empty');
   setEl('trip-active-label', 'No active trip');
-  setEl('trip-hero-dates', 'Select a trip to get started');
+  setEl('trip-hero-dates', '—');
   setEl('trip-hero-remaining', '—');
   setEl('trip-hero-total', '—');
   const fill = document.getElementById('trip-progress-fill');
@@ -1479,30 +950,19 @@ function setEl(id, text) {
   if (el) el.textContent = text;
 }
 
-/* ── Gauge (updates hero card + compat elements) ── */
 function setGauge(pct, remaining, total, ccy) {
-  // Compat: hidden SVG arc
   const arc = document.getElementById('g-arc');
-  if (arc) {
-    arc.style.strokeDashoffset = CIRC * (1 - pct);
-    arc.style.stroke = pct > .6 ? '#1EC86A' : pct > .3 ? '#F59E0B' : '#EF4444';
-  }
+  if (arc) { arc.style.strokeDashoffset = CIRC * (1 - pct); arc.style.stroke = pct > .6 ? '#1EC86A' : pct > .3 ? '#F59E0B' : '#EF4444'; }
   setEl('gauge-pct', `${Math.round(pct * 100)}%`);
-  const amtLabel = (!ccy || ccy === 'EUR') ? `€${fmt2(remaining)}` : `${fmt2(remaining)} ${ccy}`;
-  setEl('gauge-amt', amtLabel);
+  setEl('gauge-amt', (!ccy || ccy === 'EUR') ? `€${fmt2(remaining)}` : `${fmt2(remaining)} ${ccy}`);
 
-  // Hero card progress bar
   const fill = document.getElementById('trip-progress-fill');
   if (fill) fill.style.width = `${Math.round(Math.max(0, Math.min(1, pct)) * 100)}%`;
-  const spentPct = Math.round((1 - Math.max(0, Math.min(1, pct))) * 100);
-  setEl('trip-progress-label', S.activeTrip ? `${spentPct}% used` : '');
+  setEl('trip-progress-label', S.activeTrip ? `${Math.round((1 - Math.max(0, Math.min(1, pct))) * 100)}% used` : '');
 
-  // Hero card amounts
   if (S.activeTrip) {
-    const remStr   = (!ccy || ccy === 'EUR') ? `€${fmt2(remaining)}` : `${fmt2(remaining)} ${ccy}`;
-    const totalStr = (!ccy || ccy === 'EUR') ? `€${fmt2(total)}`     : `${fmt2(total)} ${ccy}`;
-    setEl('trip-hero-remaining', remStr);
-    setEl('trip-hero-total',     totalStr);
+    setEl('trip-hero-remaining', (!ccy || ccy === 'EUR') ? `€${fmt2(remaining)}` : `${fmt2(remaining)} ${ccy}`);
+    setEl('trip-hero-total',     (!ccy || ccy === 'EUR') ? `€${fmt2(total)}`     : `${fmt2(total)} ${ccy}`);
   }
 }
 
@@ -1528,9 +988,8 @@ async function applyDashCurrency(useDestCcy) {
   if (!useDestCcy || !destCcy) {
     const pct = Math.max(0, Math.min(1, remaining / budget));
     setGauge(pct, remaining, budget, ownCcy);
-    document.getElementById('stat-budget').textContent = `${ownCcy} ${fmt2(budget)}`;
-    document.getElementById('stat-per-day').textContent =
-      daysLeft ? `${ownCcy} ${fmt2(remaining / daysLeft)}` : '—';
+    document.getElementById('stat-budget').textContent  = `${ownCcy} ${fmt2(budget)}`;
+    document.getElementById('stat-per-day').textContent = daysLeft ? `${ownCcy} ${fmt2(remaining / daysLeft)}` : '—';
     renderPayments(payments, ownCcy);
     return;
   }
@@ -1538,34 +997,26 @@ async function applyDashCurrency(useDestCcy) {
   if (!S.destRate) {
     try {
       const res = await fetch('/api/convert', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: 1.0, currency: destCcy, payment_type: 'card' }),
       });
-      if (res.ok) {
-        const fx = await res.json();
-        S.destRate = fx.total_eur > 0 ? 1.0 / fx.total_eur : 1;
-      }
+      if (res.ok) { const fx = await res.json(); S.destRate = fx.total_eur > 0 ? 1.0 / fx.total_eur : 1; }
     } catch { S.destRate = 1; }
   }
 
   const rate    = S.destRate || 1;
   const remD    = remaining * rate;
   const budgetD = budget * rate;
-  const pct     = Math.max(0, Math.min(1, remD / budgetD));
-  setGauge(pct, remD, budgetD, destCcy);
-  document.getElementById('stat-budget').textContent = `${destCcy} ${fmt2(budgetD)}`;
-  document.getElementById('stat-per-day').textContent =
-    daysLeft ? `${destCcy} ${fmt2(remD / daysLeft)}` : '—';
-  const converted = payments.map(p => ({ ...p, amount: parseFloat(p.amount) * rate }));
-  renderPayments(converted, destCcy);
+  setGauge(Math.max(0, Math.min(1, remD / budgetD)), remD, budgetD, destCcy);
+  document.getElementById('stat-budget').textContent  = `${destCcy} ${fmt2(budgetD)}`;
+  document.getElementById('stat-per-day').textContent = daysLeft ? `${destCcy} ${fmt2(remD / daysLeft)}` : '—';
+  renderPayments(payments.map(p => ({ ...p, amount: parseFloat(p.amount) * rate })), destCcy);
 }
 
 async function fetchDestRate(destCcy) {
   try {
     const res = await fetch('/api/convert', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: 1.0, currency: destCcy, payment_type: 'card' }),
     });
     if (!res.ok) return;
@@ -1574,8 +1025,7 @@ async function fetchDestRate(destCcy) {
       S.destRate = 1.0 / fx.total_eur;
       const el = document.getElementById('ccy-rate');
       if (el && S.dash && S.dash.destCcy === destCcy) {
-        el.textContent = `1 EUR ≈ ${fmt2(S.destRate)} ${destCcy}`;
-        el.style.display = '';
+        el.textContent = `1 EUR ≈ ${fmt2(S.destRate)} ${destCcy}`; el.style.display = '';
       }
     }
   } catch { /* silent */ }
@@ -1583,23 +1033,15 @@ async function fetchDestRate(destCcy) {
 
 function renderPayments(payments, ccy) {
   const list = document.getElementById('payment-list');
-  if (!payments.length) {
-    list.innerHTML = '<div class="pay-empty">No payments found</div>';
-    return;
-  }
+  if (!payments.length) { list.innerHTML = '<div class="pay-empty">No payments found</div>'; return; }
   list.innerHTML = payments.slice(0, 100).map(p => {
     const isDb = p.type === 'debit';
     const amt  = Math.abs(parseFloat(p.amount));
-    const sign = isDb ? '−' : '+';
-    const cls  = isDb ? 'db' : 'cr';
-    const date = fmtDate(p.date);
-    const desc = esc((p.description || p.counterparty || '—').slice(0, 32));
-    const icon = isDb ? '↗' : '↙';
     return `<div class="pay-row">
-      <div class="pay-icon">${icon}</div>
-      <span class="pay-desc">${desc}</span>
-      <span class="pay-date">${date}</span>
-      <span class="pay-amt ${cls}">${sign}${ccy} ${fmt2(amt)}</span>
+      <div class="pay-icon">${isDb ? '↗' : '↙'}</div>
+      <span class="pay-desc">${esc((p.description || p.counterparty || '—').slice(0, 32))}</span>
+      <span class="pay-date">${fmtDate(p.date)}</span>
+      <span class="pay-amt ${isDb ? 'db' : 'cr'}">${isDb ? '−' : '+'}${ccy} ${fmt2(amt)}</span>
     </div>`;
   }).join('');
 }
@@ -1607,91 +1049,280 @@ function renderPayments(payments, ccy) {
 document.getElementById('refresh-btn').addEventListener('click', function () {
   this.classList.add('spin');
   setTimeout(() => this.classList.remove('spin'), 550);
-  loadDashboard();
+  loadHome();
 });
+
+/* ══════════════════════════════════════════════════════════
+   SCANNER
+══════════════════════════════════════════════════════════ */
+const fileInput    = document.getElementById('file-input');
+const cameraVideo  = document.getElementById('camera-video');
+const vfStatus     = document.getElementById('vf-status');
+const vfPreview    = document.getElementById('vf-preview');
+const viewfinder   = document.getElementById('viewfinder');
+const scanBtn      = document.getElementById('scan-btn');
+const uploadAltBtn = document.getElementById('upload-alt-btn');
+const resultArea   = document.getElementById('result-area');
+
+uploadAltBtn.addEventListener('click', () => { fileInput.removeAttribute('hidden'); fileInput.click(); });
+
+let cameraState  = 'idle', cameraStream = null;
+let voiceState   = 'idle', mediaRecorder = null, audioChunks = [], recTimer = null, recSecs = 0;
+let audioCtx = null, analyser = null, animFrame = null;
+
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    S.scanMode = tab.dataset.mode;
+    resetScan(); applyMode(S.scanMode);
+  });
+});
+
+function applyMode(mode) {
+  if (mode === 'voice') {
+    uploadAltBtn.style.display = 'none'; fileInput.setAttribute('hidden', '');
+    vfPreview.innerHTML = `<div class="vf-voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg></div>`;
+    vfStatus.textContent = 'Ready to record'; scanBtn.textContent = 'Start Recording';
+  } else {
+    fileInput.setAttribute('hidden', ''); uploadAltBtn.style.display = ''; startCamera();
+  }
+}
+
+async function startCamera() {
+  cameraState = 'idle';
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+    cameraVideo.srcObject = cameraStream; cameraVideo.classList.add('live');
+    cameraState = 'live'; vfStatus.textContent = '';
+    scanBtn.textContent = S.scanMode === 'menu' ? 'Capture Menu' : 'Capture';
+  } catch {
+    cameraVideo.classList.remove('live'); fileInput.removeAttribute('hidden');
+    vfStatus.textContent = 'Camera unavailable — select file';
+    scanBtn.textContent = S.scanMode === 'menu' ? 'Select Menu Image' : 'Select Image';
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  cameraVideo.srcObject = null; cameraVideo.classList.remove('live'); cameraState = 'idle';
+}
+
+function captureFrame() {
+  const canvas = document.createElement('canvas');
+  canvas.width = cameraVideo.videoWidth || 1280; canvas.height = cameraVideo.videoHeight || 720;
+  canvas.getContext('2d').drawImage(cameraVideo, 0, 0); stopCamera();
+  canvas.toBlob(blob => {
+    S.selectedFile = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
+    vfPreview.innerHTML = `<img src="${URL.createObjectURL(blob)}" alt="capture">`;
+    viewfinder.classList.add('has-file'); cameraState = 'captured';
+    vfStatus.textContent = 'Ready to scan';
+    scanBtn.textContent = S.scanMode === 'menu' ? 'Read Menu' : 'Scan Price';
+  }, 'image/jpeg', 0.92);
+}
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0]; if (!file) return;
+  S.selectedFile = file; stopCamera(); cameraState = 'captured';
+  vfPreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="preview" style="opacity:1">`;
+  vfStatus.textContent = 'Ready to scan'; vfStatus.classList.add('live');
+  viewfinder.classList.add('has-file'); scanBtn.textContent = 'Scan Price';
+});
+
+scanBtn.addEventListener('click', async () => {
+  if (S.scanMode === 'voice') { if (voiceState === 'idle') startRecording(); else if (voiceState === 'recording') stopRecording(); return; }
+  if (cameraState === 'live') { captureFrame(); return; }
+  if (cameraState === 'captured' && S.selectedFile) { await performScan(); return; }
+  fileInput.removeAttribute('hidden'); fileInput.click();
+});
+
+async function performScan() {
+  const file = S.selectedFile; if (!file) return;
+  scanBtn.textContent = 'Reading...'; scanBtn.classList.add('amber'); scanBtn.disabled = true;
+  resultArea.innerHTML = '';
+  const fd = new FormData();
+  fd.append('file', file); fd.append('payment_type', 'card');
+  const endpoint = S.scanMode === 'menu' ? '/api/menu' : '/api/scan';
+  try {
+    const res = await fetch(endpoint, { method: 'POST', body: fd });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `HTTP ${res.status}`); }
+    const data = await res.json();
+    if (S.scanMode === 'menu') renderMenuResult(data); else renderScanResult(data);
+  } catch (err) {
+    resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`;
+  } finally {
+    scanBtn.textContent = S.scanMode === 'menu' ? 'Read Menu' : 'Scan Price';
+    scanBtn.classList.remove('amber'); scanBtn.disabled = false;
+  }
+}
+
+function renderScanResult(d) {
+  resultArea.innerHTML = `
+    <div class="result-panel">
+      <div class="result-original">${esc(String(d.input_amount))} ${esc(d.input_currency)}</div>
+      <div class="result-eur">€ ${fmt2(d.total_eur)}</div>
+      <div class="result-meta">+€${fmt4(d.total_fees)} fees · ${esc(d.source || '')}</div>
+      <span class="result-badge">${d.payment_type === 'card' ? '💳 Card' : '🏦 Wire'}</span>
+      <button class="ghost-btn full" onclick="resetScan()">New Scan</button>
+    </div>`;
+}
+
+function renderMenuResult(d) {
+  if (!d.items || d.items.length === 0) { resultArea.innerHTML = `<div class="error-panel">No menu items detected</div>`; return; }
+  const rows = d.items.map(item => `<tr><td><div class="td-name">${esc(item.translated_name)}</div><div class="td-orig">${esc(item.original_name)}</div></td><td class="td-price">${esc(item.original_price || '—')}</td><td class="td-eur">${item.eur != null ? '€' + fmt2(item.eur) : '—'}</td></tr>`).join('');
+  resultArea.innerHTML = `<div class="menu-panel"><div class="menu-panel-header">Menu · ${d.items.length} items · ${esc(d.currency_iso || '—')}</div><table class="menu-table"><thead><tr><th>Item</th><th>Price</th><th>EUR</th></tr></thead><tbody>${rows}</tbody></table></div><div class="gap-8"></div><button class="ghost-btn full" onclick="resetScan()">New Scan</button>`;
+}
+
+function resetScan() {
+  S.selectedFile = null; fileInput.value = ''; vfPreview.innerHTML = '';
+  vfStatus.classList.remove('live'); viewfinder.classList.remove('has-file'); resultArea.innerHTML = '';
+  clearInterval(recTimer);
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  stopCamera();
+  uploadAltBtn.style.display = (S.scanMode === 'photo' || S.scanMode === 'menu') ? '' : 'none';
+  if (S.scanMode === 'photo' || S.scanMode === 'menu') startCamera();
+  else if (S.scanMode === 'voice') resetVoice(true);
+  else vfStatus.textContent = 'Ready';
+}
+
+/* ══════════════════════════════════════════════════════════
+   VOICE
+══════════════════════════════════════════════════════════ */
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = ['audio/webm;codecs=opus','audio/webm','audio/mp4'].find(t => MediaRecorder.isTypeSupported(t)) || 'audio/webm';
+    mediaRecorder = new MediaRecorder(stream, { mimeType }); audioChunks = [];
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); submitVoice(new Blob(audioChunks, { type: mimeType }), mimeType); };
+    mediaRecorder.start(200); voiceState = 'recording'; recSecs = 0;
+    vfStatus.textContent = 'REC 00:00'; vfStatus.classList.add('live');
+    vfPreview.innerHTML = `<div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1C1C1E;"><canvas id="wave-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas><div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;"><div class="rec-dot"></div><div class="rec-timer" id="rec-timer">00:00</div></div></div>`;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)(); analyser = audioCtx.createAnalyser(); analyser.fftSize = 256;
+    audioCtx.createMediaStreamSource(stream).connect(analyser);
+    const canvas = document.getElementById('wave-canvas'); canvas.width = canvas.offsetWidth || 300; canvas.height = canvas.offsetHeight || 200;
+    const wCtx = canvas.getContext('2d'), bufLen = analyser.frequencyBinCount, dataArr = new Uint8Array(bufLen);
+    function drawWaveform() {
+      animFrame = requestAnimationFrame(drawWaveform); analyser.getByteTimeDomainData(dataArr);
+      wCtx.clearRect(0, 0, canvas.width, canvas.height); wCtx.lineWidth = 2; wCtx.strokeStyle = 'rgba(30,200,106,0.9)'; wCtx.shadowBlur = 10; wCtx.shadowColor = 'rgba(30,200,106,0.5)';
+      wCtx.beginPath(); const sliceW = canvas.width / bufLen; let x = 0;
+      for (let i = 0; i < bufLen; i++) { const v = dataArr[i] / 128, y = (v * canvas.height) / 2; i === 0 ? wCtx.moveTo(x, y) : wCtx.lineTo(x, y); x += sliceW; }
+      wCtx.lineTo(canvas.width, canvas.height / 2); wCtx.stroke();
+    }
+    drawWaveform(); scanBtn.textContent = 'Stop';
+    recTimer = setInterval(() => {
+      recSecs++;
+      const mm = String(Math.floor(recSecs / 60)).padStart(2,'0'), ss = String(recSecs % 60).padStart(2,'0');
+      const t = document.getElementById('rec-timer'); if (t) t.textContent = `${mm}:${ss}`;
+      vfStatus.textContent = `REC ${mm}:${ss}`;
+    }, 1000);
+  } catch { vfStatus.textContent = 'Mic unavailable'; vfStatus.classList.remove('live'); }
+}
+
+function stopRecording() {
+  clearInterval(recTimer);
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
+  voiceState = 'processing'; vfStatus.textContent = 'Analysing...';
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:.12em;';
+  overlay.textContent = 'ANALYSING AUDIO...';
+  const wrapper = vfPreview.querySelector('div'); if (wrapper) wrapper.appendChild(overlay);
+  scanBtn.textContent = 'Reading...'; scanBtn.disabled = true;
+}
+
+async function submitVoice(blob, mimeType) {
+  const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+  const fd = new FormData(); fd.append('file', new File([blob], `voice.${ext}`, { type: mimeType })); fd.append('payment_type', 'card');
+  try {
+    const res = await fetch('/api/voice', { method: 'POST', body: fd });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `HTTP ${res.status}`); }
+    const data = await res.json();
+    if (data.status === 'no_amount') {
+      resultArea.innerHTML = `<div class="error-panel">No amount detected${data.transcript ? `<br><span style="opacity:.7;font-size:11px">"${esc(data.transcript)}"</span>` : ''}</div>`; resetVoice();
+    } else if (data.status === 'needs_currency') {
+      showCurrencyPicker(data);
+    } else {
+      if (data.transcript) resultArea.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);padding:4px 2px;letter-spacing:.06em">"${esc(data.transcript)}"</div>`;
+      renderScanResult({ input_amount: data.amount, input_currency: data.currency, total_eur: data.total_eur, total_fees: data.total_fees, source: data.source, payment_type: data.payment_type });
+      resetVoice(false);
+    }
+  } catch (err) { resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`; resetVoice(); }
+}
+
+function showCurrencyPicker(data) {
+  resultArea.innerHTML = `<div class="ccy-picker"><div class="ccy-picker-transcript">"${esc(data.transcript || '')}"</div><div class="ccy-picker-label">Detected Amount</div><div class="ccy-picker-amount">${esc(String(data.amount))}</div><div class="ccy-picker-label">Currency not detected — enter below</div><div class="ccy-picker-row"><input class="rf-input" id="voice-ccy" placeholder="e.g. JPY" maxlength="3" style="text-transform:uppercase"><button class="cta-btn" style="width:auto;padding:10px 18px;font-size:13px" onclick="convertVoice(${data.amount})">Convert</button></div></div>`;
+  resetVoice(false);
+}
+
+async function convertVoice(amount) {
+  const ccy = (document.getElementById('voice-ccy').value || '').trim().toUpperCase();
+  if (!ccy || ccy.length !== 3) { alert('Enter a 3-letter currency code'); return; }
+  try {
+    const res = await fetch('/api/convert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount, currency: ccy, payment_type: 'card' }) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const fx = await res.json();
+    renderScanResult({ input_amount: amount, input_currency: ccy, total_eur: fx.total_eur, total_fees: fx.total_fees, source: fx.source, payment_type: fx.payment_type });
+  } catch (err) { alert('Conversion failed: ' + err.message); }
+}
+
+function resetVoice(resetUI = true) {
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
+  voiceState = 'idle'; scanBtn.disabled = false; scanBtn.textContent = 'Start Recording';
+  if (resetUI) {
+    vfStatus.textContent = 'Ready to record'; vfStatus.classList.remove('live');
+    vfPreview.innerHTML = `<div class="vf-voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg></div>`;
+    resultArea.innerHTML = '';
+  }
+}
 
 /* ══════════════════════════════════════════════════════════
    EXPLORE
 ══════════════════════════════════════════════════════════ */
-function loadExplore() {
-  fetchRecsGeoHint();
-}
+function loadExplore() { fetchRecsGeoHint(); }
 
 async function fetchRecsGeoHint() {
   try {
-    const res = await fetch('/api/geo');
-    if (!res.ok) return;
-    const d = await res.json();
-    const el = document.getElementById('recs-geo-note');
-    if (!el) return;
+    const res = await fetch('/api/geo'); if (!res.ok) return;
+    const d = await res.json(), el = document.getElementById('recs-geo-note'); if (!el) return;
     const loc = [d.city, d.country_name].filter(Boolean).join(', ');
     if (loc) { el.textContent = loc; el.style.display = ''; }
-    else if (d.country_name) { el.textContent = d.country_name; el.style.display = ''; }
   } catch { /* silent */ }
 }
 
 document.getElementById('recs-refresh-btn').addEventListener('click', function () {
-  this.classList.add('spin');
-  setTimeout(() => this.classList.remove('spin'), 550);
-  loadRecommendations();
+  this.classList.add('spin'); setTimeout(() => this.classList.remove('spin'), 550); loadRecommendations();
 });
 
 async function loadRecommendations() {
   const list = document.getElementById('recs-list');
-  if (!S.activeTrip) {
-    list.innerHTML = '<div class="events-empty">Select a journey first</div>';
-    return;
-  }
+  if (!S.activeTrip) { list.innerHTML = '<div class="events-empty">Select a trip first</div>'; return; }
   list.innerHTML = '<div class="events-empty">Consulting AI agent...</div>';
   try {
     const res = await fetch(`/api/recommendations?trip_id=${encodeURIComponent(S.activeTrip.id)}&limit=5`);
-    if (!res.ok) {
-      const e = await res.json().catch(() => ({}));
-      throw new Error(e.detail || `HTTP ${res.status}`);
-    }
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `HTTP ${res.status}`); }
     const data = await res.json();
     renderRecommendations(data.recommendations || []);
     const geoEl = document.getElementById('recs-geo-note');
-    if (geoEl) {
-      const loc = [data.geo_city, data.geo_country].filter(Boolean).join(', ');
-      if (loc) { geoEl.textContent = loc; geoEl.style.display = ''; }
-    }
-  } catch (err) {
-    list.innerHTML = `<div class="events-empty">${esc(err.message)}</div>`;
-  }
+    if (geoEl) { const loc = [data.geo_city, data.geo_country].filter(Boolean).join(', '); if (loc) { geoEl.textContent = loc; geoEl.style.display = ''; } }
+  } catch (err) { list.innerHTML = `<div class="events-empty">${esc(err.message)}</div>`; }
 }
 
 function renderRecommendations(recs) {
   const list = document.getElementById('recs-list');
-  if (!recs.length) {
-    list.innerHTML = '<div class="events-empty">No recommendations found</div>';
-    return;
-  }
+  if (!recs.length) { list.innerHTML = '<div class="events-empty">No recommendations found</div>'; return; }
   list.innerHTML = recs.map(r => {
-    const dist  = r.distance_m != null ? `${Math.round(r.distance_m)}m away` : '';
-    const stars = r.rating != null ? `★ ${r.rating}` : '';
-    const price = r.price_level_label || '';
-    const meta  = [r.category, stars, price].filter(Boolean).join(' · ');
-    const mapsBtn = r.google_maps_uri
-      ? `<a class="rec-maps-link" href="${esc(r.google_maps_uri)}" target="_blank" rel="noopener">↗ Maps</a>`
-      : '';
-    return `<div class="rec-card">
-      <div class="rec-name-row">
-        <span class="rec-name">${esc(r.place_name)}</span>
-        ${dist ? `<span class="rec-dist">${esc(dist)}</span>` : ''}
-      </div>
-      ${meta ? `<div class="rec-meta">${esc(meta)}</div>` : ''}
-      <div class="rec-why">${esc(r.why)}</div>
-      ${r.formatted_address ? `<div class="rec-address">${esc(r.formatted_address)}</div>` : ''}
-      ${mapsBtn}
-    </div>`;
+    const dist = r.distance_m != null ? `${Math.round(r.distance_m)}m away` : '';
+    const meta = [r.category, r.rating != null ? `★ ${r.rating}` : '', r.price_level_label || ''].filter(Boolean).join(' · ');
+    const mapsBtn = r.google_maps_uri ? `<a class="rec-maps-link" href="${esc(r.google_maps_uri)}" target="_blank" rel="noopener">↗ Maps</a>` : '';
+    return `<div class="rec-card"><div class="rec-name-row"><span class="rec-name">${esc(r.place_name)}</span>${dist ? `<span class="rec-dist">${esc(dist)}</span>` : ''}</div>${meta ? `<div class="rec-meta">${esc(meta)}</div>` : ''}<div class="rec-why">${esc(r.why)}</div>${r.formatted_address ? `<div class="rec-address">${esc(r.formatted_address)}</div>` : ''}${mapsBtn}</div>`;
   }).join('');
 }
 
 document.getElementById('events-refresh-btn').addEventListener('click', function () {
-  this.classList.add('spin');
-  setTimeout(() => this.classList.remove('spin'), 550);
-  loadEvents();
+  this.classList.add('spin'); setTimeout(() => this.classList.remove('spin'), 550); loadEvents();
 });
 
 async function loadEvents() {
@@ -1699,152 +1330,20 @@ async function loadEvents() {
   list.innerHTML = '<div class="events-empty">Scanning nearby...</div>';
   try {
     const res = await fetch('/api/events?radius=25&size=8');
-    if (!res.ok) {
-      const e = await res.json().catch(() => ({}));
-      throw new Error(e.detail || `HTTP ${res.status}`);
-    }
-    const data = await res.json();
-    renderEvents(data.events || []);
-  } catch (err) {
-    list.innerHTML = `<div class="events-empty">${esc(err.message)}</div>`;
-  }
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `HTTP ${res.status}`); }
+    renderEvents((await res.json()).events || []);
+  } catch (err) { list.innerHTML = `<div class="events-empty">${esc(err.message)}</div>`; }
 }
 
 function renderEvents(events) {
   const list = document.getElementById('events-list');
-  if (!events.length) {
-    list.innerHTML = '<div class="events-empty">No events found nearby</div>';
-    return;
-  }
+  if (!events.length) { list.innerHTML = '<div class="events-empty">No events found nearby</div>'; return; }
   list.innerHTML = events.map(ev => {
-    const date  = ev.date ? fmtDate(ev.date) : '—';
-    const time  = ev.time ? ev.time.slice(0, 5) : '';
-    const when  = time ? `${date} · ${time}` : date;
-    const cat   = ev.category ? `[${esc(ev.category.toUpperCase())}] ` : '';
-    const price = ev.price_min != null
-      ? `€${fmt2(ev.price_min)}${ev.price_max != null && ev.price_max !== ev.price_min ? '–€' + fmt2(ev.price_max) : ''}`
-      : '';
-    const imgEl = ev.image
-      ? `<img class="event-img" src="${esc(ev.image)}" alt="" loading="lazy">`
-      : `<div class="event-img-placeholder">🎟</div>`;
-    return `<a class="event-card" href="${esc(ev.url || '#')}" target="_blank" rel="noopener">
-      ${imgEl}
-      <div class="event-info">
-        <div class="event-name">${cat}${esc(ev.name)}</div>
-        <div class="event-meta">${when}</div>
-        <div class="event-venue">${esc(ev.venue || ev.city || '')}</div>
-      </div>
-      ${price ? `<div class="event-price">${price}</div>` : ''}
-    </a>`;
+    const when  = ev.time ? `${ev.date ? fmtDate(ev.date) : '—'} · ${ev.time.slice(0,5)}` : (ev.date ? fmtDate(ev.date) : '—');
+    const price = ev.price_min != null ? `€${fmt2(ev.price_min)}${ev.price_max != null && ev.price_max !== ev.price_min ? '–€'+fmt2(ev.price_max) : ''}` : '';
+    const imgEl = ev.image ? `<img class="event-img" src="${esc(ev.image)}" alt="" loading="lazy">` : `<div class="event-img-placeholder">🎟</div>`;
+    return `<a class="event-card" href="${esc(ev.url||'#')}" target="_blank" rel="noopener">${imgEl}<div class="event-info"><div class="event-name">${ev.category?`[${esc(ev.category.toUpperCase())}] `:''}${esc(ev.name)}</div><div class="event-meta">${when}</div><div class="event-venue">${esc(ev.venue||ev.city||'')}</div></div>${price?`<div class="event-price">${price}</div>`:''}</a>`;
   }).join('');
-}
-
-/* ══════════════════════════════════════════════════════════
-   TRIPS
-══════════════════════════════════════════════════════════ */
-async function loadTrips() {
-  try {
-    const res = await fetch('/api/trips');
-    S.trips = await res.json();
-    renderTripList();
-  } catch (err) {
-    document.getElementById('trip-list').innerHTML =
-      `<div class="error-panel">Error: ${esc(err.message)}</div>`;
-  }
-}
-
-function renderTripList() {
-  const el = document.getElementById('trip-list');
-  if (!S.trips.length) {
-    el.innerHTML = '<div class="pay-empty">No trips yet — create one below</div>';
-    return;
-  }
-  el.innerHTML = S.trips.map(trip => {
-    const active = S.activeTrip && S.activeTrip.id === trip.id;
-    const dates  = trip.start_date ? `${trip.start_date} → ${trip.end_date || '?'}` : 'Open-ended';
-    return `<div class="trip-card ${active ? 'active' : ''}" data-id="${trip.id}">
-      <div class="trip-card-name">${esc(trip.name)}</div>
-      <div class="trip-card-meta">${dates}</div>
-      <div class="trip-card-budget">€${fmt2(trip.budget_eur)}</div>
-      ${active ? '<div class="trip-active-pill">Active</div>' : ''}
-    </div>`;
-  }).join('');
-
-  el.querySelectorAll('.trip-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const trip = S.trips.find(t => t.id === card.dataset.id);
-      if (!trip) return;
-      S.activeTrip = trip;
-      document.getElementById('header-trip').textContent = trip.name;
-      renderTripList();
-    });
-  });
-}
-
-document.getElementById('new-mission-btn').addEventListener('click', () => {
-  const wrap = document.getElementById('trip-form-wrap');
-  if (wrap.children.length) { wrap.innerHTML = ''; return; }
-  wrap.innerHTML = `
-    <div class="trip-form">
-      <div class="form-title">New trip</div>
-      <div class="form-field">
-        <div class="rf-label">Trip Name</div>
-        <input class="rf-input" id="tf-name" placeholder="e.g. Tokyo Spring 2026">
-      </div>
-      <div class="form-field">
-        <div class="rf-label">Budget (EUR)</div>
-        <input class="rf-input" id="tf-budget" type="number" min="0" placeholder="1000">
-      </div>
-      <div class="form-row">
-        <div class="form-field">
-          <div class="rf-label">Departure</div>
-          <input class="rf-input" id="tf-start" type="date">
-        </div>
-        <div class="form-field">
-          <div class="rf-label">Return</div>
-          <input class="rf-input" id="tf-end" type="date">
-        </div>
-      </div>
-      <div class="form-field">
-        <div class="rf-label">Destination Currency (optional)</div>
-        <input class="rf-input" id="tf-ccy" placeholder="e.g. JPY" maxlength="3" style="text-transform:uppercase">
-      </div>
-      <div class="form-actions">
-        <button class="ghost-btn" id="tf-abort">Discard</button>
-        <button class="cta-btn"   id="tf-launch">Create Trip</button>
-      </div>
-    </div>`;
-
-  document.getElementById('tf-abort').addEventListener('click', () => { wrap.innerHTML = ''; });
-  document.getElementById('tf-launch').addEventListener('click', saveTrip);
-});
-
-async function saveTrip() {
-  const name   = document.getElementById('tf-name').value.trim();
-  const budget = parseFloat(document.getElementById('tf-budget').value);
-  const start  = document.getElementById('tf-start').value || null;
-  const end    = document.getElementById('tf-end').value   || null;
-  const ccy    = (document.getElementById('tf-ccy').value || '').trim().toUpperCase() || null;
-
-  if (!name || isNaN(budget) || budget <= 0) { alert('Trip name and budget are required'); return; }
-  if (start && end && end < start) { alert('Return date must be after departure'); return; }
-
-  try {
-    const res = await fetch('/api/trips', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, budget_eur: budget, start_date: start, end_date: end, default_currency: ccy }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const trip = await res.json();
-    S.trips.push(trip);
-    S.activeTrip = trip;
-    document.getElementById('header-trip').textContent = trip.name;
-    document.getElementById('trip-form-wrap').innerHTML = '';
-    renderTripList();
-  } catch (err) {
-    alert('Creation failed: ' + err.message);
-  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1853,10 +1352,7 @@ async function saveTrip() {
 function fmt2(n) { return parseFloat(n||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmt4(n) { return parseFloat(n||0).toLocaleString('en',{minimumFractionDigits:4,maximumFractionDigits:4}); }
 function esc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function fmtDate(s) {
-  try { return new Date(s).toLocaleDateString('en',{month:'short',day:'2-digit'}).toUpperCase(); }
-  catch { return s||'—'; }
-}
+function fmtDate(s) { try { return new Date(s).toLocaleDateString('en',{month:'short',day:'2-digit'}).toUpperCase(); } catch { return s||'—'; } }
 
 /* ══════════════════════════════════════════════════════════
    INIT
@@ -1868,9 +1364,9 @@ function fmtDate(s) {
     if (S.trips.length === 1) {
       S.activeTrip = S.trips[0];
       document.getElementById('header-trip').textContent = S.trips[0].name;
+      document.getElementById('trip-selector-name').textContent = S.trips[0].name;
     }
   } catch { /* silent */ }
-  // Start camera on scanner screen
   startCamera();
 })();
 </script>
