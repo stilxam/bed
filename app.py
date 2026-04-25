@@ -82,7 +82,7 @@ from extractor import (
     CurrencyAmbiguousResult, FailureResult,
 )
 from fx_converter import convert_to_eur, FXResult
-from trips import get_trip, load_trips
+from trips import get_trip, load_trips, update_trip
 
 UPLOAD_DIR = Path("streamlit_uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
@@ -109,8 +109,11 @@ def _load_geo():
 
 # ── Pipeline helpers ───────────────────────────────────────────────────────────
 
-def _run_visual(img_path: Path):
-    """Return an ExtractionResult from extractor.py."""
+def _run_visual(img_path: Path, currency_hint: str | None = None):
+    """Return an ExtractionResult from extractor.py.
+
+    currency_hint overrides geo as the likely_currency_iso hint to Claude.
+    """
     from extractor import extract_from_image, GeoContext
     from anthropic import Anthropic
 
@@ -119,11 +122,14 @@ def _run_visual(img_path: Path):
 
     geo_loc = _load_geo()
     geo = None
-    if geo_loc:
+    effective_ccy = currency_hint or (geo_loc.currency_iso if geo_loc else None)
+    if effective_ccy:
         geo = GeoContext(
-            country_name=geo_loc.country_name,
-            iso_country_code=geo_loc.iso_country_code,
-            likely_currency_iso=geo_loc.currency_iso,
+            country_name=geo_loc.country_name if geo_loc else "",
+            iso_country_code=geo_loc.iso_country_code if geo_loc else (
+                hyperparams.DEFAULT_ISO_COUNTRY_CODE or ""
+            ),
+            likely_currency_iso=effective_ccy,
         )
     elif hyperparams.DEFAULT_ISO_COUNTRY_CODE:
         geo = GeoContext(
@@ -214,6 +220,25 @@ def _reset():
         st.session_state[k] = v
 
 
+# ── Active trip — resolved before sidebar so both sidebar and main UI can use it ──
+
+if "active_trip_id" not in st.session_state:
+    st.session_state["active_trip_id"] = None
+
+# Auto-select when exactly one trip exists and none is currently active
+if st.session_state["active_trip_id"] is None:
+    _boot_trips = load_trips()
+    if len(_boot_trips) == 1:
+        st.session_state["active_trip_id"] = _boot_trips[0].id
+
+_active_trip_id: str | None = st.session_state["active_trip_id"]
+_active_trip = get_trip(_active_trip_id) if _active_trip_id else None
+# Stale id guard: clear if the trip was deleted
+if _active_trip_id and _active_trip is None:
+    st.session_state["active_trip_id"] = None
+    _active_trip_id = None
+
+
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 
 with st.sidebar:
@@ -269,34 +294,72 @@ with st.sidebar:
 
     # Active trip
     st.markdown("**Active Trip**")
-    if "active_trip_id" not in st.session_state:
-        st.session_state["active_trip_id"] = None
 
-    active_trip_id: str | None = st.session_state["active_trip_id"]
-    if active_trip_id:
-        active_trip = get_trip(active_trip_id)
-        if active_trip:
-            st.info(f"🧳 **{active_trip.name}**\n\nBudget: **€ {active_trip.budget_eur:,.2f}**")
-        else:
-            st.warning("Saved trip no longer exists.")
-            st.session_state["active_trip_id"] = None
+    if _active_trip:
+        dates_line = ""
+        if _active_trip.start_date or _active_trip.end_date:
+            s = _active_trip.start_date or "?"
+            e = _active_trip.end_date or "?"
+            dates_line = f"\n\n📅 {s} → {e}"
+        st.info(
+            f"🧳 **{_active_trip.name}**\n\n"
+            f"Budget: **€ {_active_trip.budget_eur:,.2f}**"
+            f"{dates_line}"
+        )
+
+        # Input currency controls
+        st.markdown("**Input Currency**")
+        _cur_ccy = _active_trip.default_currency or ""
+        _ccy_col, _loc_col = st.columns([3, 2])
+        with _ccy_col:
+            _ccy_input = st.text_input(
+                "ccy",
+                value=_cur_ccy,
+                max_chars=3,
+                placeholder="e.g. JPY",
+                label_visibility="collapsed",
+                key="trip_ccy_input",
+            ).upper().strip()
+        with _loc_col:
+            _geo_label = f"📍 {geo.currency_iso}" if geo else "📍 Location"
+            if st.button(_geo_label, key="set_ccy_geo", use_container_width=True):
+                if geo:
+                    update_trip(_active_trip_id, default_currency=geo.currency_iso)
+                    if "trip_ccy_input" in st.session_state:
+                        del st.session_state["trip_ccy_input"]
+                    st.rerun()
+                else:
+                    st.warning("Location unavailable.")
+        _save_col, _chg_col = st.columns(2)
+        with _save_col:
+            if st.button("Save", key="save_ccy", use_container_width=True):
+                update_trip(_active_trip_id, default_currency=_ccy_input or None)
+                if "trip_ccy_input" in st.session_state:
+                    del st.session_state["trip_ccy_input"]
+                st.rerun()
+        with _chg_col:
+            if st.button("Change trip", key="change_trip", use_container_width=True):
+                st.session_state["active_trip_id"] = None
+                st.rerun()
+        _trip_ccy: str | None = _active_trip.default_currency
     else:
-        all_trips = load_trips()
-        if all_trips:
-            options = {t.id: t.name for t in all_trips}
-            chosen = st.selectbox(
+        _all_trips = load_trips()
+        if _all_trips:
+            _opts = {t.id: t.name for t in _all_trips}
+            _chosen = st.selectbox(
                 "Select a trip",
-                options=list(options.keys()),
-                format_func=lambda tid: options[tid],
+                options=list(_opts.keys()),
+                format_func=lambda tid: _opts[tid],
                 index=None,
                 placeholder="Choose trip…",
                 label_visibility="collapsed",
             )
-            if chosen:
-                st.session_state["active_trip_id"] = chosen
+            if _chosen:
+                st.session_state["active_trip_id"] = _chosen
                 st.rerun()
         else:
             st.caption("No trips yet — go to **My Trips** to create one.")
+        _trip_ccy = None
 
     # Recompute FX if payment type switched while a result is showing
     if (
@@ -315,6 +378,15 @@ with st.sidebar:
 # ── Main UI ────────────────────────────────────────────────────────────────────
 
 st.markdown('<div class="app-title">💶 Currency Scanner</div>', unsafe_allow_html=True)
+
+# Gate: a trip must be active before scanning
+if _active_trip is None:
+    _gate_trips = load_trips()
+    if _gate_trips:
+        st.info("Select a trip in the sidebar to start scanning.")
+    else:
+        st.warning("Create a trip in **My Trips** before scanning.")
+    st.stop()
 
 input_mode = st.segmented_control(
     "Input type",
@@ -387,7 +459,7 @@ if process_clicked:
         if source_type == "image":
             with st.spinner("Analysing with Claude…"):
                 try:
-                    raw = _run_visual(file_path)
+                    raw = _run_visual(file_path, currency_hint=_trip_ccy)
                     st.session_state["extraction_raw"] = raw
                     # Resolve non-ambiguous cases immediately
                     if isinstance(raw, SuccessResult):
@@ -449,11 +521,11 @@ results: list[FXResult] | None = st.session_state["fx_results"]
 # ── Disambiguation: amount unclear (visual) ────────────────────────────────────
 if stage == "ambiguous_amount" and isinstance(raw, AmountAmbiguousResult):
     st.warning(f"Read **\"{raw.raw_text}\"** — the number is unclear.")
-    geo_ccy = geo.currency_iso if geo else ""
+    _dis_ccy = _trip_ccy or (geo.currency_iso if geo else "")
     amt = st.number_input("Enter the amount:", min_value=0.0, step=0.01, key="da_amount")
     ccy = st.text_input(
         "Currency code (e.g. USD):",
-        value=raw.currency_iso or geo_ccy,
+        value=raw.currency_iso or _dis_ccy,
         max_chars=3, key="da_ccy",
     ).upper().strip()
     if st.button("✅ Confirm", key="confirm_amount"):
@@ -465,10 +537,13 @@ if stage == "ambiguous_amount" and isinstance(raw, AmountAmbiguousResult):
 # ── Disambiguation: currency unclear (visual) ──────────────────────────────────
 elif stage == "ambiguous_currency" and isinstance(raw, CurrencyAmbiguousResult):
     geo_ccy = geo.currency_iso if geo else None
-    suggested = geo_ccy or raw.suggested_currency_iso
+    suggested = _trip_ccy or geo_ccy or raw.suggested_currency_iso
     st.warning(f"Read **{raw.amount:,.2f}** from *\"{raw.raw_text}\"* — currency unclear.")
     if suggested:
-        source_label = "geolocation" if geo_ccy else "model suggestion"
+        source_label = (
+            "trip default" if _trip_ccy
+            else ("geolocation" if geo_ccy else "model suggestion")
+        )
         st.info(f"📍 {source_label.capitalize()} suggests: **{suggested}**")
     ccy = st.text_input(
         "Confirm or enter currency code:",
@@ -485,15 +560,17 @@ elif stage == "ambiguous_currency" and isinstance(raw, CurrencyAmbiguousResult):
 elif stage == "ambiguous_voice_currency" and voice is not None:
     amount = voice.get("amount_original")
     geo_ccy = geo.currency_iso if geo else None
+    suggested_voice = _trip_ccy or geo_ccy
     transcript = st.session_state.get("transcript", "")
     if transcript:
         st.caption(f"Transcript: *\"{transcript}\"*")
     st.warning(f"Heard **{amount}** but could not identify the currency.")
-    if geo_ccy:
-        st.info(f"📍 Geolocation suggests: **{geo_ccy}**")
+    if suggested_voice:
+        source_label = "trip default" if _trip_ccy else "geolocation"
+        st.info(f"📍 {source_label.capitalize()} suggests: **{suggested_voice}**")
     ccy = st.text_input(
         "Confirm or enter currency code:",
-        value=geo_ccy or "",
+        value=suggested_voice or "",
         max_chars=3, key="dv_ccy",
     ).upper().strip()
     if st.button("✅ Confirm", key="confirm_voice"):
