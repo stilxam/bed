@@ -369,17 +369,26 @@
     .result-meta { font-size: 12px; color: var(--text-sec); font-weight: 600; }
     .result-badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 800; letter-spacing: .04em; background: var(--green-lt); color: var(--green); padding: 5px 14px; border-radius: var(--r-pill); }
 
-    /* ─── RATE COMPARISON ─── */
-    .rate-compare { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border); padding-top: 10px; }
-    .rate-compare-title { font-size: 10px; font-weight: 800; letter-spacing: .08em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 2px; }
-    .rate-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--bg); }
-    .rate-row--best { background: var(--green-lt); }
-    .rate-row-type { font-size: 12px; font-weight: 800; color: var(--text-sec); min-width: 68px; }
-    .rate-row--best .rate-row-type { color: var(--green); }
-    .rate-row-eur { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
-    .rate-row--best .rate-row-eur { color: var(--green); }
-    .rate-row-fee { font-size: 10px; color: var(--text-dim); white-space: nowrap; }
-    .rate-row-save { font-size: 10px; font-weight: 800; background: var(--green); color: #fff; padding: 2px 8px; border-radius: var(--r-pill); white-space: nowrap; }
+    /* ─── RATE METHOD BREAKDOWN ─── */
+    .rate-methods { display: flex; flex-direction: column; gap: 8px; }
+    .rate-method { border-radius: var(--r-sm); overflow: hidden; background: var(--bg); border: 1.5px solid transparent; }
+    .rate-method--best { border-color: var(--green); }
+    .rate-method-hdr { display: flex; align-items: center; gap: 8px; padding: 9px 13px; background: rgba(0,0,0,.03); flex-wrap: wrap; }
+    .rate-method--best .rate-method-hdr { background: var(--green-lt); }
+    .rate-method-label { font-size: 12px; font-weight: 800; color: var(--text-sec); flex: 1; }
+    .rate-method--best .rate-method-label { color: var(--green); }
+    .rate-method-src { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+    .rate-save-pill { font-size: 10px; font-weight: 800; background: var(--green); color: #fff; padding: 2px 8px; border-radius: var(--r-pill); white-space: nowrap; }
+    .rate-method-body { padding: 9px 13px 11px; display: flex; flex-direction: column; gap: 5px; }
+    .rate-line { display: flex; justify-content: space-between; align-items: baseline; }
+    .rate-line-lbl { font-size: 11px; color: var(--text-dim); }
+    .rate-line-val { font-family: var(--mono); font-size: 12px; color: var(--text-sec); }
+    .rate-line--fee .rate-line-lbl { color: var(--text-dim); }
+    .rate-line--fee .rate-line-val { color: var(--orange); }
+    .rate-line--total { border-top: 1px solid var(--border); padding-top: 7px; margin-top: 2px; }
+    .rate-line--total .rate-line-lbl { font-size: 12px; font-weight: 800; color: var(--text); }
+    .rate-line--total .rate-line-val { font-size: 15px; font-weight: 700; color: var(--text); }
+    .rate-method--best .rate-line--total .rate-line-val { color: var(--green); }
     .error-panel { background: var(--card); border-radius: var(--r); padding: 16px; color: var(--red); font-size: 13px; font-weight: 700; box-shadow: var(--sh-sm); border: 1.5px solid rgba(239,68,68,.15); animation: fadeUp .2s ease; }
     .menu-panel { background: var(--card); border-radius: var(--r); overflow: hidden; animation: fadeUp .2s ease; box-shadow: var(--sh-sm); }
     .menu-panel-header { padding: 12px 16px; font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--text-sec); text-transform: uppercase; border-bottom: 1px solid var(--border); background: rgba(30,200,106,.05); }
@@ -1391,40 +1400,63 @@ async function performScan() {
 }
 
 function renderScanResult(d) {
-  let compareHtml = '';
+  let methodsHtml = '';
   if (d.card && d.transfer) {
-    const cardEur      = d.card.total_eur;
-    const transferEur  = d.transfer.total_eur;
-    const diff         = cardEur - transferEur;
-    const cardBetter   = diff < -0.005;
-    const wireBetter   = diff >  0.005;
-    const savingCard   = cardBetter   ? `<span class="rate-row-save">saves €${fmt2(Math.abs(diff))}</span>` : '';
-    const savingWire   = wireBetter   ? `<span class="rate-row-save">saves €${fmt2(Math.abs(diff))}</span>` : '';
-    const wkndNote     = d.transfer.weekend_fee > 0 ? ' · wknd markup' : '';
-    compareHtml = `
-      <div class="rate-compare">
-        <div class="rate-compare-title">Rate comparison</div>
-        <div class="rate-row${cardBetter ? ' rate-row--best' : ''}">
-          <span class="rate-row-type">💳 Card</span>
-          <span class="rate-row-eur">€ ${fmt2(cardEur)}</span>
-          <span class="rate-row-fee">+€${fmt4(d.card.total_fees)}</span>
-          ${savingCard}
-        </div>
-        <div class="rate-row${wireBetter ? ' rate-row--best' : ''}">
-          <span class="rate-row-type">🏦 Wire</span>
-          <span class="rate-row-eur">€ ${fmt2(transferEur)}</span>
-          <span class="rate-row-fee">+€${fmt4(d.transfer.total_fees)}${wkndNote}</span>
-          ${savingWire}
-        </div>
-      </div>`;
+    const diff      = d.card.total_eur - d.transfer.total_eur;
+    const cardBest  = diff < -0.005;
+    const wireBest  = diff >  0.005;
+    const saving    = Math.abs(diff);
+
+    function methodBlock(isCard, data, isBest) {
+      const label    = isCard ? '💳 Card' : '🏦 Wire';
+      const src      = isCard ? 'Mastercard rate' : 'Wise mid-market';
+      const feeLabel = isCard ? 'ZeroFX fee (0.5%)' : 'Wise fee (0.65%)';
+      const savePill = isBest && saving >= 0.005
+        ? `<span class="rate-save-pill">saves €${fmt2(saving)}</span>` : '';
+      const wkndLine = (!isCard && data.weekend_fee > 0)
+        ? `<div class="rate-line rate-line--fee">
+             <span class="rate-line-lbl">Weekend markup</span>
+             <span class="rate-line-val">+€ ${fmt4(data.weekend_fee)}</span>
+           </div>` : '';
+      return `
+        <div class="rate-method${isBest ? ' rate-method--best' : ''}">
+          <div class="rate-method-hdr">
+            <span class="rate-method-label">${label}</span>
+            <span class="rate-method-src">${src}</span>
+            ${savePill}
+          </div>
+          <div class="rate-method-body">
+            <div class="rate-line">
+              <span class="rate-line-lbl">Exchange rate</span>
+              <span class="rate-line-val">€ ${fmt2(data.base_eur)}</span>
+            </div>
+            <div class="rate-line rate-line--fee">
+              <span class="rate-line-lbl">${feeLabel}</span>
+              <span class="rate-line-val">+€ ${fmt4(data.service_fee)}</span>
+            </div>
+            ${wkndLine}
+            <div class="rate-line rate-line--total">
+              <span class="rate-line-lbl">You pay</span>
+              <span class="rate-line-val">€ ${fmt2(data.total_eur)}</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    methodsHtml = `<div class="rate-methods">
+      ${methodBlock(true,  d.card,     cardBest)}
+      ${methodBlock(false, d.transfer, wireBest)}
+    </div>`;
   }
+
   resultArea.innerHTML = `
     <div class="result-panel">
       <div class="result-original">${esc(String(d.input_amount))} ${esc(d.input_currency)}</div>
-      <div class="result-eur">€ ${fmt2(d.total_eur)}</div>
-      <div class="result-meta">+€${fmt4(d.total_fees)} fees · ${esc(d.source || '')}</div>
-      <span class="result-badge">${d.payment_type === 'card' ? '💳 Card' : '🏦 Wire'}</span>
-      ${compareHtml}
+      ${methodsHtml || `
+        <div class="result-eur">€ ${fmt2(d.total_eur)}</div>
+        <div class="result-meta">+€${fmt4(d.total_fees)} fees · ${esc(d.source || '')}</div>
+        <span class="result-badge">${d.payment_type === 'card' ? '💳 Card' : '🏦 Wire'}</span>
+      `}
       <button class="ghost-btn full" onclick="resetScan()">New Scan</button>
     </div>`;
 }
