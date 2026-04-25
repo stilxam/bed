@@ -36,7 +36,7 @@ st.set_page_config(
 # ── CSS ────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  .block-container { max-width: 430px; padding-top: 1rem; }
+  .block-container { max-width: 430px; padding-top: 4rem; }
 
   .app-title {
     text-align: center; font-size: 26px; font-weight: 700; margin-bottom: 10px;

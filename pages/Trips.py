@@ -21,7 +21,7 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-  .block-container { max-width: 480px; padding-top: 1.2rem; }
+  .block-container { max-width: 480px; padding-top: 4rem; }
 
   .trip-card {
     background: #ffffff; border: 2px solid #111; border-radius: 16px;
@@ -91,12 +91,15 @@ with st.form("create_trip", clear_on_submit=True):
     with date_cols[0]:
         start_input = st.date_input("Start date", value=None, key="create_start")
     with date_cols[1]:
-        end_input = st.date_input("End date", value=None, key="create_end")
+        end_min = start_input + datetime.timedelta(days=1) if start_input else None
+        end_input = st.date_input("End date", value=None, min_value=end_min, key="create_end")
     submitted = st.form_submit_button("＋ Create trip", use_container_width=True)
 
 if submitted:
     if not name_input.strip():
         st.error("Please enter a trip name.")
+    elif start_input and end_input and end_input <= start_input:
+        st.error("End date must be after start date.")
     else:
         start_str = start_input.isoformat() if start_input else None
         end_str = end_input.isoformat() if end_input else None
@@ -204,11 +207,16 @@ else:
                         "Start date", value=existing_start, key=f"estart_{trip.id}"
                     )
                 with ecols[1]:
+                    edit_end_min = new_start + datetime.timedelta(days=1) if new_start else None
                     new_end = st.date_input(
-                        "End date", value=existing_end, key=f"eend_{trip.id}"
+                        "End date", value=existing_end, min_value=edit_end_min, key=f"eend_{trip.id}"
                     )
                 if st.form_submit_button("Save changes", use_container_width=True):
-                    if new_name.strip():
+                    if not new_name.strip():
+                        st.error("Name cannot be empty.")
+                    elif new_start and new_end and new_end <= new_start:
+                        st.error("End date must be after start date.")
+                    else:
                         update_trip(
                             trip.id,
                             name=new_name,
@@ -219,7 +227,5 @@ else:
                         )
                         st.session_state["_editing_trip_id"] = None
                         st.rerun()
-                    else:
-                        st.error("Name cannot be empty.")
 
         st.write("")  # spacing between cards

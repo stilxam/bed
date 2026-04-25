@@ -22,7 +22,7 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-  .block-container { max-width: 430px; padding-top: 1rem; }
+  .block-container { max-width: 430px; padding-top: 4rem; }
 
   .pay-row {
     display: flex; justify-content: space-between; align-items: flex-start;
@@ -76,6 +76,12 @@ if selected_id != st.session_state.get("active_trip_id"):
     st.rerun()
 
 trip = get_trip(selected_id)
+
+# Date note under the selector
+if trip and (trip.start_date or trip.end_date):
+    s = trip.start_date or "?"
+    e = trip.end_date   or "?"
+    st.caption(f"📅 {s} → {e}")
 if not trip:
     st.error("Trip not found.")
     st.stop()
