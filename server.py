@@ -12,15 +12,18 @@ Run:
 
 from __future__ import annotations
 
+import base64
 import datetime
+import json
 import os
+import sqlite3
 import tempfile
 import uuid
 from dataclasses import asdict
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -581,6 +584,218 @@ def _build_geo():
             likely_currency_iso=hyperparams.DEFAULT_CURRENCY_ISO or "",
         )
     return None
+
+
+# ── Card transactions (Mastercard Actions — actual FX rates) ──────────────────
+
+@app.get("/api/trips/{trip_id}/card-transactions")
+async def card_transactions(trip_id: str):
+    """Return settled card transactions for the trip period with actual FX rates used."""
+    trip = get_trip(trip_id)
+    if not trip:
+        raise HTTPException(404, detail="Trip not found")
+    since = trip.start_date or (trip.created_at[:10] if trip.created_at else None)
+    try:
+        from bunq_balance import get_mastercard_actions
+        actions = get_mastercard_actions(since_date=since)
+        return {"transactions": actions}
+    except Exception as exc:
+        raise HTTPException(502, detail=str(exc))
+
+
+# ── Card limit (Budget Guard) ─────────────────────────────────────────────────
+
+class CardLimitRequest(BaseModel):
+    amount_eur: float
+
+
+@app.post("/api/card-limit")
+async def set_card_limit(body: CardLimitRequest):
+    """Set the primary card's daily spending limit to protect the trip budget."""
+    if body.amount_eur <= 0:
+        raise HTTPException(422, detail="amount_eur must be positive")
+    try:
+        from bunq_balance import get_cards, set_card_daily_limit
+        cards = get_cards()
+        if not cards:
+            raise HTTPException(404, detail="No cards found on this account")
+        card = next((c for c in cards if c.get("status") == "ACTIVE"), cards[0])
+        ok = set_card_daily_limit(card["id"], body.amount_eur)
+        if not ok:
+            raise HTTPException(502, detail="bunq rejected the card limit update")
+        return {"card_id": card["id"], "daily_limit_eur": body.amount_eur}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(500, detail=str(exc))
+
+
+# ── BunqMe split link ─────────────────────────────────────────────────────────
+
+class SplitRequest(BaseModel):
+    amount_eur: float
+    description: str = "Travel expense"
+
+
+@app.post("/api/split")
+async def split(body: SplitRequest):
+    """Create a bunq.me payment request link for splitting a travel expense."""
+    if body.amount_eur <= 0:
+        raise HTTPException(422, detail="amount_eur must be positive")
+    try:
+        from bunq_balance import create_bunqme_link
+        url = create_bunqme_link(body.amount_eur, body.description)
+        if not url:
+            raise HTTPException(502, detail="bunq returned no share URL")
+        return {"url": url}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(500, detail=str(exc))
+
+
+# ── Webhook: auto-sync when bunq card is used abroad ─────────────────────────
+
+_CARD_EVENTS_DB = Path(__file__).parent / "card_events.db"
+
+
+def _init_card_events_db() -> None:
+    conn = sqlite3.connect(str(_CARD_EVENTS_DB))
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS card_events (
+            event_id    TEXT PRIMARY KEY,
+            received_at TEXT NOT NULL,
+            category    TEXT,
+            amount_eur  REAL,
+            amount_local REAL,
+            currency_local TEXT,
+            description TEXT,
+            raw_json    TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+_init_card_events_db()
+
+
+def _verify_bunq_signature(body_bytes: bytes, signature_b64: str) -> bool:
+    """Verify X-Bunq-Server-Signature using the server public key from bunq_context.json."""
+    if not signature_b64:
+        return False
+    try:
+        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives.asymmetric import padding
+
+        ctx_path = Path(__file__).parent / "bunq_context.json"
+        if not ctx_path.exists():
+            return False
+        ctx = json.loads(ctx_path.read_text())
+        server_pub_pem = ctx.get("server_public_key", "")
+        if not server_pub_pem:
+            return False
+
+        pub_key = serialization.load_pem_public_key(server_pub_pem.encode())
+        sig = base64.b64decode(signature_b64)
+        pub_key.verify(sig, body_bytes, padding.PKCS1v15(), hashes.SHA256())
+        return True
+    except Exception:
+        return False
+
+
+@app.post("/api/bunq/webhook")
+async def bunq_webhook(request: Request):
+    """
+    Receive real-time card transaction events from bunq.
+
+    bunq POSTs here for CARD_TRANSACTION_SUCCESSFUL and PAYMENT events.
+    Events are stored locally so the dashboard can reflect live spend
+    without the user doing anything.
+
+    Register this URL with bunq via POST /api/bunq/setup-webhook.
+    """
+    body_bytes = await request.body()
+    sig = request.headers.get("X-Bunq-Server-Signature", "")
+
+    if not _verify_bunq_signature(body_bytes, sig):
+        raise HTTPException(401, detail="Invalid signature")
+
+    try:
+        payload = json.loads(body_bytes)
+        notif = payload.get("NotificationUrl", {})
+        category = notif.get("category", "")
+        obj = notif.get("object", {})
+
+        action = obj.get("MastercardAction", {}) or obj.get("Payment", {})
+        if action:
+            billing = action.get("amount_billing", action.get("amount", {}))
+            local = action.get("amount_local", billing)
+            event_id = str(action.get("id", uuid.uuid4().hex))
+            conn = sqlite3.connect(str(_CARD_EVENTS_DB))
+            conn.execute(
+                """INSERT OR IGNORE INTO card_events
+                   (event_id, received_at, category, amount_eur, amount_local,
+                    currency_local, description, raw_json)
+                   VALUES (?,?,?,?,?,?,?,?)""",
+                (
+                    event_id,
+                    datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    category,
+                    abs(float(billing.get("value", 0))),
+                    abs(float(local.get("value", 0))),
+                    local.get("currency", ""),
+                    action.get("description", ""),
+                    json.dumps(payload),
+                ),
+            )
+            conn.commit()
+            conn.close()
+    except Exception:
+        pass  # Never fail — bunq retries on non-200 responses
+
+    return {"status": "ok"}
+
+
+class WebhookSetupRequest(BaseModel):
+    url: str
+
+
+@app.post("/api/bunq/setup-webhook")
+async def setup_webhook(body: WebhookSetupRequest):
+    """
+    Register this server as a bunq webhook receiver.
+
+    bunq will POST CARD_TRANSACTION_SUCCESSFUL and PAYMENT events to
+    <url>/api/bunq/webhook whenever the user's card is used.
+
+    Requires a public HTTPS URL. For local dev, use ngrok:
+      ngrok http 8000
+    then pass the ngrok URL here.
+    """
+    webhook_url = body.url.rstrip("/") + "/api/bunq/webhook"
+    try:
+        import sys
+        sys.path.append(str(Path(__file__).parent / "hackathon_toolkit"))
+        from bunq_client import BunqClient
+        from api_keys import get_bunq_api_key
+
+        api_key = get_bunq_api_key()
+        client = BunqClient(api_key=api_key, sandbox=api_key.startswith("sandbox_"))
+        client.authenticate()
+
+        client.post(
+            f"user/{client.user_id}/notification-filter-url",
+            {
+                "notification_filters": [
+                    {"category": "CARD_TRANSACTION_SUCCESSFUL", "notification_target": webhook_url},
+                    {"category": "PAYMENT", "notification_target": webhook_url},
+                ]
+            },
+        )
+        return {"status": "registered", "webhook_url": webhook_url}
+    except Exception as exc:
+        raise HTTPException(502, detail=str(exc))
 
 
 # ── Dev entry point ───────────────────────────────────────────────────────────

@@ -431,6 +431,42 @@
     .gauge-card { display: none; }
     #gauge-pct, #gauge-amt, .g-arc, .g-track { display: none; }
 
+    /* ─── CARD ACTIVITY (Mastercard Actions) ─── */
+    .ctxn-row { display: flex; align-items: center; gap: 10px; padding: 13px 18px; border-bottom: 1px solid var(--border); }
+    .ctxn-row:last-child { border-bottom: none; }
+    .ctxn-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .ctxn-body { flex: 1; min-width: 0; }
+    .ctxn-desc { font-size: 13px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ctxn-sub { display: flex; gap: 6px; align-items: center; margin-top: 2px; }
+    .ctxn-orig { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+    .ctxn-rate { font-size: 10px; color: var(--text-dim); }
+    .ctxn-pending { display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: .04em; background: rgba(245,158,11,.12); color: var(--orange); padding: 2px 7px; border-radius: var(--r-pill); text-transform: uppercase; }
+    .ctxn-amt { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--red); white-space: nowrap; flex-shrink: 0; }
+
+    /* ─── BUDGET GUARD ─── */
+    .guard-row { display: flex; align-items: center; gap: 12px; padding: 16px 18px; }
+    .guard-icon { font-size: 28px; flex-shrink: 0; }
+    .guard-body { flex: 1; min-width: 0; }
+    .guard-title { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+    .guard-sub { font-size: 12px; color: var(--text-sec); line-height: 1.4; }
+    .guard-badge { display: inline-block; margin-top: 5px; font-size: 10px; font-weight: 800; letter-spacing: .04em; padding: 3px 10px; border-radius: var(--r-pill); }
+    .guard-badge.on  { background: var(--green-lt); color: var(--green); }
+    .guard-badge.off { background: rgba(239,68,68,.1); color: var(--red); }
+    .guard-btn { flex-shrink: 0; background: var(--green); color: #fff; border: none; border-radius: var(--r-pill); cursor: pointer; font-family: var(--ui); font-size: 12px; font-weight: 800; padding: 9px 16px; transition: opacity .15s; }
+    .guard-btn:active { opacity: .8; }
+    .guard-btn:disabled { background: #E5E7EB; color: #9CA3AF; cursor: default; }
+
+    /* ─── BUNQME SPLIT ─── */
+    .split-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .split-row { display: flex; gap: 8px; align-items: flex-end; }
+    .split-row .rf-input { flex: 1; }
+    .split-generate-btn { background: var(--green); color: #fff; border: none; border-radius: var(--r-pill); cursor: pointer; font-family: var(--ui); font-size: 13px; font-weight: 800; padding: 12px 18px; white-space: nowrap; transition: opacity .15s; }
+    .split-generate-btn:active { opacity: .8; }
+    .split-generate-btn:disabled { background: #E5E7EB; color: #9CA3AF; cursor: default; }
+    .split-result { background: var(--green-lt); border-radius: var(--r-sm); padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+    .split-link { font-family: var(--mono); font-size: 11px; color: var(--green); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }
+    .split-copy-btn { background: var(--green); color: #fff; border: none; border-radius: var(--r-pill); cursor: pointer; font-family: var(--ui); font-size: 11px; font-weight: 800; padding: 6px 14px; flex-shrink: 0; }
+
     /* ─── GAPS ─── */
     .gap-8  { height: 8px;  flex-shrink: 0; }
     .gap-12 { height: 12px; flex-shrink: 0; }
@@ -544,6 +580,48 @@
         </div>
         <div class="payment-list" id="payment-list">
           <div class="pay-empty">Loading payments...</div>
+        </div>
+      </div>
+
+      <!-- Card Activity (Mastercard Actions) -->
+      <div class="section-card">
+        <div class="section-card-hdr">
+          <span class="section-card-lbl">💳 Card Activity</span>
+          <button class="icon-btn" id="ctxn-refresh-btn" title="Refresh">↺</button>
+        </div>
+        <div id="ctxn-list">
+          <div class="pay-empty">Select a trip to view card transactions</div>
+        </div>
+      </div>
+
+      <!-- Budget Guard -->
+      <div class="section-card">
+        <div class="section-card-hdr">
+          <span class="section-card-lbl">🛡 Budget Guard</span>
+        </div>
+        <div class="guard-row">
+          <div class="guard-icon">🔒</div>
+          <div class="guard-body">
+            <div class="guard-title">Card daily limit</div>
+            <div class="guard-sub" id="guard-sub">Set your card's daily limit to your remaining trip budget to stop overspending automatically.</div>
+            <div class="guard-badge off" id="guard-badge" style="display:none"></div>
+          </div>
+          <button class="guard-btn" id="guard-btn" disabled>Set limit</button>
+        </div>
+      </div>
+
+      <!-- BunqMe Split -->
+      <div class="section-card">
+        <div class="section-card-hdr">
+          <span class="section-card-lbl">🔗 Split with bunqMe</span>
+        </div>
+        <div class="split-body">
+          <div class="split-row">
+            <input class="rf-input" id="split-amount" type="number" min="0.01" step="0.01" placeholder="Amount (EUR)">
+            <input class="rf-input" id="split-desc" placeholder="What for?" style="flex:1.4">
+            <button class="split-generate-btn" id="split-btn" onclick="generateSplit()">Share</button>
+          </div>
+          <div id="split-result" style="display:none"></div>
         </div>
       </div>
 
@@ -913,6 +991,8 @@ async function loadHome() {
     if (destCcy) fetchDestRate(destCcy);
 
     applyDashCurrency(false);
+    updateGuardCard(remaining);
+    loadCardActivity(trip.id);
   } catch (err) {
     document.getElementById('payment-list').innerHTML =
       `<div class="pay-empty">Error: ${esc(err.message)}</div>`;
@@ -1276,6 +1356,137 @@ function resetVoice(resetUI = true) {
     vfPreview.innerHTML = `<div class="vf-voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg></div>`;
     resultArea.innerHTML = '';
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CARD ACTIVITY
+══════════════════════════════════════════════════════════ */
+document.getElementById('ctxn-refresh-btn').addEventListener('click', function () {
+  this.classList.add('spin');
+  setTimeout(() => this.classList.remove('spin'), 550);
+  if (S.activeTrip) loadCardActivity(S.activeTrip.id);
+});
+
+async function loadCardActivity(tripId) {
+  const list = document.getElementById('ctxn-list');
+  list.innerHTML = '<div class="pay-empty">Loading card transactions...</div>';
+  try {
+    const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/card-transactions`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const actions = await res.json();
+    renderCardActivity(actions);
+  } catch (err) {
+    list.innerHTML = `<div class="pay-empty">${esc(err.message)}</div>`;
+  }
+}
+
+function renderCardActivity(actions) {
+  const list = document.getElementById('ctxn-list');
+  if (!actions.length) {
+    list.innerHTML = '<div class="pay-empty">No card transactions found</div>';
+    return;
+  }
+  list.innerHTML = actions.slice(0, 20).map(a => {
+    const isFx = a.currency_local && a.currency_local !== 'EUR';
+    const sub   = isFx
+      ? `<span class="ctxn-orig">${fmt2(a.amount_local)} ${esc(a.currency_local)}</span>`
+      : '';
+    const pend  = a.status === 'pending'
+      ? `<span class="ctxn-pending">Pending</span>`
+      : '';
+    return `<div class="ctxn-row">
+      <div class="ctxn-icon">💳</div>
+      <div class="ctxn-body">
+        <div class="ctxn-desc">${esc((a.description || '—').slice(0, 36))}</div>
+        <div class="ctxn-sub">${sub}${pend}<span class="ctxn-rate">${fmtDate(a.date)}</span></div>
+      </div>
+      <span class="ctxn-amt">−€${fmt2(a.amount_eur)}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   BUDGET GUARD
+══════════════════════════════════════════════════════════ */
+document.getElementById('guard-btn').addEventListener('click', async function () {
+  if (!S.dash) return;
+  const remaining = S.dash.remaining;
+  if (remaining <= 0) { alert('No remaining budget to set as limit.'); return; }
+  this.textContent = 'Setting…'; this.disabled = true;
+  try {
+    const res = await fetch('/api/card-limit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount_eur: Math.max(0, remaining) }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const badge = document.getElementById('guard-badge');
+    const sub   = document.getElementById('guard-sub');
+    if (data.success) {
+      badge.textContent = `Limit set to €${fmt2(remaining)}`;
+      badge.className = 'guard-badge on'; badge.style.display = '';
+      sub.textContent = 'Your card daily limit has been updated to match your remaining budget.';
+      this.textContent = 'Update';
+    } else {
+      badge.textContent = 'Failed to set limit'; badge.className = 'guard-badge off'; badge.style.display = '';
+      this.textContent = 'Retry';
+    }
+  } catch (err) {
+    alert('Guard failed: ' + err.message);
+    this.textContent = 'Set limit';
+  }
+  this.disabled = false;
+});
+
+function updateGuardCard(remaining) {
+  const btn = document.getElementById('guard-btn');
+  const sub = document.getElementById('guard-sub');
+  if (!btn) return;
+  if (remaining > 0) {
+    btn.textContent = `Set to €${fmt2(remaining)}`;
+    btn.disabled = false;
+    sub.textContent = `Tap to cap your card's daily spend at your remaining budget (€${fmt2(remaining)}).`;
+  } else {
+    btn.textContent = 'Set limit'; btn.disabled = true;
+    sub.textContent = 'Budget exhausted — consider adjusting your trip budget.';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   BUNQME SPLIT
+══════════════════════════════════════════════════════════ */
+async function generateSplit() {
+  const amount = parseFloat(document.getElementById('split-amount').value);
+  const desc   = document.getElementById('split-desc').value.trim() || 'bunq Travel Buddy';
+  if (!amount || amount <= 0) { alert('Enter a valid EUR amount'); return; }
+
+  const btn = document.getElementById('split-btn');
+  btn.textContent = 'Generating…'; btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/split', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount_eur: amount, description: desc }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const resultDiv = document.getElementById('split-result');
+    if (data.url) {
+      resultDiv.style.display = 'flex';
+      resultDiv.innerHTML = `<div class="split-result">
+        <a class="split-link" href="${esc(data.url)}" target="_blank" rel="noopener">${esc(data.url)}</a>
+        <button class="split-copy-btn" onclick="navigator.clipboard.writeText('${esc(data.url)}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})">Copy</button>
+      </div>`;
+    } else {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `<div style="font-size:12px;color:var(--red);padding:4px 0">Failed to create link — check bunq API key</div>`;
+    }
+  } catch (err) {
+    alert('Split failed: ' + err.message);
+  }
+  btn.textContent = 'Share'; btn.disabled = false;
 }
 
 /* ══════════════════════════════════════════════════════════

@@ -154,6 +154,131 @@ def push_note_text(payment_id: int | str, content: str) -> bool:
         return False
 
 
+def get_mastercard_actions(
+    since_date: str | None = None,
+    count: int = 50,
+) -> list[dict]:
+    """
+    Return card transactions (Mastercard Actions) from the primary account.
+
+    Each dict has: id, date, description, amount_local (float), currency_local,
+    amount_eur (float), status ("pending" | "settled").
+    """
+    client = _client()
+    account_id = client.get_primary_account_id()
+    resp = client.get(
+        f"user/{client.user_id}/monetary-account/{account_id}/mastercard-action",
+        params={"count": count},
+    )
+
+    actions = []
+    for item in resp:
+        a = item.get("MastercardAction", {})
+        if not a:
+            continue
+
+        status = a.get("authorisation_status", "")
+        if status in ("FAILED", "EXPIRED"):
+            continue
+
+        created_str = a.get("created", "")
+        try:
+            created_dt = datetime.strptime(created_str[:19], "%Y-%m-%d %H:%M:%S")
+            pay_date = created_dt.date().isoformat()
+        except (ValueError, TypeError):
+            pay_date = ""
+
+        if since_date and pay_date and pay_date < since_date:
+            continue
+
+        local = a.get("amount_local", {})
+        billing = a.get("amount_billing", {})
+        local_val = abs(float(local.get("value", 0.0)))
+        local_ccy = local.get("currency", "EUR")
+        eur_val = abs(float(billing.get("value", 0.0)))
+
+        actions.append({
+            "id": a.get("id"),
+            "date": pay_date,
+            "description": a.get("description", ""),
+            "amount_local": local_val,
+            "currency_local": local_ccy,
+            "amount_eur": eur_val,
+            "status": "settled" if status in ("CLEARING", "CLEARED") else "pending",
+        })
+
+    return actions
+
+
+def get_cards() -> list[dict]:
+    """Return all cards with id, name_on_card, type, and status."""
+    client = _client()
+    resp = client.get(f"user/{client.user_id}/card")
+    cards = []
+    for item in resp:
+        for key in ("CardDebit", "CardCredit", "CardVirtual"):
+            c = item.get(key)
+            if c:
+                cards.append({
+                    "id": c.get("id"),
+                    "name_on_card": c.get("name_on_card", ""),
+                    "type": key,
+                    "status": c.get("status", ""),
+                })
+                break
+    return cards
+
+
+def set_card_daily_limit(card_id: int, amount_eur: float) -> bool:
+    """Set the daily card spending limit. Returns True on success."""
+    try:
+        client = _client()
+        client.put(
+            f"user/{client.user_id}/card/{card_id}",
+            {
+                "limit": [
+                    {
+                        "daily_limit": {"value": f"{amount_eur:.2f}", "currency": "EUR"},
+                        "type": "CARD",
+                    }
+                ]
+            },
+        )
+        return True
+    except Exception:
+        return False
+
+
+def create_bunqme_link(amount_eur: float, description: str) -> str | None:
+    """Create a BunqMe tab and return its shareable URL, or None on failure."""
+    try:
+        client = _client()
+        account_id = client.get_primary_account_id()
+        resp = client.post(
+            f"user/{client.user_id}/monetary-account/{account_id}/bunqme-tab",
+            {
+                "bunqme_tab_entry": {
+                    "amount_inquired": {"value": f"{amount_eur:.2f}", "currency": "EUR"},
+                    "description": description[:140],
+                }
+            },
+        )
+        tab_id = next((item["Id"]["id"] for item in resp if "Id" in item), None)
+        if not tab_id:
+            return None
+        tab_resp = client.get(
+            f"user/{client.user_id}/monetary-account/{account_id}/bunqme-tab/{tab_id}"
+        )
+        for item in tab_resp:
+            tab = item.get("BunqMeTab", {})
+            if tab:
+                entry = tab.get("bunqme_tab_entry", {})
+                return entry.get("bunqme_tab_share_url") or tab.get("bunqme_tab_share_url")
+        return None
+    except Exception:
+        return None
+
+
 # ── Quick test ────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
