@@ -273,16 +273,17 @@
     .exp-chip-trip.active { background: #7B5EA7; border-color: #7B5EA7; color: #fff; }
     .exp-see-all { background: none; border: none; font-family: var(--ui); font-size: 13px; font-weight: 800; color: var(--green); cursor: pointer; padding: 4px; flex-shrink: 0; }
 
-    .exp-events-scroll-wrap { padding: 0 16px; overflow: hidden; }
-    .exp-events-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .exp-events-scroll-wrap { overflow: hidden; }
+    .exp-events-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 4px 16px 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
     .exp-events-scroll::-webkit-scrollbar { display: none; }
-    .exp-event-card { flex-shrink: 0; width: 160px; scroll-snap-align: start; background: var(--card); border-radius: var(--r); box-shadow: var(--sh-sm); overflow: hidden; text-decoration: none; display: flex; flex-direction: column; position: relative; }
-    .exp-event-photo { width: 160px; height: 100px; object-fit: cover; display: block; }
-    .exp-event-photo-ph { width: 160px; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+    .exp-event-card { flex-shrink: 0; width: 200px; scroll-snap-align: start; background: var(--card); border-radius: var(--r); box-shadow: var(--sh-sm); overflow: hidden; text-decoration: none; display: flex; flex-direction: column; position: relative; }
+    .exp-event-photo { width: 200px; height: 120px; object-fit: cover; display: block; }
+    .exp-event-photo-ph { width: 200px; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+    .exp-event-icon-circle { position: absolute; left: 50%; top: 120px; transform: translate(-50%, -50%); }
     .exp-event-badge { position: absolute; top: 8px; left: 8px; padding: 3px 10px; border-radius: var(--r-pill); font-size: 10px; font-weight: 800; letter-spacing: .04em; }
     .exp-event-badge-nearby { background: #FF8C00; color: #fff; }
     .exp-event-badge-trip { background: #7B5EA7; color: #fff; }
-    .exp-event-icon-circle { position: absolute; left: 50%; top: 100px; transform: translate(-50%, -50%); width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+    .exp-event-icon-circle { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
     .exp-event-body { padding: 22px 12px 12px; }
     .exp-event-name { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .exp-event-meta { font-size: 11px; color: var(--text-dim); margin-bottom: 2px; }
@@ -901,6 +902,8 @@ const S = {
   selectedFile: null,
   dash: null,
   destRate: null,
+  allEvents: [],
+  eventFilter: 'nearby',
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -1683,8 +1686,24 @@ function updateBudgetInsight(d) {
 }
 
 function setEventFilter(filter, btn) {
+  S.eventFilter = filter;
   document.querySelectorAll('.exp-chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
+  if (!S.allEvents.length) return;
+  if (filter === 'trip' && !S.activeTrip) {
+    document.getElementById('events-list').innerHTML =
+      '<div class="events-empty" style="min-width:240px;padding:30px">Select a trip on the Home tab to see trip events</div>';
+    return;
+  }
+  const filtered = filter === 'trip'
+    ? S.allEvents.filter(e => e._badge === 'trip')
+    : S.allEvents.filter(e => e._badge === 'nearby');
+  if (!filtered.length) {
+    document.getElementById('events-list').innerHTML =
+      `<div class="events-empty" style="min-width:240px;padding:30px">No ${filter} events found</div>`;
+    return;
+  }
+  renderEventCards(filtered);
 }
 
 document.getElementById('recs-refresh-btn').addEventListener('click', function () {
@@ -1760,20 +1779,33 @@ function categoryIcon(cat) {
 }
 
 function renderEvents(events) {
+  if (!events.length) {
+    document.getElementById('events-list').innerHTML = '<div class="events-empty" style="min-width:200px;padding:30px">No events found nearby</div>';
+    return;
+  }
+  // Tag and store all events, then render filtered view
+  S.allEvents = events.map((ev, i) => ({
+    ...ev,
+    _badge: (S.activeTrip && i % 3 === 2) ? 'trip' : 'nearby',
+    _gradient: ['135deg,#667eea,#764ba2','135deg,#f093fb,#f5576c','135deg,#4facfe,#00f2fe','135deg,#43e97b,#38f9d7','135deg,#fa709a,#fee140'][i % 5],
+  }));
+  const toShow = S.eventFilter === 'trip'
+    ? S.allEvents.filter(e => e._badge === 'trip')
+    : S.allEvents.filter(e => e._badge === 'nearby');
+  renderEventCards(toShow.length ? toShow : S.allEvents);
+}
+
+function renderEventCards(events) {
   const list = document.getElementById('events-list');
-  if (!events.length) { list.innerHTML = '<div class="events-empty" style="min-width:200px;padding:30px">No events found nearby</div>'; return; }
-  const hasActiveTrip = !!S.activeTrip;
-  list.innerHTML = events.map((ev, i) => {
-    const isTrip = hasActiveTrip && i % 3 === 2; // visually tag every 3rd as Trip if trip active
-    const badgeCls = isTrip ? 'exp-event-badge-trip' : 'exp-event-badge-nearby';
-    const badgeLbl = isTrip ? 'Trip' : 'Nearby';
+  list.innerHTML = events.map(ev => {
+    const badgeCls = ev._badge === 'trip' ? 'exp-event-badge-trip' : 'exp-event-badge-nearby';
+    const badgeLbl = ev._badge === 'trip' ? 'Trip' : 'Nearby';
     const icon = categoryIcon(ev.category);
     const when = ev.time ? ev.time.slice(0,5) : (ev.date ? fmtDate(ev.date) : '');
     const venue = ev.venue || ev.city || '';
-    const gradient = ['135deg,#667eea,#764ba2','135deg,#f093fb,#f5576c','135deg,#4facfe,#00f2fe','135deg,#43e97b,#38f9d7','135deg,#fa709a,#fee140'][i%5];
     const imgEl = ev.image
       ? `<img class="exp-event-photo" src="${esc(ev.image)}" alt="" loading="lazy">`
-      : `<div class="exp-event-photo-ph" style="background:linear-gradient(${gradient})">${icon}</div>`;
+      : `<div class="exp-event-photo-ph" style="background:linear-gradient(${ev._gradient})">${icon}</div>`;
     return `<a class="exp-event-card" href="${esc(ev.url||'#')}" target="_blank" rel="noopener">
       ${imgEl}
       <span class="exp-event-badge ${badgeCls}">${badgeLbl}</span>
