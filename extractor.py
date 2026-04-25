@@ -16,6 +16,31 @@ _MEDIA_TYPES: dict[str, str] = {
     ".webp": "image/webp",
 }
 
+_MENU_PROMPT = """\
+You are a menu extraction assistant.
+Extract every item that has a visible price from the menu image.
+
+{geo_context}
+
+Return ONLY a JSON object in this exact format:
+{{
+  "currency_iso": "<ISO 4217 string, or null if unclear>",
+  "items": [
+    {{
+      "original_name": "<item name exactly as printed>",
+      "translated_name": "<English translation; same as original_name if already English>",
+      "amount": <price as a plain number, or null if unreadable>
+    }}
+  ]
+}}
+
+Rules:
+- Include every item with a visible price. Skip items with no price shown.
+- Set currency_iso from the currency symbol on the menu; use geolocation context if ambiguous.
+- amounts must be plain numbers with no currency symbols.
+- Do not add any text outside the JSON object.\
+"""
+
 _PROMPT = """\
 You are a price extraction assistant.
 Extract the single most prominent price from the input below.
@@ -85,6 +110,20 @@ class CurrencyAmbiguousResult:
 class FailureResult:
     status: Literal["failure"]
     reason: Literal["no_price_found", "api_error", "stt_error"]
+
+
+@dataclass
+class MenuItem:
+    original_name: str
+    translated_name: str
+    amount: float | None
+
+
+@dataclass
+class MenuResult:
+    status: Literal["menu"]
+    items: list[MenuItem]
+    currency_iso: str | None
 
 
 ExtractionResult = (
@@ -233,6 +272,40 @@ def extract_from_image(
     prompt = _PROMPT.format(geo_context=_geo_context_str(geo))
     messages = _image_message(Path(image_path), prompt)
     return _extract(messages, geo, client)
+
+
+def extract_menu_from_image(
+    image_path: str | Path,
+    geo: GeoContext | None = None,
+    client: Anthropic | None = None,
+) -> MenuResult:
+    """Extract all priced menu items with English translations from a menu image."""
+    client = client or Anthropic()
+    prompt = _MENU_PROMPT.format(geo_context=_geo_context_str(geo))
+    raw = Path(image_path).read_bytes()
+    media_type = _detect_media_type(raw, Path(image_path).suffix.lower())
+    data = base64.standard_b64encode(raw).decode("utf-8")
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": data}},
+                {"type": "text", "text": prompt},
+            ],
+        }
+    ]
+    response = client.messages.create(model=SONNET, max_tokens=4096, temperature=0, messages=messages)
+    parsed = _parse_claude_response(response.content[0].text)
+    currency_iso = parsed.get("currency_iso")
+    items = [
+        MenuItem(
+            original_name=it.get("original_name", ""),
+            translated_name=it.get("translated_name", ""),
+            amount=float(it["amount"]) if it.get("amount") is not None else None,
+        )
+        for it in parsed.get("items", [])
+    ]
+    return MenuResult(status="menu", items=items, currency_iso=currency_iso)
 
 
 def extract_from_transcript(

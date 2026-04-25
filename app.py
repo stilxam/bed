@@ -80,6 +80,7 @@ from api_keys import get_anthropic_api_key, get_aws_region
 from extractor import (
     SuccessResult, AmountAmbiguousResult,
     CurrencyAmbiguousResult, FailureResult,
+    MenuResult, extract_menu_from_image,
 )
 from fx_converter import convert_to_eur, FXResult
 from trips import get_trip, load_trips, update_trip
@@ -108,6 +109,35 @@ def _load_geo():
 
 
 # ── Pipeline helpers ───────────────────────────────────────────────────────────
+
+def _run_menu(img_path: Path, currency_hint: str | None = None) -> MenuResult:
+    """Return a MenuResult from a menu image."""
+    from extractor import GeoContext
+    from anthropic import Anthropic
+
+    os.environ.setdefault("ANTHROPIC_API_KEY", get_anthropic_api_key())
+    client = Anthropic()
+
+    geo_loc = _load_geo()
+    effective_ccy = currency_hint or (geo_loc.currency_iso if geo_loc else None)
+    geo = None
+    if effective_ccy:
+        geo = GeoContext(
+            country_name=geo_loc.country_name if geo_loc else "",
+            iso_country_code=geo_loc.iso_country_code if geo_loc else (
+                hyperparams.DEFAULT_ISO_COUNTRY_CODE or ""
+            ),
+            likely_currency_iso=effective_ccy,
+        )
+    elif hyperparams.DEFAULT_ISO_COUNTRY_CODE:
+        geo = GeoContext(
+            country_name=hyperparams.DEFAULT_COUNTRY_NAME or "",
+            iso_country_code=hyperparams.DEFAULT_ISO_COUNTRY_CODE,
+            likely_currency_iso=hyperparams.DEFAULT_CURRENCY_ISO or "",
+        )
+
+    return extract_menu_from_image(img_path, geo=geo, client=client)
+
 
 def _run_visual(img_path: Path, currency_hint: str | None = None):
     """Return an ExtractionResult from extractor.py.
@@ -202,13 +232,16 @@ def _make_tts(results: list[FXResult]) -> bytes | None:
 
 _DEFAULTS: dict = {
     "stage": "idle",           # idle | extracted | ambiguous_amount | ambiguous_currency
-                               # | ambiguous_voice_currency | done
+                               # | ambiguous_voice_currency | done | menu_done
     "extraction_raw": None,    # ExtractionResult from visual model
     "voice_data": None,        # dict from audio pipeline
     "extracted_items": None,   # list[tuple[float, str]] — ready for FX
     "fx_results": None,        # list[FXResult]
     "fx_payment_type": None,   # payment type used for current fx_results
     "transcript": None,        # shown after audio extraction
+    "menu_result": None,       # MenuResult from menu extraction
+    "menu_fx_results": None,   # list[FXResult] parallel to menu_result.items (None for items without amount)
+    "menu_fx_payment_type": None,
 }
 for _k, _v in _DEFAULTS.items():
     if _k not in st.session_state:
@@ -374,6 +407,25 @@ with st.sidebar:
             except Exception:
                 st.session_state["fx_results"] = None
 
+    # Recompute menu FX if payment type switched
+    if (
+        st.session_state["stage"] == "menu_done"
+        and st.session_state["menu_fx_payment_type"] != payment_type
+    ):
+        menu_res = st.session_state["menu_result"]
+        if menu_res:
+            pairs = [
+                (item.amount, menu_res.currency_iso)
+                for item in menu_res.items
+                if item.amount is not None and menu_res.currency_iso
+            ]
+            if pairs:
+                try:
+                    st.session_state["menu_fx_results"] = _do_fx(pairs, payment_type)
+                    st.session_state["menu_fx_payment_type"] = payment_type
+                except Exception:
+                    st.session_state["menu_fx_results"] = None
+
 
 # ── Main UI ────────────────────────────────────────────────────────────────────
 
@@ -390,7 +442,7 @@ if _active_trip is None:
 
 input_mode = st.segmented_control(
     "Input type",
-    ["📷 Photo", "🖼️ Upload", "🎤 Voice"],
+    ["📷 Photo", "🖼️ Upload", "🎤 Voice", "🍽️ Menu"],
     default="📷 Photo",
 )
 
@@ -418,6 +470,27 @@ elif input_mode == "🖼️ Upload":
         file_path.write_bytes(uploaded.getvalue())
         st.image(uploaded, use_container_width=True)
         source_type = "image"
+
+elif input_mode == "🍽️ Menu":
+    menu_cam, menu_up = st.tabs(["📷 Camera", "🖼️ Upload"])
+    with menu_cam:
+        camera_file = st.camera_input("Take a photo of the menu")
+        if camera_file:
+            file_path = UPLOAD_DIR / f"menu_{uuid.uuid4().hex}.jpg"
+            file_path.write_bytes(camera_file.getvalue())
+            source_type = "menu"
+    with menu_up:
+        uploaded = st.file_uploader(
+            "Upload menu photo",
+            type=["jpg", "jpeg", "png", "webp"],
+            key="menu_upload",
+        )
+        if uploaded:
+            suffix = Path(uploaded.name).suffix or ".jpg"
+            file_path = UPLOAD_DIR / f"menu_{uuid.uuid4().hex}{suffix}"
+            file_path.write_bytes(uploaded.getvalue())
+            st.image(uploaded, use_container_width=True)
+            source_type = "menu"
 
 elif input_mode == "🎤 Voice":
     audio_value = None
@@ -448,7 +521,10 @@ elif input_mode == "🎤 Voice":
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-process_clicked = st.button("Detect currency and price", use_container_width=True)
+process_clicked = st.button(
+    "Scan full menu" if input_mode == "🍽️ Menu" else "Detect currency and price",
+    use_container_width=True,
+)
 
 # ── Trigger extraction ─────────────────────────────────────────────────────────
 if process_clicked:
@@ -474,6 +550,25 @@ if process_clicked:
                         st.session_state["stage"] = "ambiguous_currency"
                 except Exception as exc:
                     st.error(f"Extraction failed: {exc}")
+
+        elif source_type == "menu":
+            with st.spinner("Reading menu with Claude…"):
+                try:
+                    menu_res = _run_menu(file_path, currency_hint=_trip_ccy)
+                    st.session_state["menu_result"] = menu_res
+                    # FX-convert all items that have an amount
+                    pairs = [
+                        (item.amount, menu_res.currency_iso)
+                        for item in menu_res.items
+                        if item.amount is not None and menu_res.currency_iso
+                    ]
+                    if pairs:
+                        fx_list = _do_fx(pairs, payment_type)
+                        st.session_state["menu_fx_results"] = fx_list
+                        st.session_state["menu_fx_payment_type"] = payment_type
+                    st.session_state["stage"] = "menu_done"
+                except Exception as exc:
+                    st.error(f"Menu extraction failed: {exc}")
 
         elif source_type == "audio":
             with st.spinner("Uploading → Transcribing → Extracting… (~30 s)"):
@@ -578,6 +673,37 @@ elif stage == "ambiguous_voice_currency" and voice is not None:
             st.session_state["extracted_items"] = [(float(amount), ccy)]
             st.session_state["stage"] = "extracted"
             st.rerun()
+
+# ── Menu result display ────────────────────────────────────────────────────────
+elif stage == "menu_done" and st.session_state["menu_result"] is not None:
+    menu_res: MenuResult = st.session_state["menu_result"]
+    fx_list: list | None = st.session_state["menu_fx_results"]
+
+    # Build fx lookup: index among items-with-amount → FXResult
+    fx_iter = iter(fx_list) if fx_list else iter([])
+    rows = []
+    for item in menu_res.items:
+        if item.amount is not None and menu_res.currency_iso:
+            fx = next(fx_iter, None)
+            eur_str = f"€ {fx.total_eur:,.2f}" if fx and fx.base_rate > 0 else "—"
+            orig_str = f"{item.amount:,.2f} {menu_res.currency_iso}"
+        else:
+            eur_str = "—"
+            orig_str = "—"
+        rows.append({
+            "Original name": item.original_name,
+            "Price": orig_str,
+            "English name": item.translated_name,
+            "EUR": eur_str,
+        })
+
+    currency_label = f" ({menu_res.currency_iso})" if menu_res.currency_iso else ""
+    st.markdown(f"**Menu{currency_label} — {len(rows)} items**")
+    st.dataframe(rows, use_container_width=True, hide_index=True)
+
+    if st.button("🔁 New scan", key="reset_menu"):
+        _reset()
+        st.rerun()
 
 # ── Result display ─────────────────────────────────────────────────────────────
 elif results:

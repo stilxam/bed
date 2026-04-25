@@ -2,21 +2,13 @@
   description = "uv flake";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    unstable-nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
-  outputs = { self, nixpkgs, unstable-nixpkgs, flake-utils}:
+  outputs = { self, nixpkgs, flake-utils}:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system ;
-          config = {
-            allowUnfree = true;
-            cudaSupport = true;
-          };
-        };
-        unstable-pkgs = import unstable-nixpkgs {
-          inherit system;
           config = {
             allowUnfree = true;
             cudaSupport = true;
@@ -41,11 +33,23 @@
             pkgs.gcc
             pkgs.zlib
             pkgs.ffmpeg
+	    pkgs.claude-code
             
             pkgs.xorg.libxcb
             pkgs.xorg.libX11
             pkgs.glib
             pkgs.libGL
+
+            # pygame
+            pkgs.SDL2
+            pkgs.SDL2_mixer
+            pkgs.SDL2_image
+            pkgs.SDL2_ttf
+            pkgs.freetype
+            pkgs.pkg-config
+
+            # sounddevice
+            pkgs.portaudio
            ];
 
 
