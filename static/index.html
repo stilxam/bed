@@ -4,33 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Travel Buddy · bunq</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2300d986'/><text x='16' y='22' font-family='monospace' font-weight='bold' font-size='18' fill='%23080c14' text-anchor='middle'>B</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2300C896'/><text x='16' y='22' font-family='sans-serif' font-weight='bold' font-size='16' fill='%23fff' text-anchor='middle'>b</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    /* ═══════════════════════════════════════════════════════
-       DESIGN SYSTEM
-    ═══════════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════
+       DESIGN TOKENS
+    ═══════════════════════════════════════ */
     :root {
-      --bg:            #080c14;
-      --bg-panel:      #0c1220;
-      --bg-panel2:     #101828;
-      --accent:        #00d986;
-      --accent-dim:    rgba(0,217,134,.1);
-      --accent-glow:   0 0 18px rgba(0,217,134,.5), 0 0 48px rgba(0,217,134,.18);
-      --accent-glow-s: 0 0 8px rgba(0,217,134,.45);
-      --amber:         #ffb347;
-      --amber-dim:     rgba(255,179,71,.12);
-      --red:           #ff4757;
-      --red-dim:       rgba(255,71,87,.12);
-      --text:          #bdd0e4;
-      --text-dim:      #354d6a;
-      --border:        rgba(0,217,134,.14);
-      --border-hi:     rgba(0,217,134,.42);
-      --mono:          'Share Tech Mono', monospace;
-      --ui:            'Rajdhani', sans-serif;
-      --r:             12px;
+      --bg:          #ECF1F7;
+      --bg-card:     #FFFFFF;
+      --accent:      #00C896;
+      --accent-dk:   #009E76;
+      --accent-dim:  rgba(0,200,150,.1);
+      --amber:       #F5A623;
+      --amber-dim:   rgba(245,166,35,.12);
+      --red:         #FF6060;
+      --red-dim:     rgba(255,96,96,.1);
+      --violet:      #7C5FD4;
+      --text:        #0F1923;
+      --text-sec:    #637181;
+      --text-dim:    #99ACC0;
+      --border:      rgba(15,25,35,.07);
+      --mono:        'DM Mono', monospace;
+      --ui:          'Plus Jakarta Sans', sans-serif;
+      --r:           18px;
+      --r-sm:        12px;
+      --r-pill:      100px;
+      --sh:          0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.06);
+      --sh-up:       0 2px 4px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.09);
+      --sh-btn:      0 4px 18px rgba(0,200,150,.38);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,30 +46,11 @@
       color: var(--text);
       font-family: var(--ui);
       font-size: 15px;
-      line-height: 1.4;
-    }
-
-    /* Scanlines */
-    body::before {
-      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
-      background: repeating-linear-gradient(
-        0deg, transparent 0px, transparent 3px,
-        rgba(0,0,0,.07) 3px, rgba(0,0,0,.07) 4px
-      );
-    }
-
-    /* Grid */
-    body::after {
-      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background-image:
-        linear-gradient(rgba(0,217,134,.022) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,217,134,.022) 1px, transparent 1px);
-      background-size: 34px 34px;
+      line-height: 1.5;
     }
 
     /* ═══ APP SHELL ═══ */
     #app {
-      position: relative; z-index: 1;
       max-width: 430px; margin: 0 auto;
       height: 100dvh;
       display: flex; flex-direction: column; overflow: hidden;
@@ -74,497 +59,449 @@
     /* ═══ HEADER ═══ */
     #header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 11px 16px 9px;
+      padding: 14px 20px 12px;
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
-      background: rgba(8,12,20,.96);
-      backdrop-filter: blur(10px);
-      flex-shrink: 0; position: relative; z-index: 10;
+      flex-shrink: 0; z-index: 10;
     }
     .wordmark {
-      font-family: var(--mono); font-size: 14px; letter-spacing: .14em;
-      color: var(--accent); text-shadow: var(--accent-glow-s);
+      font-size: 17px; font-weight: 800; letter-spacing: -.4px;
+      color: var(--text);
     }
-    .cursor { display: inline-block; animation: blink 1s step-end infinite; }
+    .wordmark em { font-style: normal; color: var(--accent); }
     .header-trip {
-      font-size: 11px; letter-spacing: .09em; color: var(--text-dim);
-      max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      text-transform: uppercase;
+      font-size: 12px; font-weight: 600; color: var(--text-sec);
+      max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .bunq-badge {
-      font-family: var(--mono); font-size: 11px; letter-spacing: .18em;
-      background: var(--accent); color: var(--bg);
-      padding: 3px 8px 2px; border-radius: 3px; font-weight: 700;
+      font-size: 12px; font-weight: 800; letter-spacing: .03em;
+      background: var(--accent); color: #fff;
+      padding: 5px 12px; border-radius: var(--r-pill);
     }
 
     /* ═══ SCREENS ═══ */
     .screen {
       display: none; flex: 1; overflow-y: auto; overflow-x: hidden;
-      padding: 14px 14px 6px;
-      flex-direction: column; gap: 11px;
+      padding: 16px 16px 84px;
+      flex-direction: column; gap: 12px;
       -webkit-overflow-scrolling: touch;
     }
-    .screen::-webkit-scrollbar { display: none; }
     .screen.active { display: flex; }
 
     /* ═══ BOTTOM NAV ═══ */
     #nav {
-      display: flex;
+      display: flex; flex-shrink: 0;
+      background: var(--bg-card);
       border-top: 1px solid var(--border);
-      background: rgba(8,12,20,.97);
-      backdrop-filter: blur(12px);
-      padding-bottom: env(safe-area-inset-bottom, 0);
-      flex-shrink: 0; z-index: 10; position: relative;
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      position: relative; z-index: 10;
     }
     .nav-tab {
-      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-      padding: 9px 0 7px;
-      background: none; border: none;
-      color: var(--text-dim); font-family: var(--ui); font-size: 10px;
-      font-weight: 600; letter-spacing: .12em; cursor: pointer;
-      transition: color .2s; text-transform: uppercase;
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      background: none; border: none; cursor: pointer; padding: 6px 0;
+      font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .04em;
+      color: var(--text-dim); text-transform: uppercase;
+      transition: color .2s;
     }
-    .nav-tab svg { width: 21px; height: 21px; transition: filter .2s; }
+    .nav-tab svg { width: 22px; height: 22px; transition: transform .2s; }
     .nav-tab.active { color: var(--accent); }
-    .nav-tab.active svg { filter: drop-shadow(0 0 5px var(--accent)); }
+    .nav-tab.active svg { transform: scale(1.1); }
 
-    /* ═══════════════════════════════════════════════════════
-       SCANNER
-    ═══════════════════════════════════════════════════════ */
+    /* ═══ MODE TABS ═══ */
     .mode-tabs {
-      display: flex; gap: 5px;
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: 10px; padding: 4px;
+      display: flex; background: #DDE5EF; border-radius: var(--r-pill);
+      padding: 4px; gap: 2px;
     }
     .mode-tab {
-      flex: 1; background: none; border: none; border-radius: 7px;
-      padding: 7px 4px;
-      font-family: var(--ui); font-size: 11px; font-weight: 700;
-      letter-spacing: .1em; color: var(--text-dim);
-      cursor: pointer; transition: all .2s; text-transform: uppercase;
+      flex: 1; padding: 10px 0; border: none; background: none; cursor: pointer;
+      font-family: var(--ui); font-size: 13px; font-weight: 700;
+      color: var(--text-sec); border-radius: var(--r-pill);
+      transition: all .18s; letter-spacing: .01em;
     }
     .mode-tab.active {
-      background: var(--accent-dim); color: var(--accent);
-      box-shadow: inset 0 0 0 1px rgba(0,217,134,.28);
-      text-shadow: 0 0 10px rgba(0,217,134,.5);
+      background: var(--bg-card); color: var(--text);
+      box-shadow: 0 2px 10px rgba(0,0,0,.13);
     }
 
-    /* Viewfinder */
+    /* ═══ VIEWFINDER ═══ */
     .viewfinder {
-      position: relative;
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); min-height: 210px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; cursor: pointer; flex-shrink: 0;
-      transition: border-color .2s;
+      position: relative; border-radius: var(--r);
+      background: #1A2535; overflow: hidden;
+      aspect-ratio: 4/3;
+      box-shadow: var(--sh-up);
+      flex-shrink: 0;
     }
-    .viewfinder.has-file { border-color: var(--border-hi); }
-
-    /* Reticle corners */
-    .rc {
-      position: absolute; width: 20px; height: 20px;
-      animation: reticle-pulse 2.2s ease-in-out infinite;
+    #camera-video {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; opacity: 0; transition: opacity .3s;
     }
-    .rc.tl { top:10px; left:10px;  border-top:2px solid var(--accent); border-left:2px solid var(--accent); border-radius:3px 0 0 0; }
-    .rc.tr { top:10px; right:10px; border-top:2px solid var(--accent); border-right:2px solid var(--accent); border-radius:0 3px 0 0; }
-    .rc.bl { bottom:10px; left:10px;  border-bottom:2px solid var(--accent); border-left:2px solid var(--accent); border-radius:0 0 0 3px; }
-    .rc.br { bottom:10px; right:10px; border-bottom:2px solid var(--accent); border-right:2px solid var(--accent); border-radius:0 0 3px 0; }
-    .rc.tl { animation-delay: 0s; }
-    .rc.tr { animation-delay: .2s; }
-    .rc.bl { animation-delay: .4s; }
-    .rc.br { animation-delay: .6s; }
+    #camera-video.live { opacity: 1; }
 
+    /* Ring pulse instead of corner brackets */
+    .vf-ring {
+      position: absolute; inset: 18px;
+      border-radius: calc(var(--r) - 4px);
+      border: 2px solid rgba(0,200,150,.55);
+      pointer-events: none;
+      animation: ring-pulse 2.6s ease-in-out infinite;
+    }
+    @keyframes ring-pulse {
+      0%,100% { opacity:.35; transform:scale(1); border-color:rgba(0,200,150,.4); }
+      50%      { opacity:1;   transform:scale(1.008); border-color:rgba(0,200,150,.85); }
+    }
     .vf-status {
-      font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
-      color: var(--text-dim); user-select: none; position: relative; z-index: 2;
-      transition: color .3s;
+      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+      font-family: var(--ui); font-size: 11px; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      background: rgba(15,25,35,.72); color: #fff;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      padding: 5px 16px; border-radius: var(--r-pill);
+      pointer-events: none; white-space: nowrap;
+      transition: background .2s;
     }
-    .vf-status.live { color: var(--accent); text-shadow: var(--accent-glow-s); }
-
+    .vf-status.live { background: var(--accent); }
     .vf-preview {
       position: absolute; inset: 0; border-radius: inherit; overflow: hidden;
     }
-    .vf-preview img {
-      width: 100%; height: 100%; object-fit: cover; opacity: .65;
-    }
+    .vf-preview img { width: 100%; height: 100%; object-fit: cover; }
     .vf-input {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 3;
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
     }
-
-    /* Live camera video */
-    #camera-video {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; border-radius: inherit;
-      display: none;
-    }
-    #camera-video.live { display: block; }
-
-    /* Crosshair overlay when file selected */
-    .vf-crosshair {
-      position: absolute; z-index: 2; pointer-events: none;
-      width: 40px; height: 40px;
-      border: 1px solid rgba(0,217,134,.6);
-      border-radius: 50%;
-      box-shadow: 0 0 0 6px rgba(0,217,134,.06);
-      animation: crosshair-pulse 1.5s ease-in-out infinite;
-    }
-
-    /* Voice UI */
+    /* Voice idle state */
     .vf-voice {
-      position: relative; z-index: 2;
-      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 14px;
+      background: linear-gradient(160deg, #1A2535 0%, #243349 100%);
     }
-    .vf-voice svg { width: 52px; height: 52px; color: var(--text-dim); }
+    .vf-voice svg { width: 52px; height: 52px; color: rgba(255,255,255,.25); }
     .rec-dot {
-      width: 14px; height: 14px; border-radius: 50%;
-      background: var(--red);
-      box-shadow: 0 0 0 0 rgba(255,71,87,.5);
-      animation: rec-pulse 1.2s ease-in-out infinite;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--red); animation: rec-blink .9s step-end infinite;
     }
+    @keyframes rec-blink { 0%,100%{opacity:1} 50%{opacity:0} }
     .rec-timer {
-      font-family: var(--mono); font-size: 20px; letter-spacing: .12em;
-      color: var(--red); text-shadow: 0 0 10px rgba(255,71,87,.5);
+      font-family: var(--mono); font-size: 15px; color: #fff; letter-spacing: .12em;
     }
-    @keyframes rec-pulse {
-      0%   { box-shadow: 0 0 0 0 rgba(255,71,87,.6); }
-      70%  { box-shadow: 0 0 0 10px rgba(255,71,87,0); }
-      100% { box-shadow: 0 0 0 0 rgba(255,71,87,0); }
-    }
-
-    /* Currency picker (voice ambiguity) */
-    .ccy-picker {
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 16px;
-      display: flex; flex-direction: column; gap: 10px;
-      animation: fadeUp .3s ease forwards;
-    }
-    .ccy-picker-transcript {
-      font-family: var(--mono); font-size: 11px; color: var(--text-dim);
-      letter-spacing: .06em; font-style: italic;
-    }
-    .ccy-picker-amount {
-      font-family: var(--mono); font-size: 22px; color: var(--amber);
-      letter-spacing: .06em;
-    }
-    .ccy-picker-label {
-      font-size: 11px; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase;
-    }
-    .ccy-picker-row { display: flex; gap: 8px; }
-    .ccy-picker-row .rf-input { flex: 1; }
 
     /* ═══ BUTTONS ═══ */
     .cta-btn {
-      width: 100%; padding: 15px;
-      background: var(--accent-dim); border: 1px solid var(--accent);
-      border-radius: 50px; color: var(--accent);
-      font-family: var(--ui); font-size: 14px; font-weight: 700; letter-spacing: .2em;
-      cursor: pointer; text-transform: uppercase;
-      box-shadow: var(--accent-glow); transition: all .15s;
+      width: 100%; padding: 16px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: var(--r-pill); cursor: pointer;
+      font-family: var(--ui); font-size: 15px; font-weight: 700;
+      box-shadow: var(--sh-btn);
+      transition: transform .14s, box-shadow .14s, background .15s;
+      flex-shrink: 0;
     }
-    .cta-btn:active { transform: scale(.97); box-shadow: var(--accent-glow-s); }
-    .cta-btn:disabled { opacity: .35; box-shadow: none; cursor: not-allowed; }
-    .cta-btn.amber {
-      color: var(--amber); border-color: var(--amber);
-      background: var(--amber-dim);
-      box-shadow: 0 0 16px rgba(255,179,71,.35);
-    }
+    .cta-btn:active { transform: scale(.97); box-shadow: 0 2px 8px rgba(0,200,150,.28); }
+    .cta-btn:disabled { background: #C8D6E2; color: #8FA3B7; box-shadow: none; cursor: default; transform: none; }
+    .cta-btn.amber { background: var(--amber); box-shadow: 0 4px 16px rgba(245,166,35,.38); }
 
     .ghost-btn {
-      background: none; border: 1px solid var(--border);
-      border-radius: 50px; color: var(--text-dim);
-      font-family: var(--ui); font-size: 13px; font-weight: 600; letter-spacing: .12em;
-      cursor: pointer; padding: 10px 20px; transition: all .15s; text-transform: uppercase;
+      background: none; border: 1.5px solid var(--border); border-radius: var(--r-pill);
+      cursor: pointer; padding: 13px 24px;
+      font-family: var(--ui); font-size: 14px; font-weight: 600; color: var(--text-sec);
+      transition: border-color .2s, color .2s;
+      flex-shrink: 0;
     }
-    .ghost-btn:hover { border-color: var(--text-dim); color: var(--text); }
-    .ghost-btn:active { transform: scale(.97); }
+    .ghost-btn:hover { border-color: var(--accent); color: var(--accent); }
     .ghost-btn.full { width: 100%; }
 
-    /* ═══ RESULT PANEL ═══ */
+    #upload-alt-btn {
+      background: none; border: none; cursor: pointer;
+      font-family: var(--ui); font-size: 13px; font-weight: 600;
+      color: var(--text-sec); text-decoration: underline; text-underline-offset: 3px;
+      padding: 2px 0; text-align: center; flex-shrink: 0;
+    }
+    #upload-alt-btn:hover { color: var(--accent); }
+
+    /* ═══ RESULT PANELS ═══ */
     .result-panel {
-      background: var(--bg-panel); border: 1px solid var(--border-hi);
-      border-radius: var(--r); padding: 20px;
-      box-shadow: var(--accent-glow);
-      display: flex; flex-direction: column; align-items: center;
-      gap: 8px; text-align: center;
-      animation: fadeUp .35s ease forwards;
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh-up); padding: 20px;
+      display: flex; flex-direction: column; gap: 8px;
+      border-left: 4px solid var(--accent);
+      animation: fadeUp .22s ease;
     }
     .result-original {
-      font-family: var(--mono); font-size: 13px;
-      color: var(--text-dim); letter-spacing: .08em;
+      font-family: var(--mono); font-size: 12px; color: var(--text-dim);
     }
     .result-eur {
-      font-family: var(--mono); font-size: 44px; line-height: 1;
-      color: var(--accent); text-shadow: var(--accent-glow);
-      letter-spacing: .03em;
+      font-family: var(--mono); font-size: 38px; font-weight: 500;
+      color: var(--text); letter-spacing: -.5px; line-height: 1.1;
     }
-    .result-meta {
-      font-family: var(--mono); font-size: 11px;
-      color: var(--amber); letter-spacing: .06em;
-    }
+    .result-meta { font-size: 12px; color: var(--text-sec); font-weight: 500; }
     .result-badge {
-      font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
-      padding: 2px 9px; border-radius: 3px;
-      background: var(--accent-dim); color: var(--accent);
-      border: 1px solid rgba(0,217,134,.28);
+      display: inline-flex; align-items: center;
+      font-size: 11px; font-weight: 700; letter-spacing: .04em;
+      background: var(--accent-dim); color: var(--accent-dk);
+      padding: 5px 14px; border-radius: var(--r-pill);
+    }
+    .error-panel {
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh); padding: 16px;
+      color: var(--red); font-size: 13px; font-weight: 600;
+      border-left: 4px solid var(--red); animation: fadeUp .22s ease;
     }
 
-    /* ═══ MENU TABLE ═══ */
+    /* ═══ MENU PANEL ═══ */
     .menu-panel {
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); overflow: hidden;
-      animation: fadeUp .35s ease forwards;
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh-up); overflow: hidden; animation: fadeUp .22s ease;
     }
     .menu-panel-header {
-      padding: 10px 14px; border-bottom: 1px solid var(--border);
-      font-family: var(--mono); font-size: 11px;
-      letter-spacing: .14em; color: var(--text-dim);
-      display: flex; justify-content: space-between; align-items: center;
+      padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: .09em;
+      color: var(--text-sec); text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, var(--accent-dim), transparent);
     }
-    .menu-panel-header span { color: var(--accent); }
-    .menu-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .menu-table th {
-      font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
-      color: var(--text-dim); text-align: left;
-      padding: 6px 12px; border-bottom: 1px solid var(--border);
-      text-transform: uppercase; background: rgba(0,217,134,.03);
+    .menu-table { width: 100%; border-collapse: collapse; }
+    .menu-table thead th {
+      padding: 9px 12px; font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      color: var(--text-dim); text-transform: uppercase; text-align: left;
+      border-bottom: 1px solid var(--border); background: #F7FAFB;
     }
-    .menu-table td {
-      padding: 7px 12px; border-bottom: 1px solid rgba(0,217,134,.04);
-      vertical-align: middle;
-    }
-    .menu-table tr:last-child td { border-bottom: none; }
-    .menu-table .td-name { color: var(--text); font-weight: 500; }
-    .menu-table .td-orig { color: var(--text-dim); font-size: 11px; font-family: var(--mono); }
-    .menu-table .td-price { font-family: var(--mono); color: var(--text-dim); white-space: nowrap; }
-    .menu-table .td-eur  { font-family: var(--mono); color: var(--accent); white-space: nowrap; text-align: right; font-weight: 600; }
+    .menu-table tbody tr { border-bottom: 1px solid var(--border); }
+    .menu-table tbody tr:last-child { border-bottom: none; }
+    .menu-table tbody td { padding: 10px 12px; vertical-align: top; }
+    .td-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .td-orig { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+    .td-price { font-family: var(--mono); font-size: 12px; color: var(--text-sec); white-space: nowrap; }
+    .td-eur   { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--accent-dk); white-space: nowrap; }
 
-    /* ═══ ERROR / LOADING ═══ */
-    .error-panel {
-      background: var(--red-dim); border: 1px solid var(--red);
-      border-radius: var(--r); padding: 12px 16px;
-      font-family: var(--mono); font-size: 12px;
-      color: var(--red); letter-spacing: .06em;
-      animation: fadeUp .3s ease forwards;
+    /* ═══ CURRENCY PICKER ═══ */
+    .ccy-picker {
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh-up); padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+      animation: fadeUp .22s ease;
     }
+    .ccy-picker-transcript { font-size: 13px; color: var(--text-sec); font-style: italic; }
+    .ccy-picker-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--text-dim); text-transform: uppercase; }
+    .ccy-picker-amount { font-family: var(--mono); font-size: 30px; font-weight: 500; color: var(--text); }
+    .ccy-picker-row { display: flex; gap: 8px; }
 
-    /* ═══════════════════════════════════════════════════════
-       DASHBOARD
-    ═══════════════════════════════════════════════════════ */
+    /* ═══ DASHBOARD ═══ */
+    .dash-hero {
+      background: linear-gradient(145deg, #00C896 0%, #00A07A 55%, #007A5C 100%);
+      border-radius: var(--r); padding: 22px 20px 18px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 6px 28px rgba(0,200,150,.32);
+    }
+    /* Decorative circles */
+    .dash-hero::before {
+      content: ''; position: absolute;
+      top: -50px; right: -30px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(255,255,255,.08); pointer-events: none;
+    }
+    .dash-hero::after {
+      content: ''; position: absolute;
+      bottom: -70px; left: -30px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(255,255,255,.05); pointer-events: none;
+    }
     .mission-title {
-      font-family: var(--mono); font-size: 12px; letter-spacing: .16em;
-      color: var(--text-dim); padding-bottom: 4px;
-      border-bottom: 1px solid var(--border); text-transform: uppercase;
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      color: rgba(255,255,255,.65); text-transform: uppercase;
+      margin-bottom: 3px; position: relative; z-index: 1;
     }
-    .mission-title .hi { color: var(--accent); text-shadow: var(--accent-glow-s); }
+    .mission-name-row {
+      position: relative; z-index: 1; margin-bottom: 18px;
+    }
+    #mission-name {
+      font-size: 20px; font-weight: 800; color: #fff;
+      letter-spacing: -.2px; line-height: 1.2;
+    }
 
-    /* Gauge */
+    /* Gauge — lives inside hero on white inner card */
+    .gauge-card {
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 14px; padding: 16px;
+      position: relative; z-index: 1;
+    }
     .gauge-wrap {
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 18px;
-      display: flex; flex-direction: column; align-items: center; gap: 0;
+      display: flex; justify-content: center; padding-bottom: 4px;
     }
     .gauge-svg-wrap {
-      position: relative; width: 176px; height: 176px;
+      position: relative; width: 148px; height: 148px;
     }
-    .gauge-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .gauge-svg {
+      width: 100%; height: 100%;
+      transform: rotate(-90deg);
+    }
     .g-track {
-      fill: none; stroke: rgba(0,217,134,.07); stroke-width: 11;
+      fill: none; stroke: rgba(255,255,255,.2);
+      stroke-width: 10; stroke-linecap: round;
     }
     .g-arc {
-      fill: none; stroke: var(--accent); stroke-width: 11; stroke-linecap: round;
+      fill: none; stroke: #fff;
+      stroke-width: 10; stroke-linecap: round;
       stroke-dasharray: 490.09; stroke-dashoffset: 0;
-      transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1), stroke .5s ease;
-      filter: drop-shadow(0 0 5px var(--accent));
+      transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1), stroke .5s;
     }
     .gauge-center {
       position: absolute; inset: 0;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 1px;
+      align-items: center; justify-content: center;
     }
-    .gauge-pct  { font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: .1em; }
-    .gauge-amt  { font-family: var(--mono); font-size: 21px; color: var(--accent); text-shadow: var(--accent-glow-s); line-height: 1.1; }
-    .gauge-lbl  { font-size: 10px; letter-spacing: .12em; color: var(--text-dim); text-transform: uppercase; }
+    .gauge-pct {
+      font-family: var(--mono); font-size: 12px;
+      color: rgba(255,255,255,.7); letter-spacing: .06em;
+    }
+    .gauge-amt {
+      font-family: var(--mono); font-size: 20px; font-weight: 500;
+      color: #fff; letter-spacing: -.3px; line-height: 1.15;
+    }
+    .gauge-lbl {
+      font-size: 9px; font-weight: 700; letter-spacing: .14em;
+      color: rgba(255,255,255,.6); text-transform: uppercase;
+    }
 
-    /* Stat pills */
-    .stat-pills { display: flex; gap: 10px; }
-    .stat-pill {
-      flex: 1; background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 12px; text-align: center;
+    /* Stat pills — inside hero */
+    .stat-pills {
+      display: flex; gap: 8px; margin-top: 12px;
+      position: relative; z-index: 1;
     }
-    .stat-pill-lbl { font-size: 10px; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
-    .stat-pill-val { font-family: var(--mono); font-size: 15px; color: var(--text); }
+    .stat-pill {
+      flex: 1; background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 12px; padding: 11px 13px;
+    }
+    .stat-pill-lbl {
+      font-size: 9px; font-weight: 700; letter-spacing: .1em;
+      color: rgba(255,255,255,.6); text-transform: uppercase; margin-bottom: 4px;
+    }
+    .stat-pill-val {
+      font-family: var(--mono); font-size: 14px; font-weight: 500; color: #fff;
+    }
 
     /* Currency toggle */
     .ccy-toggle {
-      display: flex; background: var(--bg-panel);
-      border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 4px;
+      display: flex; background: var(--bg-card); border-radius: var(--r-pill);
+      padding: 4px; box-shadow: var(--sh);
     }
     .ccy-btn {
-      flex: 1; background: none; border: none; border-radius: 6px;
-      padding: 8px; font-family: var(--mono); font-size: 13px; letter-spacing: .08em;
-      color: var(--text-dim); cursor: pointer; transition: all .2s; text-transform: uppercase;
+      flex: 1; background: none; border: none; border-radius: var(--r-pill);
+      padding: 10px; font-family: var(--ui); font-size: 13px; font-weight: 700;
+      color: var(--text-sec); cursor: pointer; transition: all .18s;
     }
     .ccy-btn.active {
-      background: var(--accent-dim); color: var(--accent);
-      box-shadow: inset 0 0 0 1px rgba(0,217,134,.28);
+      background: var(--accent); color: #fff;
+      box-shadow: 0 2px 8px rgba(0,200,150,.32);
     }
     .ccy-rate-row {
       font-family: var(--mono); font-size: 11px; color: var(--text-dim);
-      text-align: center; letter-spacing: .1em; padding: 1px 4px;
+      text-align: center; letter-spacing: .05em;
     }
 
-    /* Payment log */
+    /* Payment section */
     .payment-section {
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); overflow: hidden;
-      display: flex; flex-direction: column; min-height: 180px;
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh); overflow: hidden;
     }
     .payment-hdr {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 14px; border-bottom: 1px solid var(--border);
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
     }
     .payment-hdr-lbl {
-      font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--text-dim);
+      font-size: 12px; font-weight: 700; letter-spacing: .08em;
+      color: var(--text-sec); text-transform: uppercase;
     }
     .refresh-btn {
-      background: none; border: none; color: var(--text-dim);
-      font-size: 17px; cursor: pointer; padding: 2px 6px;
-      border-radius: 4px; transition: all .2s; line-height: 1;
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; color: var(--text-dim); line-height: 1;
+      padding: 4px; transition: color .2s; display: flex; align-items: center;
     }
     .refresh-btn:hover { color: var(--accent); }
-    .refresh-btn.spin { animation: spin .55s linear; }
-    .payment-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
-    .payment-list::-webkit-scrollbar { display: none; }
+    .refresh-btn.spin { animation: spin .5s linear; }
+    .payment-list { display: flex; flex-direction: column; max-height: 280px; overflow-y: auto; }
+    .pay-empty {
+      padding: 24px; text-align: center;
+      font-size: 13px; color: var(--text-dim);
+    }
     .pay-row {
-      display: flex; align-items: center;
-      padding: 7px 14px; gap: 8px;
-      border-bottom: 1px solid rgba(0,217,134,.04);
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
     }
     .pay-row:last-child { border-bottom: none; }
-    .pay-date { font-family: var(--mono); font-size: 11px; color: var(--amber); letter-spacing: .05em; white-space: nowrap; flex-shrink: 0; }
-    .pay-desc { font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-    .pay-amt  { font-family: var(--mono); font-size: 13px; white-space: nowrap; flex-shrink: 0; }
+    /* Left color dot */
+    .pay-row::before {
+      content: ''; display: block;
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .pay-date {
+      font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+      min-width: 44px; letter-spacing: .03em;
+    }
+    .pay-desc {
+      flex: 1; font-size: 13px; font-weight: 500; color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .pay-amt {
+      font-family: var(--mono); font-size: 13px; font-weight: 500; white-space: nowrap;
+    }
     .pay-amt.db { color: var(--red); }
-    .pay-amt.cr { color: var(--accent); }
-    .pay-empty { padding: 28px; text-align: center; font-family: var(--mono); font-size: 12px; color: var(--text-dim); letter-spacing: .1em; }
+    .pay-amt.cr { color: var(--accent-dk); }
 
-    /* ═══════════════════════════════════════════════════════
-       TRIPS
-    ═══════════════════════════════════════════════════════ */
-    .section-lbl {
-      font-family: var(--mono); font-size: 11px; letter-spacing: .16em; color: var(--text-dim);
-    }
-    .trip-list { display: flex; flex-direction: column; gap: 8px; }
-    .trip-card {
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-left: 3px solid var(--border);
-      border-radius: var(--r); padding: 14px;
-      cursor: pointer; transition: all .2s; position: relative;
-    }
-    .trip-card.active {
-      border-left-color: var(--accent);
-      background: var(--bg-panel2);
-      box-shadow: -4px 0 20px rgba(0,217,134,.12);
-    }
-    .trip-card-name {
-      font-family: var(--mono); font-size: 14px; letter-spacing: .06em;
-      color: var(--text); margin-bottom: 3px; padding-right: 70px;
-    }
-    .trip-card.active .trip-card-name { color: var(--accent); }
-    .trip-card-meta { font-size: 12px; color: var(--text-dim); letter-spacing: .03em; }
-    .trip-card-budget {
-      position: absolute; top: 14px; right: 14px;
-      font-family: var(--mono); font-size: 14px; color: var(--amber);
-    }
-    .trip-active-pill {
-      position: absolute; bottom: 10px; right: 12px;
-      font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--accent);
-    }
-
-    .new-mission-btn {
-      width: 100%; padding: 14px;
-      background: none; border: 1px dashed var(--border);
-      border-radius: var(--r); color: var(--text-dim);
-      font-family: var(--ui); font-size: 13px; font-weight: 700; letter-spacing: .14em;
-      cursor: pointer; transition: all .2s; text-transform: uppercase;
-    }
-    .new-mission-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* Trip form */
-    .trip-form {
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 16px;
-      display: flex; flex-direction: column; gap: 10px;
-      animation: fadeUp .25s ease forwards;
-    }
-    .form-title {
-      font-family: var(--mono); font-size: 12px; letter-spacing: .14em;
-      color: var(--accent); margin-bottom: 2px;
-    }
-    .form-field { display: flex; flex-direction: column; gap: 3px; }
-    .form-row { display: flex; gap: 10px; }
-    .form-row .form-field { flex: 1; }
-    .rf-label { font-size: 11px; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; }
-    .rf-input {
-      width: 100%; background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: 10px 12px;
-      color: var(--text); font-family: var(--mono); font-size: 13px; letter-spacing: .06em;
-      outline: none; transition: border-color .2s;
-    }
-    .rf-input:focus { border-color: var(--accent); }
-    .rf-input::placeholder { color: var(--text-dim); }
-    .rf-input[type="date"] { color-scheme: dark; }
-    .form-actions { display: flex; gap: 10px; margin-top: 2px; }
-    .form-actions .ghost-btn { flex: 1; text-align: center; }
-    .form-actions .cta-btn  { flex: 2; padding: 12px; font-size: 13px; }
-
-    /* ═══ AI RECOMMENDATIONS ═══ */
+    /* AI Recommendations */
     .recs-section {
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); overflow: hidden;
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh); overflow: hidden;
     }
     .recs-hdr {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 14px; border-bottom: 1px solid var(--border);
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
     }
-    .recs-hdr-left { display: flex; flex-direction: column; gap: 1px; }
+    .recs-hdr-left { display: flex; flex-direction: column; gap: 2px; }
     .recs-hdr-lbl {
-      font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--text-dim);
+      font-size: 12px; font-weight: 700; letter-spacing: .08em;
+      color: var(--text-sec); text-transform: uppercase;
     }
-    .recs-geo-note {
-      font-family: var(--mono); font-size: 9px; letter-spacing: .07em; color: var(--accent); opacity: .75;
+    .recs-geo-note { font-size: 11px; color: var(--accent); font-weight: 500; }
+    #recs-list {
+      max-height: 320px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      display: flex; flex-direction: column;
     }
+    #recs-list::-webkit-scrollbar { display: none; }
     .rec-card {
-      padding: 12px 14px; border-bottom: 1px solid rgba(0,217,134,.04);
-      display: flex; flex-direction: column; gap: 4px;
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 5px;
     }
     .rec-card:last-child { border-bottom: none; }
     .rec-name-row {
       display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
     }
-    .rec-name { font-size: 14px; font-weight: 600; color: var(--accent); }
+    .rec-name { font-size: 14px; font-weight: 700; color: var(--text); }
     .rec-dist { font-family: var(--mono); font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
-    .rec-meta { font-family: var(--mono); font-size: 10px; color: var(--amber); letter-spacing: .05em; }
-    .rec-why  { font-size: 12px; color: var(--text); line-height: 1.55; }
+    .rec-meta { font-size: 11px; color: var(--amber); font-weight: 600; }
+    .rec-why  { font-size: 13px; color: var(--text-sec); line-height: 1.55; }
     .rec-address { font-size: 11px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .rec-maps-link {
-      display: inline-block; margin-top: 4px; align-self: flex-start;
-      font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
-      color: var(--accent); text-decoration: none;
-      padding: 3px 9px; border: 1px solid rgba(0,217,134,.28);
-      border-radius: 3px; background: var(--accent-dim);
+      display: inline-flex; align-items: center; margin-top: 2px; align-self: flex-start;
+      font-size: 11px; font-weight: 700; letter-spacing: .04em;
+      color: var(--accent-dk); text-decoration: none;
+      padding: 5px 12px; border-radius: var(--r-pill);
+      background: var(--accent-dim);
     }
+    .rec-maps-link:hover { background: rgba(0,200,150,.18); }
 
-    /* ═══ EVENTS ═══ */
+    /* Events */
     .events-section {
-      background: var(--bg-panel); border: 1px solid var(--border);
-      border-radius: var(--r); overflow: hidden;
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh); overflow: hidden;
     }
     .events-hdr {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 14px; border-bottom: 1px solid var(--border);
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
     }
     .events-hdr-lbl {
-      font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--text-dim);
+      font-size: 12px; font-weight: 700; letter-spacing: .08em;
+      color: var(--text-sec); text-transform: uppercase;
     }
     .events-list {
       display: flex; flex-direction: column;
@@ -576,70 +513,132 @@
     }
     #recs-list::-webkit-scrollbar { display: none; }
     .event-card {
-      display: flex; gap: 10px; align-items: flex-start;
-      padding: 10px 14px; border-bottom: 1px solid rgba(0,217,134,.04);
-      cursor: pointer; text-decoration: none;
-      transition: background .15s;
+      display: flex; gap: 12px; align-items: center;
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      text-decoration: none; transition: background .15s; cursor: pointer;
     }
     .event-card:last-child { border-bottom: none; }
-    .event-card:hover { background: rgba(0,217,134,.04); }
+    .event-card:hover { background: rgba(0,200,150,.04); }
     .event-img {
-      width: 52px; height: 52px; flex-shrink: 0;
-      border-radius: 6px; object-fit: cover;
-      border: 1px solid var(--border);
-      background: var(--bg-panel2);
+      width: 50px; height: 50px; flex-shrink: 0;
+      border-radius: 10px; object-fit: cover; background: var(--bg);
     }
     .event-img-placeholder {
-      width: 52px; height: 52px; flex-shrink: 0; border-radius: 6px;
-      border: 1px solid var(--border); background: var(--bg-panel2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
+      width: 50px; height: 50px; flex-shrink: 0; border-radius: 10px;
+      background: var(--bg); display: flex; align-items: center;
+      justify-content: center; font-size: 22px;
     }
     .event-info { flex: 1; min-width: 0; }
     .event-name {
       font-size: 13px; font-weight: 600; color: var(--text);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      margin-bottom: 2px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px;
     }
-    .event-meta {
-      font-family: var(--mono); font-size: 10px; color: var(--text-dim);
-      letter-spacing: .05em; margin-bottom: 2px;
-    }
+    .event-meta { font-size: 11px; color: var(--text-dim); margin-bottom: 1px; }
     .event-venue {
-      font-size: 11px; color: var(--text-dim);
+      font-size: 11px; color: var(--text-sec);
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .event-price {
-      font-family: var(--mono); font-size: 11px; color: var(--amber);
-      white-space: nowrap; flex-shrink: 0; align-self: center;
+      font-family: var(--mono); font-size: 12px; color: var(--amber);
+      white-space: nowrap; flex-shrink: 0;
     }
     .events-find-btn {
-      width: 100%; padding: 22px;
-      background: none; border: none;
-      font-family: var(--mono); font-size: 12px; letter-spacing: .14em;
-      color: var(--text-dim); cursor: pointer; transition: color .2s;
+      width: 100%; padding: 20px; background: none; border: none;
+      font-family: var(--ui); font-size: 13px; font-weight: 600;
+      color: var(--text-sec); cursor: pointer; transition: color .2s;
     }
     .events-find-btn:hover { color: var(--accent); }
     .events-empty {
-      padding: 28px; text-align: center;
-      font-family: var(--mono); font-size: 12px;
-      color: var(--text-dim); letter-spacing: .1em;
+      padding: 24px; text-align: center; font-size: 13px; color: var(--text-dim);
     }
 
-    /* ═══ ANIMATIONS ═══ */
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    @keyframes reticle-pulse {
-      0%,100%{ opacity:.55; }
-      50%{ opacity:1; filter:drop-shadow(0 0 5px var(--accent)); }
+    /* ═══ TRIPS ═══ */
+    .section-lbl {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      color: var(--text-dim); text-transform: uppercase;
     }
-    @keyframes crosshair-pulse {
-      0%,100%{ transform:scale(1); opacity:.7; }
-      50%{ transform:scale(1.15); opacity:1; }
+    .trip-list { display: flex; flex-direction: column; gap: 10px; }
+    .trip-card {
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh);
+      padding: 16px 16px 16px 20px;
+      border-left: 4px solid rgba(0,200,150,.2);
+      cursor: pointer; transition: all .18s; position: relative;
     }
+    .trip-card:hover { transform: translateY(-1px); box-shadow: var(--sh-up); }
+    .trip-card:active { transform: scale(.99); }
+    .trip-card.active {
+      border-left-color: var(--accent);
+      background: linear-gradient(120deg, rgba(0,200,150,.06) 0%, #fff 70%);
+    }
+    .trip-card-name {
+      font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px;
+    }
+    .trip-card-meta { font-size: 12px; color: var(--text-sec); margin-bottom: 5px; }
+    .trip-card-budget {
+      font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--accent-dk);
+    }
+    .trip-active-pill {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: .06em;
+      background: var(--accent); color: #fff;
+      padding: 4px 12px; border-radius: var(--r-pill);
+    }
+
+    .new-mission-btn {
+      width: 100%; padding: 18px;
+      background: none; border: 2px dashed rgba(0,200,150,.3); border-radius: var(--r);
+      font-family: var(--ui); font-size: 14px; font-weight: 700; color: var(--accent);
+      cursor: pointer; transition: all .18s;
+    }
+    .new-mission-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+
+    /* Trip form */
+    .trip-form {
+      background: var(--bg-card); border-radius: var(--r);
+      box-shadow: var(--sh-up); padding: 20px;
+      display: flex; flex-direction: column; gap: 14px;
+      animation: fadeUp .2s ease;
+    }
+    .form-title {
+      font-size: 16px; font-weight: 800; color: var(--text);
+    }
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-field { flex: 1; }
+    .rf-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      color: var(--text-dim); text-transform: uppercase;
+    }
+    .rf-input {
+      width: 100%; background: var(--bg); border: 1.5px solid rgba(0,0,0,.08);
+      border-radius: var(--r-sm); padding: 11px 14px;
+      color: var(--text); font-family: var(--ui); font-size: 14px; font-weight: 500;
+      outline: none; transition: border-color .18s, background .18s;
+    }
+    .rf-input:focus { border-color: var(--accent); background: #fff; }
+    .rf-input::placeholder { color: var(--text-dim); }
+    .rf-input[type="date"] { color-scheme: light; }
+    .form-actions { display: flex; gap: 10px; margin-top: 2px; }
+    .form-actions .ghost-btn { flex: 1; text-align: center; }
+    .form-actions .cta-btn  { flex: 2; padding: 14px; font-size: 14px; }
+
+    /* Skeleton shimmer */
+    .skeleton {
+      background: linear-gradient(90deg, #E4EAF1 25%, #EEF3F8 50%, #E4EAF1 75%);
+      background-size: 600px 100%; border-radius: 8px; height: 14px;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: -300px 0; }
+      100% { background-position:  300px 0; }
+    }
+
+    /* Animations */
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
     @keyframes fadeUp {
-      from{ opacity:0; transform:translateY(8px); }
-      to{   opacity:1; transform:translateY(0);   }
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
     }
   </style>
 </head>
@@ -648,8 +647,8 @@
 
   <!-- ══════════ HEADER ══════════ -->
   <header id="header">
-    <div class="wordmark">TRAVEL BUDDY<span class="cursor">_</span></div>
-    <div class="header-trip" id="header-trip">NO JOURNEY</div>
+    <div class="wordmark">Travel<em>Buddy</em></div>
+    <div class="header-trip" id="header-trip">No trip selected</div>
     <div class="bunq-badge">bunq</div>
   </header>
 
@@ -657,22 +656,21 @@
   <div id="screen-scanner" class="screen active">
 
     <div class="mode-tabs">
-      <button class="mode-tab active" data-mode="photo">PHOTO</button>
-      <button class="mode-tab" data-mode="voice">VOICE</button>
-      <button class="mode-tab" data-mode="menu">MENU</button>
+      <button class="mode-tab active" data-mode="photo">Photo</button>
+      <button class="mode-tab" data-mode="voice">Voice</button>
+      <button class="mode-tab" data-mode="menu">Menu</button>
     </div>
 
     <div class="viewfinder" id="viewfinder">
-      <div class="rc tl"></div><div class="rc tr"></div>
-      <div class="rc bl"></div><div class="rc br"></div>
       <video id="camera-video" autoplay playsinline muted></video>
-      <div class="vf-status" id="vf-status">READY</div>
+      <div class="vf-ring"></div>
+      <div class="vf-status" id="vf-status">Ready</div>
       <div class="vf-preview" id="vf-preview"></div>
       <input type="file" class="vf-input" id="file-input" accept="image/*">
     </div>
 
-    <button class="cta-btn" id="scan-btn">SCAN PRICE</button>
-    <button class="ghost-btn full" id="upload-alt-btn" style="display:none">or upload image</button>
+    <button class="cta-btn" id="scan-btn">Scan Price</button>
+    <button id="upload-alt-btn" style="display:none">or upload image</button>
     <div id="result-area"></div>
 
   </div>
@@ -680,46 +678,53 @@
   <!-- ══════════ SCREEN: DASHBOARD ══════════ -->
   <div id="screen-dashboard" class="screen">
 
-    <div class="mission-title">JOURNEY: <span class="hi" id="mission-name">—</span></div>
+    <div class="dash-hero">
+      <div class="mission-title">Active Journey</div>
+      <div class="mission-name-row">
+        <span id="mission-name">—</span>
+      </div>
 
-    <div class="gauge-wrap">
-      <div class="gauge-svg-wrap">
-        <svg class="gauge-svg" viewBox="0 0 200 200">
-          <circle class="g-track" cx="100" cy="100" r="78"/>
-          <circle class="g-arc" id="g-arc" cx="100" cy="100" r="78"/>
-        </svg>
-        <div class="gauge-center">
-          <div class="gauge-pct" id="gauge-pct">—%</div>
-          <div class="gauge-amt" id="gauge-amt">—</div>
-          <div class="gauge-lbl">REMAINING</div>
+      <div class="gauge-card">
+        <div class="gauge-wrap">
+          <div class="gauge-svg-wrap">
+            <svg class="gauge-svg" viewBox="0 0 200 200">
+              <circle class="g-track" cx="100" cy="100" r="78"/>
+              <circle class="g-arc"   id="g-arc"   cx="100" cy="100" r="78"/>
+            </svg>
+            <div class="gauge-center">
+              <div class="gauge-pct" id="gauge-pct">—%</div>
+              <div class="gauge-amt" id="gauge-amt">—</div>
+              <div class="gauge-lbl">Remaining</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="stat-pills">
-      <div class="stat-pill">
-        <div class="stat-pill-lbl">TOTAL BUDGET</div>
-        <div class="stat-pill-val" id="stat-budget">—</div>
-      </div>
-      <div class="stat-pill">
-        <div class="stat-pill-lbl">PER DAY LEFT</div>
-        <div class="stat-pill-val" id="stat-per-day">—</div>
+        <div class="stat-pills">
+          <div class="stat-pill">
+            <div class="stat-pill-lbl">Total Budget</div>
+            <div class="stat-pill-val" id="stat-budget">—</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-lbl">Per Day Left</div>
+            <div class="stat-pill-val" id="stat-per-day">—</div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="ccy-toggle" id="ccy-toggle" style="display:none">
       <button class="ccy-btn active" id="ccy-own-btn">EUR</button>
-      <button class="ccy-btn" id="ccy-dest-btn">—</button>
+      <button class="ccy-btn"        id="ccy-dest-btn">—</button>
     </div>
     <div class="ccy-rate-row" id="ccy-rate" style="display:none"></div>
 
     <div class="payment-section">
       <div class="payment-hdr">
-        <span class="payment-hdr-lbl">PAYMENT LOG</span>
+        <span class="payment-hdr-lbl">Payment Log</span>
         <button class="refresh-btn" id="refresh-btn" title="Refresh">↺</button>
       </div>
       <div class="payment-list" id="payment-list">
-        <div class="pay-empty">SELECT A JOURNEY IN TRIPS</div>
+        <div class="pay-empty">Select a trip to see payments</div>
       </div>
     </div>
 
@@ -738,11 +743,11 @@
 
     <div class="events-section">
       <div class="events-hdr">
-        <span class="events-hdr-lbl">EVENTS NEARBY</span>
+        <span class="events-hdr-lbl">Events Nearby</span>
         <button class="refresh-btn" id="events-refresh-btn" title="Find events">↺</button>
       </div>
       <div class="events-list" id="events-list">
-        <button class="events-find-btn" id="events-find-btn" onclick="loadEvents()">⊕ FIND LOCAL EVENTS</button>
+        <button class="events-find-btn" id="events-find-btn" onclick="loadEvents()">+ Find local events</button>
       </div>
     </div>
 
@@ -750,34 +755,34 @@
 
   <!-- ══════════ SCREEN: TRIPS ══════════ -->
   <div id="screen-trips" class="screen">
-    <div class="section-lbl">// ACTIVE JOURNEYS</div>
+    <div class="section-lbl">Your Trips</div>
     <div class="trip-list" id="trip-list"></div>
-    <button class="new-mission-btn" id="new-mission-btn">+ NEW JOURNEY</button>
+    <button class="new-mission-btn" id="new-mission-btn">+ New Trip</button>
     <div id="trip-form-wrap"></div>
   </div>
 
   <!-- ══════════ BOTTOM NAV ══════════ -->
   <nav id="nav">
     <button class="nav-tab active" data-screen="scanner">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M3 9V6a1 1 0 011-1h3M3 15v3a1 1 0 001 1h3m9-16h3a1 1 0 011 1v3m0 9v3a1 1 0 01-1 1h-3"/>
         <circle cx="12" cy="12" r="3"/>
       </svg>
-      SCAN
+      Scan
     </button>
     <button class="nav-tab" data-screen="dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <circle cx="12" cy="12" r="9"/>
         <path d="M12 7v5l3.5 3.5"/>
       </svg>
-      JOURNEY
+      Journey
     </button>
     <button class="nav-tab" data-screen="trips">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M3 17l9-13 9 13H3z"/>
         <path d="M12 4v3M9 17v2M15 17v2"/>
       </svg>
-      TRIPS
+      Trips
     </button>
   </nav>
 
@@ -870,8 +875,8 @@ function applyMode(mode) {
           <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
         </svg>
       </div>`;
-    vfStatus.textContent = 'READY TO RECORD';
-    scanBtn.textContent = 'START RECORDING';
+    vfStatus.textContent = 'Ready to record';
+    scanBtn.textContent = 'Start Recording';
   } else {
     // photo or menu — start live camera + show upload fallback
     fileInput.setAttribute('hidden', '');
@@ -891,13 +896,13 @@ async function startCamera() {
     cameraVideo.classList.add('live');
     cameraState = 'live';
     vfStatus.textContent = '';
-    scanBtn.textContent = S.scanMode === 'menu' ? 'CAPTURE MENU' : 'CAPTURE';
+    scanBtn.textContent = S.scanMode === 'menu' ? 'Capture Menu' : 'Capture';
   } catch (err) {
     // Camera denied or unavailable — fall back to file picker
     cameraVideo.classList.remove('live');
     fileInput.removeAttribute('hidden');
-    vfStatus.textContent = 'CAMERA UNAVAILABLE — SELECT FILE';
-    scanBtn.textContent = S.scanMode === 'menu' ? 'SELECT MENU IMAGE' : 'SELECT IMAGE';
+    vfStatus.textContent = 'Camera unavailable — select file';
+    scanBtn.textContent = S.scanMode === 'menu' ? 'Select Menu Image' : 'Select Image';
   }
 }
 
@@ -923,8 +928,8 @@ function captureFrame() {
     vfPreview.innerHTML = `<img src="${url}" alt="capture">`;
     viewfinder.classList.add('has-file');
     cameraState = 'captured';
-    vfStatus.textContent = 'PRICE DETECTED';
-    scanBtn.textContent = S.scanMode === 'menu' ? 'READ MENU' : 'SCAN PRICE';
+    vfStatus.textContent = 'Price detected';
+    scanBtn.textContent = S.scanMode === 'menu' ? 'Read Menu' : 'Scan Price';
   }, 'image/jpeg', 0.92);
 }
 
@@ -937,10 +942,10 @@ fileInput.addEventListener('change', () => {
   cameraState = 'captured';
   const url = URL.createObjectURL(file);
   vfPreview.innerHTML = `<img src="${url}" alt="preview" style="opacity:1">`;
-  vfStatus.textContent = 'PRICE DETECTED';
+  vfStatus.textContent = 'Price detected';
   vfStatus.classList.add('live');
   viewfinder.classList.add('has-file');
-  scanBtn.textContent = 'SCAN PRICE';
+  scanBtn.textContent = 'Scan Price';
 });
 
 scanBtn.addEventListener('click', async () => {
@@ -966,8 +971,8 @@ async function performScan() {
   const file = S.selectedFile;
   if (!file) return;
 
-  const label = S.scanMode === 'menu' ? 'READ MENU' : 'SCAN PRICE';
-  scanBtn.textContent = 'READING...';
+  const label = S.scanMode === 'menu' ? 'Read Menu' : 'Scan Price';
+  scanBtn.textContent = 'Reading...';
   scanBtn.classList.add('amber');
   scanBtn.disabled = true;
   resultArea.innerHTML = '';
@@ -988,7 +993,7 @@ async function performScan() {
     if (S.scanMode === 'menu') renderMenuResult(data);
     else renderScanResult(data);
   } catch (err) {
-    resultArea.innerHTML = `<div class="error-panel">⚠ SCAN FAILED<br>${esc(err.message)}</div>`;
+    resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`;
   } finally {
     scanBtn.textContent = label;
     scanBtn.classList.remove('amber');
@@ -997,20 +1002,20 @@ async function performScan() {
 }
 
 function renderScanResult(d) {
-  const badge = d.payment_type === 'card' ? '💳 CARD' : '🏦 WIRE';
+  const badge = d.payment_type === 'card' ? '💳 Card' : '🏦 Wire';
   resultArea.innerHTML = `
     <div class="result-panel">
       <div class="result-original">${esc(String(d.input_amount))} ${esc(d.input_currency)}</div>
       <div class="result-eur">€ ${fmt2(d.total_eur)}</div>
-      <div class="result-meta">+€${fmt4(d.total_fees)} FEES · ${esc(d.source || '')}</div>
+      <div class="result-meta">+€${fmt4(d.total_fees)} fees · ${esc(d.source || '')}</div>
       <span class="result-badge">${badge}</span>
-      <button class="ghost-btn full" onclick="resetScan()">NEW SCAN</button>
+      <button class="ghost-btn full" onclick="resetScan()">New Scan</button>
     </div>`;
 }
 
 function renderMenuResult(d) {
   if (!d.items || d.items.length === 0) {
-    resultArea.innerHTML = `<div class="error-panel">NO MENU ITEMS DETECTED</div>`;
+    resultArea.innerHTML = `<div class="error-panel">No menu items detected</div>`;
     return;
   }
   const rows = d.items.map(item => `
@@ -1024,14 +1029,14 @@ function renderMenuResult(d) {
   resultArea.innerHTML = `
     <div class="menu-panel">
       <div class="menu-panel-header">
-        MENU SCAN · <span>${d.items.length} ITEMS</span> · ${esc(d.currency_iso || '—')}
+        Menu Scan · <span>${d.items.length} items</span> · ${esc(d.currency_iso || '—')}
       </div>
       <table class="menu-table">
-        <thead><tr><th>ITEM</th><th>PRICE</th><th>EUR</th></tr></thead>
+        <thead><tr><th>Item</th><th>Price</th><th>EUR</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <button class="ghost-btn full" onclick="resetScan()">NEW SCAN</button>`;
+    <button class="ghost-btn full" onclick="resetScan()">New Scan</button>`;
 }
 
 function resetScan() {
@@ -1052,7 +1057,7 @@ function resetScan() {
   } else if (S.scanMode === 'voice') {
     resetVoice(true);
   } else {
-    vfStatus.textContent = 'READY';
+    vfStatus.textContent = 'Ready';
   }
 }
 
@@ -1126,7 +1131,7 @@ async function startRecording() {
     }
     drawWaveform();
 
-    scanBtn.textContent = 'STOP';
+    scanBtn.textContent = 'Stop';
 
     recTimer = setInterval(() => {
       recSecs++;
@@ -1138,7 +1143,7 @@ async function startRecording() {
     }, 1000);
 
   } catch (err) {
-    vfStatus.textContent = 'MIC UNAVAILABLE';
+    vfStatus.textContent = 'Mic unavailable';
     vfStatus.classList.remove('live');
   }
 }
@@ -1150,15 +1155,15 @@ function stopRecording() {
   if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
   if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
   voiceState = 'processing';
-  vfStatus.textContent = 'ANALYSING...';
-  // Overlay "ANALYSING AUDIO..." label on top of the frozen waveform
+  vfStatus.textContent = 'Analysing...';
+  // Overlay label on top of the frozen waveform
   const overlay = document.createElement('div');
   overlay.id = 'wave-overlay';
   overlay.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.12em;';
   overlay.textContent = 'ANALYSING AUDIO...';
   const wrapper = vfPreview.querySelector('div');
   if (wrapper) wrapper.appendChild(overlay);
-  scanBtn.textContent = 'READING...';
+  scanBtn.textContent = 'Reading...';
   scanBtn.disabled = true;
 }
 
@@ -1178,7 +1183,7 @@ async function submitVoice(blob, mimeType) {
 
     if (data.status === 'no_amount') {
       resultArea.innerHTML = `
-        <div class="error-panel">⚠ NO AMOUNT DETECTED
+        <div class="error-panel">No amount detected
           ${data.transcript ? `<br><span style="opacity:.7;font-size:11px">"${esc(data.transcript)}"</span>` : ''}
         </div>`;
       resetVoice();
@@ -1196,7 +1201,7 @@ async function submitVoice(blob, mimeType) {
       resetVoice(false); // reset controls but keep result
     }
   } catch (err) {
-    resultArea.innerHTML = `<div class="error-panel">⚠ SCAN FAILED<br>${esc(err.message)}</div>`;
+    resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`;
     resetVoice();
   }
 }
@@ -1205,14 +1210,14 @@ function showCurrencyPicker(data) {
   resultArea.innerHTML = `
     <div class="ccy-picker">
       <div class="ccy-picker-transcript">"${esc(data.transcript || '')}"</div>
-      <div class="ccy-picker-label">DETECTED AMOUNT</div>
+      <div class="ccy-picker-label">Detected Amount</div>
       <div class="ccy-picker-amount">${esc(String(data.amount))}</div>
-      <div class="ccy-picker-label">CURRENCY NOT DETECTED — ENTER BELOW</div>
+      <div class="ccy-picker-label">Currency not detected — enter below</div>
       <div class="ccy-picker-row">
         <input class="rf-input" id="voice-ccy" placeholder="e.g. JPY" maxlength="3"
                style="text-transform:uppercase">
         <button class="cta-btn" style="width:auto;padding:10px 18px;font-size:13px"
-                onclick="convertVoice(${data.amount})">CONVERT</button>
+                onclick="convertVoice(${data.amount})">Convert</button>
       </div>
     </div>`;
   resetVoice(false);
@@ -1220,7 +1225,7 @@ function showCurrencyPicker(data) {
 
 async function convertVoice(amount) {
   const ccy = (document.getElementById('voice-ccy').value || '').trim().toUpperCase();
-  if (!ccy || ccy.length !== 3) { alert('ENTER A 3-LETTER CURRENCY CODE'); return; }
+  if (!ccy || ccy.length !== 3) { alert('Enter a 3-letter currency code'); return; }
   try {
     const res = await fetch('/api/convert', {
       method: 'POST',
@@ -1235,7 +1240,7 @@ async function convertVoice(amount) {
       source: fx.source, payment_type: fx.payment_type,
     });
   } catch (err) {
-    alert('CONVERSION FAILED: ' + err.message);
+    alert('Conversion failed: ' + err.message);
   }
 }
 
@@ -1244,9 +1249,9 @@ function resetVoice(resetUI = true) {
   if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
   voiceState = 'idle';
   scanBtn.disabled = false;
-  scanBtn.textContent = 'START RECORDING';
+  scanBtn.textContent = 'Start Recording';
   if (resetUI) {
-    vfStatus.textContent = 'READY TO RECORD';
+    vfStatus.textContent = 'Ready to record';
     vfStatus.classList.remove('live');
     vfPreview.innerHTML = `
       <div class="vf-voice">
@@ -1266,21 +1271,21 @@ const CIRC = 2 * Math.PI * 78; // ≈ 490.09
 
 async function loadDashboard() {
   if (!S.activeTrip) {
-    document.getElementById('mission-name').textContent = 'NONE SELECTED';
+    document.getElementById('mission-name').textContent = 'None selected';
     setGauge(0, 0, 1, 'EUR');
     document.getElementById('stat-budget').textContent = '—';
     document.getElementById('stat-per-day').textContent = '—';
     document.getElementById('payment-list').innerHTML =
-      '<div class="pay-empty">SELECT A JOURNEY IN TRIPS</div>';
+      '<div class="pay-empty">Select a trip to see payments</div>';
     document.getElementById('ccy-toggle').style.display = 'none';
     document.getElementById('ccy-rate').style.display = 'none';
     return;
   }
 
   const trip = S.activeTrip;
-  document.getElementById('mission-name').textContent = trip.name.toUpperCase();
+  document.getElementById('mission-name').textContent = trip.name;
   document.getElementById('payment-list').innerHTML =
-    '<div class="pay-empty">LOADING...</div>';
+    '<div class="pay-empty">Loading...</div>';
 
   try {
     const res = await fetch(`/api/trips/${trip.id}/dashboard`);
@@ -1319,7 +1324,7 @@ async function loadDashboard() {
     applyDashCurrency(false);
   } catch (err) {
     document.getElementById('payment-list').innerHTML =
-      `<div class="pay-empty">ERROR: ${esc(err.message)}</div>`;
+      `<div class="pay-empty">Error: ${esc(err.message)}</div>`;
   }
 }
 
@@ -1420,7 +1425,7 @@ async function fetchDestRate(destCcy) {
 function renderPayments(payments, ccy) {
   const list = document.getElementById('payment-list');
   if (!payments.length) {
-    list.innerHTML = '<div class="pay-empty">NO PAYMENTS FOUND</div>';
+    list.innerHTML = '<div class="pay-empty">No payments found</div>';
     return;
   }
   list.innerHTML = payments.slice(0, 100).map(p => {
@@ -1510,7 +1515,7 @@ document.getElementById('events-refresh-btn').addEventListener('click', function
 
 async function loadEvents() {
   const list = document.getElementById('events-list');
-  list.innerHTML = '<div class="events-empty">SCANNING LOCAL FREQUENCIES...</div>';
+  list.innerHTML = '<div class="events-empty">Scanning nearby...</div>';
   try {
     const res = await fetch('/api/events?radius=25&size=8');
     if (!res.ok) {
@@ -1520,14 +1525,14 @@ async function loadEvents() {
     const data = await res.json();
     renderEvents(data.events || []);
   } catch (err) {
-    list.innerHTML = `<div class="events-empty">⚠ ${esc(err.message)}</div>`;
+    list.innerHTML = `<div class="events-empty">${esc(err.message)}</div>`;
   }
 }
 
 function renderEvents(events) {
   const list = document.getElementById('events-list');
   if (!events.length) {
-    list.innerHTML = '<div class="events-empty">NO EVENTS FOUND NEARBY</div>';
+    list.innerHTML = '<div class="events-empty">No events found nearby</div>';
     return;
   }
   list.innerHTML = events.map(ev => {
@@ -1564,26 +1569,26 @@ async function loadTrips() {
     renderTripList();
   } catch (err) {
     document.getElementById('trip-list').innerHTML =
-      `<div class="error-panel">ERROR: ${esc(err.message)}</div>`;
+      `<div class="error-panel">Error: ${esc(err.message)}</div>`;
   }
 }
 
 function renderTripList() {
   const el = document.getElementById('trip-list');
   if (!S.trips.length) {
-    el.innerHTML = '<div class="pay-empty">NO JOURNEYS — CREATE ONE BELOW</div>';
+    el.innerHTML = '<div class="pay-empty">No trips yet — create one below</div>';
     return;
   }
   el.innerHTML = S.trips.map(trip => {
     const active = S.activeTrip && S.activeTrip.id === trip.id;
     const dates  = trip.start_date
       ? `${trip.start_date} → ${trip.end_date || '?'}`
-      : 'OPEN-ENDED';
+      : 'Open-ended';
     return `<div class="trip-card ${active ? 'active' : ''}" data-id="${trip.id}">
-      <div class="trip-card-name">${esc(trip.name.toUpperCase())}</div>
+      <div class="trip-card-name">${esc(trip.name)}</div>
       <div class="trip-card-meta">${dates}</div>
       <div class="trip-card-budget">€${fmt2(trip.budget_eur)}</div>
-      ${active ? '<div class="trip-active-pill">● ACTIVE</div>' : ''}
+      ${active ? '<div class="trip-active-pill">Active</div>' : ''}
     </div>`;
   }).join('');
 
@@ -1603,32 +1608,32 @@ document.getElementById('new-mission-btn').addEventListener('click', () => {
   if (wrap.children.length) { wrap.innerHTML = ''; return; }
   wrap.innerHTML = `
     <div class="trip-form">
-      <div class="form-title">// NEW JOURNEY</div>
+      <div class="form-title">New Trip</div>
       <div class="form-field">
-        <div class="rf-label">JOURNEY NAME</div>
-        <input class="rf-input" id="tf-name" placeholder="e.g. TOKYO SPRING 2026">
+        <div class="rf-label">Trip Name</div>
+        <input class="rf-input" id="tf-name" placeholder="e.g. Tokyo Spring 2026">
       </div>
       <div class="form-field">
-        <div class="rf-label">BUDGET (EUR)</div>
+        <div class="rf-label">Budget (EUR)</div>
         <input class="rf-input" id="tf-budget" type="number" min="0" placeholder="1000">
       </div>
       <div class="form-row">
         <div class="form-field">
-          <div class="rf-label">DEPARTURE</div>
+          <div class="rf-label">Departure</div>
           <input class="rf-input" id="tf-start" type="date">
         </div>
         <div class="form-field">
-          <div class="rf-label">RETURN</div>
+          <div class="rf-label">Return</div>
           <input class="rf-input" id="tf-end" type="date">
         </div>
       </div>
       <div class="form-field">
-        <div class="rf-label">DEST. CURRENCY (OPTIONAL)</div>
+        <div class="rf-label">Destination Currency (optional)</div>
         <input class="rf-input" id="tf-ccy" placeholder="e.g. JPY" maxlength="3" style="text-transform:uppercase">
       </div>
       <div class="form-actions">
-        <button class="ghost-btn" id="tf-abort">DISCARD</button>
-        <button class="cta-btn"   id="tf-launch">CREATE TRIP</button>
+        <button class="ghost-btn" id="tf-abort">Discard</button>
+        <button class="cta-btn"   id="tf-launch">Create Trip</button>
       </div>
     </div>`;
 
@@ -1646,11 +1651,11 @@ async function saveTrip() {
   const ccy    = (document.getElementById('tf-ccy').value || '').trim().toUpperCase() || null;
 
   if (!name || isNaN(budget) || budget <= 0) {
-    alert('JOURNEY NAME AND BUDGET REQUIRED');
+    alert('Trip name and budget are required');
     return;
   }
   if (start && end && end < start) {
-    alert('RETURN DATE MUST BE AFTER DEPARTURE');
+    alert('Return date must be after departure');
     return;
   }
   try {
@@ -1667,7 +1672,7 @@ async function saveTrip() {
     document.getElementById('trip-form-wrap').innerHTML = '';
     renderTripList();
   } catch (err) {
-    alert('CREATION FAILED: ' + err.message);
+    alert('Creation failed: ' + err.message);
   }
 }
 
