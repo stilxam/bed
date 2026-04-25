@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import uuid
 from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -29,9 +30,11 @@ class Trip:
     id: str
     name: str
     budget_eur: float
-    start_date: Optional[str] = None        # ISO date string YYYY-MM-DD, or None
-    end_date: Optional[str] = None          # ISO date string YYYY-MM-DD, or None
-    default_currency: Optional[str] = None  # ISO 4217 destination currency, or None
+    start_date: Optional[str] = None           # ISO date string YYYY-MM-DD, or None
+    end_date: Optional[str] = None             # ISO date string YYYY-MM-DD, or None
+    default_currency: Optional[str] = None     # ISO 4217 destination currency, or None
+    default_own_currency: Optional[str] = None # ISO 4217 home currency, or None (display as EUR)
+    created_at: Optional[str] = None           # ISO 8601 UTC datetime of trip creation
 
 
 # ── File I/O ──────────────────────────────────────────────────────────────────
@@ -51,6 +54,8 @@ def load_trips() -> list[Trip]:
                 start_date=t.get("start_date"),
                 end_date=t.get("end_date"),
                 default_currency=t.get("default_currency"),
+                default_own_currency=t.get("default_own_currency"),
+                created_at=t.get("created_at"),
             ))
         return trips
     except (json.JSONDecodeError, TypeError, KeyError):
@@ -81,6 +86,8 @@ def create_trip(
         start_date=start_date or None,
         end_date=end_date or None,
         default_currency=default_currency.upper().strip() if default_currency else None,
+        default_own_currency=None,
+        created_at=datetime.now(timezone.utc).isoformat(),
     )
     trips = load_trips()
     trips.append(trip)
@@ -97,9 +104,10 @@ def update_trip(
     trip_id: str,
     name: str | None = None,
     budget_eur: float | None = None,
-    start_date: str | None = ...,        # type: ignore[assignment]
-    end_date: str | None = ...,          # type: ignore[assignment]
-    default_currency: str | None = ...,  # type: ignore[assignment]
+    start_date: str | None = ...,             # type: ignore[assignment]
+    end_date: str | None = ...,               # type: ignore[assignment]
+    default_currency: str | None = ...,       # type: ignore[assignment]
+    default_own_currency: str | None = ...,   # type: ignore[assignment]
 ) -> Trip | None:
     """Update fields of an existing trip. Returns the updated trip or None.
 
@@ -121,6 +129,10 @@ def update_trip(
             if default_currency is not _UNSET:
                 t.default_currency = (
                     default_currency.upper().strip() if default_currency else None
+                )
+            if default_own_currency is not _UNSET:
+                t.default_own_currency = (
+                    default_own_currency.upper().strip() if default_own_currency else None
                 )
             _save(trips)
             return t

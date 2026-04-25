@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": "f26abb8e81f44e8f9c52b65c918d7845",
+    "name": "Summer in Japan",
+    "budget_eur": 1000.0,
+    "start_date": "2026-04-01",
+    "end_date": "2026-04-02",
+    "default_currency": "EUR"
+  }
+]

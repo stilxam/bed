@@ -23,6 +23,7 @@ Authentication
 from __future__ import annotations
 
 import sys
+from datetime import datetime
 from pathlib import Path
 
 # Make hackathon_toolkit importable without package restructuring.
@@ -76,6 +77,63 @@ def get_all_balances() -> list[dict]:
             "balance": float(bal.get("value", 0.0)),
         })
     return accounts
+
+
+def get_payments(
+    since_date: str | None = None,
+    until_date: str | None = None,
+    count: int = 200,
+) -> list[dict]:
+    """
+    Return payments from the primary bunq account.
+
+    since_date / until_date: ISO date strings "YYYY-MM-DD", both inclusive.
+    Each returned dict has: id, date, description, counterparty, amount (float),
+    currency (str), type ("debit" | "credit").
+    """
+    client = _client()
+    account_id = client.get_primary_account_id()
+    resp = client.get(
+        f"user/{client.user_id}/monetary-account/{account_id}/payment",
+        params={"count": count},
+    )
+
+    payments = []
+    for item in resp:
+        p = item.get("Payment", {})
+        if not p:
+            continue
+
+        created_str = p.get("created", "")
+        try:
+            created_dt = datetime.strptime(created_str[:19], "%Y-%m-%d %H:%M:%S")
+            pay_date = created_dt.date().isoformat()
+        except (ValueError, TypeError):
+            pay_date = ""
+
+        if since_date and pay_date and pay_date < since_date:
+            continue
+        if until_date and pay_date and pay_date > until_date:
+            continue
+
+        amount_obj = p.get("amount", {})
+        amount_val = float(amount_obj.get("value", 0.0))
+        currency = amount_obj.get("currency", "EUR")
+
+        alias = p.get("counterparty_alias", {})
+        counterparty = alias.get("display_name", "") or alias.get("iban", "")
+
+        payments.append({
+            "id": p.get("id"),
+            "date": pay_date,
+            "description": p.get("description", ""),
+            "counterparty": counterparty,
+            "amount": amount_val,
+            "currency": currency,
+            "type": "credit" if amount_val >= 0 else "debit",
+        })
+
+    return payments
 
 
 # ── Quick test ────────────────────────────────────────────────────────────────
