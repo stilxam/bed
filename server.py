@@ -419,36 +419,57 @@ async def trip_dashboard(trip_id: str):
 # ── Events (Ticketmaster) ─────────────────────────────────────────────────────
 
 @app.get("/api/events")
-async def events_nearby(radius: int = 20, size: int = 8):
-    """Return upcoming events near the user's IP-detected location."""
+async def events_nearby(radius: int = 20, size: int = 8, trip_id: Optional[str] = None):
+    """Return upcoming events near the user's current location, or at the trip destination."""
     try:
         import requests as _req
         from api_keys import get_ticketmaster_api_key
 
         api_key = get_ticketmaster_api_key()
 
-        lat, lon = None, None
-        try:
-            from recommendations import detect_location, geo_from_location_result
-            loc = detect_location()
-            if loc:
-                geo = geo_from_location_result(loc)
-                lat, lon = geo.latitude, geo.longitude
-        except Exception:
-            pass
+        # Unambiguous currency → ISO 3166-1 country code (EUR excluded — maps to many countries)
+        _CURRENCY_TO_COUNTRY = {
+            "JPY": "JP", "USD": "US", "GBP": "GB", "CHF": "CH",
+            "NOK": "NO", "SEK": "SE", "DKK": "DK", "PLN": "PL",
+            "CZK": "CZ", "HUF": "HU", "AUD": "AU", "CAD": "CA",
+            "NZD": "NZ", "KRW": "KR", "INR": "IN", "CNY": "CN",
+            "BRL": "BR", "MXN": "MX", "ZAR": "ZA", "THB": "TH",
+            "SGD": "SG", "HKD": "HK", "TRY": "TR", "AED": "AE",
+        }
 
-        if lat is None or lon is None:
+        country_code = None
+        lat, lon = None, None
+
+        if trip_id:
+            trip = get_trip(trip_id)
+            if trip and trip.default_currency:
+                country_code = _CURRENCY_TO_COUNTRY.get(trip.default_currency.upper())
+
+        if not country_code:
+            try:
+                from recommendations import detect_location, geo_from_location_result
+                loc = detect_location()
+                if loc:
+                    geo = geo_from_location_result(loc)
+                    lat, lon = geo.latitude, geo.longitude
+            except Exception:
+                pass
+
+        if not country_code and (lat is None or lon is None):
             raise HTTPException(503, detail="Could not determine location for events")
 
-        params = {
+        params: dict = {
             "apikey": api_key,
-            "latlong": f"{lat},{lon}",
-            "radius": radius,
-            "unit": "km",
             "sort": "date,asc",
             "size": size,
             "locale": "*",
         }
+        if country_code:
+            params["countryCode"] = country_code
+        else:
+            params["latlong"] = f"{lat},{lon}"
+            params["radius"] = radius
+            params["unit"] = "km"
         resp = _req.get(
             "https://app.ticketmaster.com/discovery/v2/events.json",
             params=params,

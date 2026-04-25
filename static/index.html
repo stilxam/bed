@@ -1470,7 +1470,7 @@ async function submitVoice(blob, mimeType) {
       renderScanResult({ input_amount: data.amount, input_currency: data.currency, total_eur: data.total_eur, total_fees: data.total_fees, source: data.source, payment_type: data.payment_type });
       resetVoice(false);
     }
-  } catch (err) { resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`; resetVoice(); }
+  } catch (err) { resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`; resetVoice(false); }
 }
 
 function showCurrencyPicker(data) {
@@ -1695,21 +1695,12 @@ function setEventFilter(filter, btn) {
   S.eventFilter = filter;
   document.querySelectorAll('.exp-chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
-  if (!S.allEvents.length) return;
   if (filter === 'trip' && !S.activeTrip) {
     document.getElementById('events-list').innerHTML =
       '<div class="events-empty" style="min-width:240px;padding:30px">Select a trip on the Home tab to see trip events</div>';
     return;
   }
-  const filtered = filter === 'trip'
-    ? S.allEvents.filter(e => e._badge === 'trip')
-    : S.allEvents.filter(e => e._badge === 'nearby');
-  if (!filtered.length) {
-    document.getElementById('events-list').innerHTML =
-      `<div class="events-empty" style="min-width:240px;padding:30px">No ${filter} events found</div>`;
-    return;
-  }
-  renderEventCards(filtered);
+  loadEvents();
 }
 
 document.getElementById('recs-refresh-btn').addEventListener('click', function () {
@@ -1762,9 +1753,13 @@ document.getElementById('events-refresh-btn').addEventListener('click', function
 
 async function loadEvents() {
   const list = document.getElementById('events-list');
-  list.innerHTML = '<div class="events-empty" style="min-width:160px;padding:30px">Scanning nearby…</div>';
+  const scanning = S.eventFilter === 'trip' ? 'Scanning trip destination…' : 'Scanning nearby…';
+  list.innerHTML = `<div class="events-empty" style="min-width:160px;padding:30px">${scanning}</div>`;
   try {
-    const res = await fetch('/api/events?radius=25&size=8');
+    const url = (S.eventFilter === 'trip' && S.activeTrip)
+      ? `/api/events?size=8&trip_id=${encodeURIComponent(S.activeTrip.id)}`
+      : '/api/events?radius=25&size=8';
+    const res = await fetch(url);
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `HTTP ${res.status}`); }
     renderEvents((await res.json()).events || []);
   } catch (err) { list.innerHTML = `<div class="events-empty" style="min-width:200px;padding:30px">${esc(err.message)}</div>`; }
@@ -1785,20 +1780,18 @@ function categoryIcon(cat) {
 }
 
 function renderEvents(events) {
+  const label = S.eventFilter === 'trip' ? 'No events found at trip destination' : 'No events found nearby';
   if (!events.length) {
-    document.getElementById('events-list').innerHTML = '<div class="events-empty" style="min-width:200px;padding:30px">No events found nearby</div>';
+    document.getElementById('events-list').innerHTML = `<div class="events-empty" style="min-width:200px;padding:30px">${label}</div>`;
     return;
   }
-  // Tag and store all events, then render filtered view
+  const badge = S.eventFilter === 'trip' ? 'trip' : 'nearby';
   S.allEvents = events.map((ev, i) => ({
     ...ev,
-    _badge: (S.activeTrip && i % 3 === 2) ? 'trip' : 'nearby',
+    _badge: badge,
     _gradient: ['135deg,#667eea,#764ba2','135deg,#f093fb,#f5576c','135deg,#4facfe,#00f2fe','135deg,#43e97b,#38f9d7','135deg,#fa709a,#fee140'][i % 5],
   }));
-  const toShow = S.eventFilter === 'trip'
-    ? S.allEvents.filter(e => e._badge === 'trip')
-    : S.allEvents.filter(e => e._badge === 'nearby');
-  renderEventCards(toShow.length ? toShow : S.allEvents);
+  renderEventCards(S.allEvents);
 }
 
 function renderEventCards(events) {
