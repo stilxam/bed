@@ -200,7 +200,22 @@ async def menu(
                 "eur": fx.total_eur if fx and fx.base_rate > 0 else None,
             })
 
-        return {"currency_iso": menu_result.currency_iso, "items": items_out}
+        rate_context = None
+        ccy = menu_result.currency_iso
+        if ccy and ccy != "EUR":
+            try:
+                rc_card     = convert_to_eur([(1.0, ccy)], payment_type="card")[0]
+                rc_transfer = convert_to_eur([(1.0, ccy)], payment_type="transfer")[0]
+                rate_context = {
+                    "currency": ccy,
+                    "card":     {"rate_per_unit": rc_card.total_eur,     "source": rc_card.source},
+                    "transfer": {"rate_per_unit": rc_transfer.total_eur, "source": rc_transfer.source,
+                                 "is_weekend": rc_transfer.is_weekend},
+                }
+            except Exception:
+                pass
+
+        return {"currency_iso": ccy, "items": items_out, "rate_context": rate_context}
 
     except Exception as exc:
         raise HTTPException(500, detail=str(exc))

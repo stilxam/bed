@@ -392,6 +392,9 @@
     .error-panel { background: var(--card); border-radius: var(--r); padding: 16px; color: var(--red); font-size: 13px; font-weight: 700; box-shadow: var(--sh-sm); border: 1.5px solid rgba(239,68,68,.15); animation: fadeUp .2s ease; }
     .menu-panel { background: var(--card); border-radius: var(--r); overflow: hidden; animation: fadeUp .2s ease; box-shadow: var(--sh-sm); }
     .menu-panel-header { padding: 12px 16px; font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--text-sec); text-transform: uppercase; border-bottom: 1px solid var(--border); background: rgba(30,200,106,.05); }
+    .menu-rate-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 8px 16px; background: var(--bg); border-bottom: 1px solid var(--border); font-size: 11px; color: var(--text-dim); font-family: var(--mono); }
+    .menu-rate-sep { color: var(--border); }
+    .menu-rate-note { font-family: var(--ui); font-size: 10px; font-weight: 800; background: var(--green); color: #fff; padding: 2px 8px; border-radius: var(--r-pill); }
     .menu-table { width: 100%; border-collapse: collapse; }
     .menu-table thead th { padding: 9px 12px; font-size: 10px; font-weight: 800; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; text-align: left; border-bottom: 1px solid var(--border); }
     .menu-table tbody tr { border-bottom: 1px solid var(--border); }
@@ -1463,8 +1466,26 @@ function renderScanResult(d) {
 
 function renderMenuResult(d) {
   if (!d.items || d.items.length === 0) { resultArea.innerHTML = `<div class="error-panel">No menu items detected</div>`; return; }
+
+  let rateBar = '';
+  if (d.rate_context) {
+    const rc        = d.rate_context;
+    const diff      = rc.card.rate_per_unit - rc.transfer.rate_per_unit;
+    const wireSaves = diff >  0.0000001;
+    const cardSaves = diff < -0.0000001;
+    const note      = wireSaves ? `<span class="menu-rate-note">Wire cheaper</span>`
+                    : cardSaves ? `<span class="menu-rate-note">Card cheaper</span>` : '';
+    const wknd      = rc.transfer.is_weekend ? ' · wknd' : '';
+    rateBar = `<div class="menu-rate-bar">
+      <span>💳 1 ${esc(rc.currency)} = €${fmt4(rc.card.rate_per_unit)}</span>
+      <span class="menu-rate-sep">·</span>
+      <span>🏦 1 ${esc(rc.currency)} = €${fmt4(rc.transfer.rate_per_unit)}${wknd}</span>
+      ${note}
+    </div>`;
+  }
+
   const rows = d.items.map(item => `<tr><td><div class="td-name">${esc(item.translated_name)}</div><div class="td-orig">${esc(item.original_name)}</div></td><td class="td-price">${esc(item.original_price || '—')}</td><td class="td-eur">${item.eur != null ? '€' + fmt2(item.eur) : '—'}</td></tr>`).join('');
-  resultArea.innerHTML = `<div class="menu-panel"><div class="menu-panel-header">Menu · ${d.items.length} items · ${esc(d.currency_iso || '—')}</div><table class="menu-table"><thead><tr><th>Item</th><th>Price</th><th>EUR</th></tr></thead><tbody>${rows}</tbody></table></div><div class="gap-8"></div><button class="ghost-btn full" onclick="resetScan()">New Scan</button>`;
+  resultArea.innerHTML = `<div class="menu-panel"><div class="menu-panel-header">Menu · ${d.items.length} items · ${esc(d.currency_iso || '—')}</div>${rateBar}<table class="menu-table"><thead><tr><th>Item</th><th>Price</th><th>EUR (card)</th></tr></thead><tbody>${rows}</tbody></table></div><div class="gap-8"></div><button class="ghost-btn full" onclick="resetScan()">New Scan</button>`;
 }
 
 function resetScan() {
