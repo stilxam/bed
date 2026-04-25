@@ -517,24 +517,78 @@ async def events_nearby(radius: int = 20, size: int = 8, trip_id: Optional[str] 
 # ── AI Recommendations ────────────────────────────────────────────────────────
 
 @app.get("/api/recommendations")
-async def recommendations(trip_id: str, limit: int = 5):
-    """Claude-powered nearby place recommendations based on location, time, and budget."""
+async def recommendations(trip_id: str, limit: int = 5, destination: bool = False):
+    """Claude-powered place recommendations based on location, time, and budget.
+
+    When destination=true, uses the trip's destination city (derived from
+    default_currency) instead of the user's current IP location.
+    """
     try:
         import dataclasses
         from anthropic import Anthropic
         from recommendations import (
-            BudgetInfo, get_geo_context, get_nearby_recommendations, get_time_context,
+            BudgetInfo, GeoContext, get_geo_context, get_nearby_recommendations,
+            get_time_context,
         )
 
-        geo = get_geo_context()
-        if geo is None or geo.latitude is None or geo.longitude is None:
-            raise HTTPException(503, detail="Could not determine location for recommendations")
-
-        time_ctx = get_time_context(geo)
+        # currency → (lat, lon, city, country_name, iso_country_code)
+        _CURRENCY_TO_GEO: dict[str, tuple] = {
+            "JPY": (35.6762, 139.6503, "Tokyo",         "Japan",                "JP"),
+            "USD": (40.7128, -74.0060, "New York",      "United States",        "US"),
+            "GBP": (51.5074, -0.1278,  "London",        "United Kingdom",       "GB"),
+            "CHF": (47.3769,  8.5417,  "Zurich",        "Switzerland",          "CH"),
+            "NOK": (59.9139, 10.7522,  "Oslo",          "Norway",               "NO"),
+            "SEK": (59.3293, 18.0686,  "Stockholm",     "Sweden",               "SE"),
+            "DKK": (55.6761, 12.5683,  "Copenhagen",    "Denmark",              "DK"),
+            "PLN": (52.2297, 21.0122,  "Warsaw",        "Poland",               "PL"),
+            "CZK": (50.0755, 14.4378,  "Prague",        "Czech Republic",       "CZ"),
+            "HUF": (47.4979, 19.0402,  "Budapest",      "Hungary",              "HU"),
+            "AUD": (-33.8688, 151.2093,"Sydney",        "Australia",            "AU"),
+            "CAD": (43.6532, -79.3832, "Toronto",       "Canada",               "CA"),
+            "NZD": (-36.8509, 174.7645,"Auckland",      "New Zealand",          "NZ"),
+            "KRW": (37.5665, 126.9780, "Seoul",         "South Korea",          "KR"),
+            "INR": (28.6139,  77.2090, "New Delhi",     "India",                "IN"),
+            "CNY": (39.9042, 116.4074, "Beijing",       "China",                "CN"),
+            "BRL": (-23.5505,-46.6333, "São Paulo",     "Brazil",               "BR"),
+            "MXN": (19.4326, -99.1332, "Mexico City",   "Mexico",               "MX"),
+            "ZAR": (-33.9249, 18.4241, "Cape Town",     "South Africa",         "ZA"),
+            "THB": (13.7563, 100.5018, "Bangkok",       "Thailand",             "TH"),
+            "SGD": ( 1.3521, 103.8198, "Singapore",     "Singapore",            "SG"),
+            "HKD": (22.3193, 114.1694, "Hong Kong",     "Hong Kong",            "HK"),
+            "TRY": (41.0082,  28.9784, "Istanbul",      "Turkey",               "TR"),
+            "AED": (25.2048,  55.2708, "Dubai",         "United Arab Emirates", "AE"),
+            "IDR": (-6.2088, 106.8456, "Jakarta",       "Indonesia",            "ID"),
+            "MYR": ( 3.1390, 101.6869, "Kuala Lumpur",  "Malaysia",             "MY"),
+            "PHP": (14.5995, 120.9842, "Manila",        "Philippines",          "PH"),
+            "VND": (21.0285, 105.8542, "Hanoi",         "Vietnam",              "VN"),
+        }
 
         trip = get_trip(trip_id)
         if not trip:
             raise HTTPException(404, detail="Trip not found")
+
+        geo: GeoContext | None = None
+
+        if destination and trip.default_currency:
+            dest = _CURRENCY_TO_GEO.get(trip.default_currency.upper())
+            if dest:
+                lat, lon, city, country_name, iso_cc = dest
+                geo = GeoContext(
+                    country_name=country_name,
+                    iso_country_code=iso_cc,
+                    likely_currency_iso=trip.default_currency.upper(),
+                    city=city,
+                    latitude=lat,
+                    longitude=lon,
+                )
+
+        if geo is None:
+            geo = get_geo_context()
+
+        if geo is None or geo.latitude is None or geo.longitude is None:
+            raise HTTPException(503, detail="Could not determine location for recommendations")
+
+        time_ctx = get_time_context(geo)
 
         spent = 0.0
         try:

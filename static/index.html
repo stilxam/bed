@@ -1715,12 +1715,17 @@ async function loadRecommendations() {
   }
   list.innerHTML = '<div class="events-empty" style="grid-column:1/-1">Consulting AI agent…</div>';
   try {
-    const res = await fetch(`/api/recommendations?trip_id=${encodeURIComponent(S.activeTrip.id)}&limit=6`);
+    const tripMode = S.eventFilter === 'trip';
+    const url = `/api/recommendations?trip_id=${encodeURIComponent(S.activeTrip.id)}&limit=6${tripMode ? '&destination=true' : ''}`;
+    const res = await fetch(url);
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `HTTP ${res.status}`); }
     const data = await res.json();
     renderRecommendations(data.recommendations || []);
-    const city = [data.geo_city, data.geo_country].filter(Boolean).join(', ');
-    if (city) { const el = document.getElementById('exp-loc-city'); if (el) el.textContent = city; }
+    // Only update the "You are in" card when showing nearby recommendations
+    if (!tripMode) {
+      const city = [data.geo_city, data.geo_country].filter(Boolean).join(', ');
+      if (city) { const el = document.getElementById('exp-loc-city'); if (el) el.textContent = city; }
+    }
   } catch (err) { list.innerHTML = `<div class="events-empty" style="grid-column:1/-1">${esc(err.message)}</div>`; }
 }
 
