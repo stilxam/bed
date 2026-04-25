@@ -4,37 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Travel Buddy · bunq</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2300C896'/><text x='16' y='22' font-family='sans-serif' font-weight='bold' font-size='16' fill='%23fff' text-anchor='middle'>b</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231EC86A'/><text x='16' y='22' font-family='Nunito,sans-serif' font-weight='900' font-size='18' fill='%23000' text-anchor='middle'>b</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     /* ═══════════════════════════════════════
-       DESIGN TOKENS
+       TOKENS
     ═══════════════════════════════════════ */
     :root {
-      --bg:          #ECF1F7;
-      --bg-card:     #FFFFFF;
-      --accent:      #00C896;
-      --accent-dk:   #009E76;
-      --accent-dim:  rgba(0,200,150,.1);
-      --amber:       #F5A623;
-      --amber-dim:   rgba(245,166,35,.12);
-      --red:         #FF6060;
-      --red-dim:     rgba(255,96,96,.1);
-      --violet:      #7C5FD4;
-      --text:        #0F1923;
-      --text-sec:    #637181;
-      --text-dim:    #99ACC0;
-      --border:      rgba(15,25,35,.07);
-      --mono:        'DM Mono', monospace;
-      --ui:          'Plus Jakarta Sans', sans-serif;
-      --r:           18px;
-      --r-sm:        12px;
-      --r-pill:      100px;
-      --sh:          0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.06);
-      --sh-up:       0 2px 4px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.09);
-      --sh-btn:      0 4px 18px rgba(0,200,150,.38);
+      --bg:      #060606;
+      --card:    #141414;
+      --card2:   #1C1C1C;
+      --border:  rgba(255,255,255,.07);
+      /* CSS vars referenced by JS */
+      --accent:  #1EC86A;
+      --amber:   #F5A623;
+      --red:     #FF6060;
+      --mono:    'DM Mono', monospace;
+      /* palette */
+      --green:   #1EC86A;
+      --pink:    #FF2D78;
+      --purple:  #7B2FBE;
+      --teal:    #00B4A6;
+      --cobalt:  #2563EB;
+      --coral:   #FF6060;
+      --olive:   #8A9A00;
+      /* text */
+      --text:    #FFFFFF;
+      --text-sec:#999999;
+      --text-dim:#555555;
+      --ui:      'Nunito', sans-serif;
+      --r:       16px;
+      --r-pill:  100px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,11 +47,10 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--ui);
-      font-size: 15px;
-      line-height: 1.5;
+      font-size: 15px; line-height: 1.45;
     }
 
-    /* ═══ APP SHELL ═══ */
+    /* ═══ SHELL ═══ */
     #app {
       max-width: 430px; margin: 0 auto;
       height: 100dvh;
@@ -60,29 +61,28 @@
     #header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 20px 12px;
-      background: var(--bg-card);
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
       flex-shrink: 0; z-index: 10;
     }
     .wordmark {
-      font-size: 17px; font-weight: 800; letter-spacing: -.4px;
-      color: var(--text);
+      font-size: 18px; font-weight: 900; color: var(--text); letter-spacing: -.4px;
     }
-    .wordmark em { font-style: normal; color: var(--accent); }
+    .wordmark em { font-style: normal; color: var(--green); }
     .header-trip {
-      font-size: 12px; font-weight: 600; color: var(--text-sec);
+      font-size: 12px; font-weight: 700; color: var(--text-sec);
       max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .bunq-badge {
-      font-size: 12px; font-weight: 800; letter-spacing: .03em;
-      background: var(--accent); color: #fff;
+      font-size: 11px; font-weight: 900; letter-spacing: .04em;
+      background: var(--green); color: #000;
       padding: 5px 12px; border-radius: var(--r-pill);
     }
 
     /* ═══ SCREENS ═══ */
     .screen {
       display: none; flex: 1; overflow-y: auto; overflow-x: hidden;
-      padding: 16px 16px 84px;
+      padding: 16px 16px 90px;
       flex-direction: column; gap: 12px;
       -webkit-overflow-scrolling: touch;
     }
@@ -91,75 +91,89 @@
     /* ═══ BOTTOM NAV ═══ */
     #nav {
       display: flex; flex-shrink: 0;
-      background: var(--bg-card);
+      background: var(--bg);
       border-top: 1px solid var(--border);
-      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      padding: 10px 0 4px;
       position: relative; z-index: 10;
     }
     .nav-tab {
-      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
-      background: none; border: none; cursor: pointer; padding: 6px 0;
-      font-family: var(--ui); font-size: 10px; font-weight: 700; letter-spacing: .04em;
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px 0;
+      font-family: var(--ui); font-size: 10px; font-weight: 800; letter-spacing: .03em;
       color: var(--text-dim); text-transform: uppercase;
       transition: color .2s;
     }
-    .nav-tab svg { width: 22px; height: 22px; transition: transform .2s; }
-    .nav-tab.active { color: var(--accent); }
-    .nav-tab.active svg { transform: scale(1.1); }
+    .nav-circle {
+      width: 50px; height: 50px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .nav-circle svg { width: 22px; height: 22px; }
+    /* inactive dim tints */
+    .nav-tab[data-screen="scanner"]  .nav-circle { background: rgba(30,200,106,.12); color: rgba(30,200,106,.4); }
+    .nav-tab[data-screen="dashboard"] .nav-circle { background: rgba(123,47,190,.12); color: rgba(123,47,190,.4); }
+    .nav-tab[data-screen="trips"]     .nav-circle { background: rgba(0,180,166,.12);  color: rgba(0,180,166,.4); }
+    /* active vivid */
+    .nav-tab[data-screen="scanner"].active  .nav-circle { background: var(--green);   color: #000; }
+    .nav-tab[data-screen="dashboard"].active .nav-circle { background: var(--purple);  color: #fff; }
+    .nav-tab[data-screen="trips"].active     .nav-circle { background: var(--teal);    color: #fff; }
+    .nav-tab[data-screen="explore"] .nav-circle { background: rgba(245,166,35,.12); color: rgba(245,166,35,.4); }
+    .nav-tab[data-screen="explore"].active .nav-circle { background: var(--amber); color: #000; }
+    .nav-tab.active { color: var(--text); }
+
+    /* ═══ RAINBOW STRIP ═══ */
+    .rainbow-strip {
+      height: 4px; flex-shrink: 0;
+      background: linear-gradient(90deg,#FF2D78,#FF6B35,#F5A623,#1EC86A,#00B4A6,#2563EB,#7B2FBE);
+    }
 
     /* ═══ MODE TABS ═══ */
     .mode-tabs {
-      display: flex; background: #DDE5EF; border-radius: var(--r-pill);
-      padding: 4px; gap: 2px;
+      display: flex; background: var(--card); border-radius: var(--r-pill);
+      padding: 4px; gap: 3px;
     }
     .mode-tab {
       flex: 1; padding: 10px 0; border: none; background: none; cursor: pointer;
-      font-family: var(--ui); font-size: 13px; font-weight: 700;
-      color: var(--text-sec); border-radius: var(--r-pill);
-      transition: all .18s; letter-spacing: .01em;
+      font-family: var(--ui); font-size: 13px; font-weight: 800; letter-spacing: .01em;
+      color: var(--text-dim); border-radius: var(--r-pill);
+      transition: all .18s;
     }
-    .mode-tab.active {
-      background: var(--bg-card); color: var(--text);
-      box-shadow: 0 2px 10px rgba(0,0,0,.13);
-    }
+    .mode-tab[data-mode="photo"].active  { background: var(--green);  color: #000; }
+    .mode-tab[data-mode="voice"].active  { background: var(--purple); color: #fff; }
+    .mode-tab[data-mode="menu"].active   { background: var(--amber);  color: #000; }
 
     /* ═══ VIEWFINDER ═══ */
     .viewfinder {
       position: relative; border-radius: var(--r);
-      background: #1A2535; overflow: hidden;
-      aspect-ratio: 4/3;
-      box-shadow: var(--sh-up);
-      flex-shrink: 0;
+      background: #0C0C0C; overflow: hidden;
+      aspect-ratio: 4/3; flex-shrink: 0;
+      border: 1px solid var(--border);
     }
     #camera-video {
       position: absolute; inset: 0; width: 100%; height: 100%;
       object-fit: cover; opacity: 0; transition: opacity .3s;
     }
     #camera-video.live { opacity: 1; }
-
-    /* Ring pulse instead of corner brackets */
     .vf-ring {
-      position: absolute; inset: 18px;
-      border-radius: calc(var(--r) - 4px);
-      border: 2px solid rgba(0,200,150,.55);
+      position: absolute; inset: 16px; border-radius: calc(var(--r) - 2px);
+      border: 2px solid rgba(30,200,106,.5);
       pointer-events: none;
-      animation: ring-pulse 2.6s ease-in-out infinite;
+      animation: ring-pulse 2.4s ease-in-out infinite;
     }
     @keyframes ring-pulse {
-      0%,100% { opacity:.35; transform:scale(1); border-color:rgba(0,200,150,.4); }
-      50%      { opacity:1;   transform:scale(1.008); border-color:rgba(0,200,150,.85); }
+      0%,100% { opacity:.3; border-color:rgba(30,200,106,.3); }
+      50%      { opacity:1; border-color:rgba(30,200,106,.9); }
     }
     .vf-status {
       position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-      font-family: var(--ui); font-size: 11px; font-weight: 700;
+      font-family: var(--ui); font-size: 11px; font-weight: 800;
       letter-spacing: .06em; text-transform: uppercase;
-      background: rgba(15,25,35,.72); color: #fff;
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(6,6,6,.8); color: var(--text-sec);
+      backdrop-filter: blur(10px);
       padding: 5px 16px; border-radius: var(--r-pill);
       pointer-events: none; white-space: nowrap;
-      transition: background .2s;
     }
-    .vf-status.live { background: var(--accent); }
+    .vf-status.live { background: var(--green); color: #000; }
     .vf-preview {
       position: absolute; inset: 0; border-radius: inherit; overflow: hidden;
     }
@@ -168,17 +182,16 @@
       position: absolute; inset: 0; opacity: 0; cursor: pointer;
       width: 100%; height: 100%;
     }
-    /* Voice idle state */
     .vf-voice {
       position: absolute; inset: 0;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 14px;
-      background: linear-gradient(160deg, #1A2535 0%, #243349 100%);
+      align-items: center; justify-content: center; gap: 16px;
+      background: #0C0C0C;
     }
-    .vf-voice svg { width: 52px; height: 52px; color: rgba(255,255,255,.25); }
+    .vf-voice svg { width: 52px; height: 52px; color: rgba(255,255,255,.18); }
     .rec-dot {
       width: 12px; height: 12px; border-radius: 50%;
-      background: var(--red); animation: rec-blink .9s step-end infinite;
+      background: var(--coral); animation: rec-blink .9s step-end infinite;
     }
     @keyframes rec-blink { 0%,100%{opacity:1} 50%{opacity:0} }
     .rec-timer {
@@ -187,308 +200,244 @@
 
     /* ═══ BUTTONS ═══ */
     .cta-btn {
-      width: 100%; padding: 16px;
-      background: var(--accent); color: #fff;
+      width: 100%; padding: 17px;
+      background: var(--green); color: #000;
       border: none; border-radius: var(--r-pill); cursor: pointer;
-      font-family: var(--ui); font-size: 15px; font-weight: 700;
-      box-shadow: var(--sh-btn);
-      transition: transform .14s, box-shadow .14s, background .15s;
+      font-family: var(--ui); font-size: 15px; font-weight: 900;
+      transition: transform .14s, opacity .14s;
       flex-shrink: 0;
     }
-    .cta-btn:active { transform: scale(.97); box-shadow: 0 2px 8px rgba(0,200,150,.28); }
-    .cta-btn:disabled { background: #C8D6E2; color: #8FA3B7; box-shadow: none; cursor: default; transform: none; }
-    .cta-btn.amber { background: var(--amber); box-shadow: 0 4px 16px rgba(245,166,35,.38); }
+    .cta-btn:active { transform: scale(.97); opacity: .88; }
+    .cta-btn:disabled { background: #222; color: #555; cursor: default; transform: none; }
+    .cta-btn.amber { background: var(--amber); color: #000; }
 
     .ghost-btn {
-      background: none; border: 1.5px solid var(--border); border-radius: var(--r-pill);
+      background: none; border: 1px solid var(--border); border-radius: var(--r-pill);
       cursor: pointer; padding: 13px 24px;
-      font-family: var(--ui); font-size: 14px; font-weight: 600; color: var(--text-sec);
+      font-family: var(--ui); font-size: 14px; font-weight: 800; color: var(--text-sec);
       transition: border-color .2s, color .2s;
       flex-shrink: 0;
     }
-    .ghost-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .ghost-btn:hover { border-color: var(--green); color: var(--green); }
     .ghost-btn.full { width: 100%; }
 
     #upload-alt-btn {
       background: none; border: none; cursor: pointer;
-      font-family: var(--ui); font-size: 13px; font-weight: 600;
-      color: var(--text-sec); text-decoration: underline; text-underline-offset: 3px;
+      font-family: var(--ui); font-size: 13px; font-weight: 700;
+      color: var(--text-dim); text-decoration: underline; text-underline-offset: 3px;
       padding: 2px 0; text-align: center; flex-shrink: 0;
     }
-    #upload-alt-btn:hover { color: var(--accent); }
+    #upload-alt-btn:hover { color: var(--text-sec); }
 
     /* ═══ RESULT PANELS ═══ */
     .result-panel {
-      background: var(--bg-card); border-radius: var(--r);
-      box-shadow: var(--sh-up); padding: 20px;
-      display: flex; flex-direction: column; gap: 8px;
-      border-left: 4px solid var(--accent);
-      animation: fadeUp .22s ease;
+      background: var(--card); border-radius: var(--r);
+      padding: 20px; display: flex; flex-direction: column; gap: 8px;
+      border-left: 4px solid var(--green);
+      animation: fadeUp .2s ease;
     }
     .result-original {
       font-family: var(--mono); font-size: 12px; color: var(--text-dim);
     }
     .result-eur {
-      font-family: var(--mono); font-size: 38px; font-weight: 500;
+      font-size: 40px; font-weight: 900;
       color: var(--text); letter-spacing: -.5px; line-height: 1.1;
     }
-    .result-meta { font-size: 12px; color: var(--text-sec); font-weight: 500; }
+    .result-meta { font-size: 12px; color: var(--text-sec); font-weight: 600; }
     .result-badge {
       display: inline-flex; align-items: center;
-      font-size: 11px; font-weight: 700; letter-spacing: .04em;
-      background: var(--accent-dim); color: var(--accent-dk);
+      font-size: 11px; font-weight: 800; letter-spacing: .04em;
+      background: rgba(30,200,106,.15); color: var(--green);
       padding: 5px 14px; border-radius: var(--r-pill);
     }
     .error-panel {
-      background: var(--bg-card); border-radius: var(--r);
-      box-shadow: var(--sh); padding: 16px;
-      color: var(--red); font-size: 13px; font-weight: 600;
-      border-left: 4px solid var(--red); animation: fadeUp .22s ease;
+      background: var(--card); border-radius: var(--r);
+      padding: 16px; color: var(--coral); font-size: 13px; font-weight: 700;
+      border-left: 4px solid var(--coral); animation: fadeUp .2s ease;
     }
 
     /* ═══ MENU PANEL ═══ */
     .menu-panel {
-      background: var(--bg-card); border-radius: var(--r);
-      box-shadow: var(--sh-up); overflow: hidden; animation: fadeUp .22s ease;
+      background: var(--card); border-radius: var(--r);
+      overflow: hidden; animation: fadeUp .2s ease;
     }
     .menu-panel-header {
-      padding: 13px 16px; font-size: 11px; font-weight: 700; letter-spacing: .09em;
+      padding: 12px 16px; font-size: 11px; font-weight: 800; letter-spacing: .1em;
       color: var(--text-sec); text-transform: uppercase;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(90deg, var(--accent-dim), transparent);
+      background: rgba(30,200,106,.08);
     }
     .menu-table { width: 100%; border-collapse: collapse; }
     .menu-table thead th {
-      padding: 9px 12px; font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      padding: 9px 12px; font-size: 10px; font-weight: 800; letter-spacing: .1em;
       color: var(--text-dim); text-transform: uppercase; text-align: left;
-      border-bottom: 1px solid var(--border); background: #F7FAFB;
+      border-bottom: 1px solid var(--border);
     }
     .menu-table tbody tr { border-bottom: 1px solid var(--border); }
     .menu-table tbody tr:last-child { border-bottom: none; }
     .menu-table tbody td { padding: 10px 12px; vertical-align: top; }
-    .td-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .td-name { font-size: 13px; font-weight: 700; color: var(--text); }
     .td-orig { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
     .td-price { font-family: var(--mono); font-size: 12px; color: var(--text-sec); white-space: nowrap; }
-    .td-eur   { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--accent-dk); white-space: nowrap; }
+    .td-eur   { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--green); white-space: nowrap; }
 
     /* ═══ CURRENCY PICKER ═══ */
     .ccy-picker {
-      background: var(--bg-card); border-radius: var(--r);
-      box-shadow: var(--sh-up); padding: 20px;
-      display: flex; flex-direction: column; gap: 10px;
-      animation: fadeUp .22s ease;
+      background: var(--card); border-radius: var(--r);
+      padding: 20px; display: flex; flex-direction: column; gap: 10px;
+      animation: fadeUp .2s ease;
     }
     .ccy-picker-transcript { font-size: 13px; color: var(--text-sec); font-style: italic; }
-    .ccy-picker-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--text-dim); text-transform: uppercase; }
-    .ccy-picker-amount { font-family: var(--mono); font-size: 30px; font-weight: 500; color: var(--text); }
+    .ccy-picker-label { font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase; }
+    .ccy-picker-amount { font-size: 32px; font-weight: 900; color: var(--text); }
     .ccy-picker-row { display: flex; gap: 8px; }
 
     /* ═══ DASHBOARD ═══ */
-    .dash-hero {
-      background: linear-gradient(145deg, #00C896 0%, #00A07A 55%, #007A5C 100%);
-      border-radius: var(--r); padding: 22px 20px 18px;
-      position: relative; overflow: hidden;
-      box-shadow: 0 6px 28px rgba(0,200,150,.32);
-    }
-    /* Decorative circles */
-    .dash-hero::before {
-      content: ''; position: absolute;
-      top: -50px; right: -30px;
-      width: 200px; height: 200px; border-radius: 50%;
-      background: rgba(255,255,255,.08); pointer-events: none;
-    }
-    .dash-hero::after {
-      content: ''; position: absolute;
-      bottom: -70px; left: -30px;
-      width: 180px; height: 180px; border-radius: 50%;
-      background: rgba(255,255,255,.05); pointer-events: none;
-    }
-    .mission-title {
-      font-size: 11px; font-weight: 700; letter-spacing: .1em;
-      color: rgba(255,255,255,.65); text-transform: uppercase;
-      margin-bottom: 3px; position: relative; z-index: 1;
-    }
-    .mission-name-row {
-      position: relative; z-index: 1; margin-bottom: 18px;
+    .dash-name-section { padding: 4px 0 8px; }
+    .dash-eyebrow {
+      font-size: 11px; font-weight: 800; letter-spacing: .12em;
+      color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;
     }
     #mission-name {
-      font-size: 20px; font-weight: 800; color: #fff;
-      letter-spacing: -.2px; line-height: 1.2;
+      font-size: 30px; font-weight: 900; color: var(--text); letter-spacing: -.4px;
+      text-decoration: underline; text-decoration-color: var(--pink);
+      text-underline-offset: 5px; text-decoration-thickness: 3px;
+      display: block;
     }
 
-    /* Gauge — lives inside hero on white inner card */
+    /* Gauge */
     .gauge-card {
-      background: rgba(255,255,255,.15);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 14px; padding: 16px;
-      position: relative; z-index: 1;
+      background: var(--card); border-radius: var(--r);
+      padding: 20px 16px 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
     }
-    .gauge-wrap {
-      display: flex; justify-content: center; padding-bottom: 4px;
+    .gauge-lbl-top {
+      font-size: 11px; font-weight: 800; letter-spacing: .1em;
+      color: var(--text-dim); text-transform: uppercase; align-self: flex-start;
     }
+    .gauge-wrap { display: flex; justify-content: center; }
     .gauge-svg-wrap {
-      position: relative; width: 148px; height: 148px;
+      position: relative; width: 170px; height: 170px;
     }
     .gauge-svg {
       width: 100%; height: 100%;
       transform: rotate(-90deg);
     }
     .g-track {
-      fill: none; stroke: rgba(255,255,255,.2);
-      stroke-width: 10; stroke-linecap: round;
+      fill: none; stroke: #1E1E1E;
+      stroke-width: 12; stroke-linecap: round;
     }
     .g-arc {
-      fill: none; stroke: #fff;
-      stroke-width: 10; stroke-linecap: round;
+      fill: none; stroke: var(--green);
+      stroke-width: 12; stroke-linecap: round;
       stroke-dasharray: 490.09; stroke-dashoffset: 0;
       transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1), stroke .5s;
     }
     .gauge-center {
       position: absolute; inset: 0;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      align-items: center; justify-content: center; gap: 1px;
     }
     .gauge-pct {
-      font-family: var(--mono); font-size: 12px;
-      color: rgba(255,255,255,.7); letter-spacing: .06em;
+      font-family: var(--mono); font-size: 12px; color: var(--text-dim); letter-spacing: .06em;
     }
     .gauge-amt {
-      font-family: var(--mono); font-size: 20px; font-weight: 500;
-      color: #fff; letter-spacing: -.3px; line-height: 1.15;
+      font-size: 22px; font-weight: 900;
+      color: var(--green); letter-spacing: -.3px; line-height: 1.15;
     }
     .gauge-lbl {
-      font-size: 9px; font-weight: 700; letter-spacing: .14em;
-      color: rgba(255,255,255,.6); text-transform: uppercase;
+      font-size: 10px; font-weight: 800; letter-spacing: .12em;
+      color: var(--text-dim); text-transform: uppercase;
     }
 
-    /* Stat pills — inside hero */
-    .stat-pills {
-      display: flex; gap: 8px; margin-top: 12px;
-      position: relative; z-index: 1;
+    /* Colored stat card grid */
+    .stat-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
     }
-    .stat-pill {
-      flex: 1; background: rgba(255,255,255,.14);
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 12px; padding: 11px 13px;
+    .stat-card {
+      border-radius: var(--r); padding: 16px 14px;
+      display: flex; flex-direction: column; gap: 6px;
+      position: relative; overflow: hidden;
     }
-    .stat-pill-lbl {
-      font-size: 9px; font-weight: 700; letter-spacing: .1em;
-      color: rgba(255,255,255,.6); text-transform: uppercase; margin-bottom: 4px;
+    .stat-card--purple { background: var(--purple); }
+    .stat-card--amber  { background: #8A6200; }
+    .stat-card-icon { font-size: 20px; }
+    .stat-card-lbl {
+      font-size: 10px; font-weight: 800; letter-spacing: .1em;
+      color: rgba(255,255,255,.65); text-transform: uppercase;
     }
-    .stat-pill-val {
-      font-family: var(--mono); font-size: 14px; font-weight: 500; color: #fff;
+    .stat-card-val {
+      font-size: 17px; font-weight: 900; color: #fff; letter-spacing: -.2px;
     }
 
     /* Currency toggle */
     .ccy-toggle {
-      display: flex; background: var(--bg-card); border-radius: var(--r-pill);
-      padding: 4px; box-shadow: var(--sh);
+      display: flex; background: var(--card); border-radius: var(--r-pill);
+      padding: 4px;
     }
     .ccy-btn {
       flex: 1; background: none; border: none; border-radius: var(--r-pill);
-      padding: 10px; font-family: var(--ui); font-size: 13px; font-weight: 700;
-      color: var(--text-sec); cursor: pointer; transition: all .18s;
+      padding: 10px; font-family: var(--ui); font-size: 13px; font-weight: 800;
+      color: var(--text-dim); cursor: pointer; transition: all .18s;
     }
-    .ccy-btn.active {
-      background: var(--accent); color: #fff;
-      box-shadow: 0 2px 8px rgba(0,200,150,.32);
-    }
+    .ccy-btn.active { background: var(--green); color: #000; }
     .ccy-rate-row {
       font-family: var(--mono); font-size: 11px; color: var(--text-dim);
       text-align: center; letter-spacing: .05em;
     }
 
-    /* Payment section */
-    .payment-section {
-      background: var(--bg-card); border-radius: var(--r);
-      box-shadow: var(--sh); overflow: hidden;
+    /* Section cards (payment/events/recs) */
+    .recs-section, .section-card {
+      background: var(--card); border-radius: var(--r); overflow: hidden;
     }
-    .payment-hdr {
+    .section-card-hdr {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 16px; border-bottom: 1px solid var(--border);
     }
-    .payment-hdr-lbl {
-      font-size: 12px; font-weight: 700; letter-spacing: .08em;
+    .section-card-lbl {
+      font-size: 12px; font-weight: 800; letter-spacing: .1em;
       color: var(--text-sec); text-transform: uppercase;
     }
-    .refresh-btn {
+    .icon-btn {
       background: none; border: none; cursor: pointer;
       font-size: 18px; color: var(--text-dim); line-height: 1;
-      padding: 4px; transition: color .2s; display: flex; align-items: center;
+      padding: 4px; transition: color .2s;
     }
-    .refresh-btn:hover { color: var(--accent); }
+    .icon-btn:hover { color: var(--green); }
+    .icon-btn.spin { animation: spin .5s linear; }
+    /* aliases used by JS-injected content */
+    .refresh-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-dim); padding: 4px; transition: color .2s; }
+    .refresh-btn:hover { color: var(--green); }
     .refresh-btn.spin { animation: spin .5s linear; }
-    .payment-list { display: flex; flex-direction: column; max-height: 280px; overflow-y: auto; }
+
+    /* Payment list */
+    .payment-list {
+      display: flex; flex-direction: column;
+      max-height: 260px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .payment-list::-webkit-scrollbar { display: none; }
     .pay-empty {
-      padding: 24px; text-align: center;
-      font-size: 13px; color: var(--text-dim);
+      padding: 22px; text-align: center;
+      font-size: 13px; font-weight: 600; color: var(--text-dim);
     }
     .pay-row {
       display: flex; align-items: center; gap: 10px;
       padding: 12px 16px; border-bottom: 1px solid var(--border);
     }
     .pay-row:last-child { border-bottom: none; }
-    /* Left color dot */
-    .pay-row::before {
-      content: ''; display: block;
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    }
     .pay-date {
       font-family: var(--mono); font-size: 10px; color: var(--text-dim);
       min-width: 44px; letter-spacing: .03em;
     }
     .pay-desc {
-      flex: 1; font-size: 13px; font-weight: 500; color: var(--text);
+      flex: 1; font-size: 13px; font-weight: 700; color: var(--text);
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .pay-amt {
       font-family: var(--mono); font-size: 13px; font-weight: 500; white-space: nowrap;
     }
-    .pay-amt.db { color: var(--red); }
-    .pay-amt.cr { color: var(--accent-dk); }
-
-    /* AI Recommendations */
-    .recs-section {
-      background: var(--bg-card); border-radius: var(--r);
-      box-shadow: var(--sh); overflow: hidden;
-    }
-    .recs-hdr {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px; border-bottom: 1px solid var(--border);
-    }
-    .recs-hdr-left { display: flex; flex-direction: column; gap: 2px; }
-    .recs-hdr-lbl {
-      font-size: 12px; font-weight: 700; letter-spacing: .08em;
-      color: var(--text-sec); text-transform: uppercase;
-    }
-    .recs-geo-note { font-size: 11px; color: var(--accent); font-weight: 500; }
-    #recs-list {
-      max-height: 320px; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      display: flex; flex-direction: column;
-    }
-    #recs-list::-webkit-scrollbar { display: none; }
-    .rec-card {
-      padding: 14px 16px; border-bottom: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 5px;
-    }
-    .rec-card:last-child { border-bottom: none; }
-    .rec-name-row {
-      display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
-    }
-    .rec-name { font-size: 14px; font-weight: 700; color: var(--text); }
-    .rec-dist { font-family: var(--mono); font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
-    .rec-meta { font-size: 11px; color: var(--amber); font-weight: 600; }
-    .rec-why  { font-size: 13px; color: var(--text-sec); line-height: 1.55; }
-    .rec-address { font-size: 11px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .rec-maps-link {
-      display: inline-flex; align-items: center; margin-top: 2px; align-self: flex-start;
-      font-size: 11px; font-weight: 700; letter-spacing: .04em;
-      color: var(--accent-dk); text-decoration: none;
-      padding: 5px 12px; border-radius: var(--r-pill);
-      background: var(--accent-dim);
-    }
-    .rec-maps-link:hover { background: rgba(0,200,150,.18); }
+    .pay-amt.db { color: var(--coral); }
+    .pay-amt.cr { color: var(--green); }
 
     /* Events */
     .events-section {
@@ -508,22 +457,22 @@
     .event-card {
       display: flex; gap: 12px; align-items: center;
       padding: 12px 16px; border-bottom: 1px solid var(--border);
-      text-decoration: none; transition: background .15s; cursor: pointer;
+      text-decoration: none; transition: background .15s;
     }
     .event-card:last-child { border-bottom: none; }
-    .event-card:hover { background: rgba(0,200,150,.04); }
+    .event-card:hover { background: rgba(255,255,255,.03); }
     .event-img {
       width: 50px; height: 50px; flex-shrink: 0;
-      border-radius: 10px; object-fit: cover; background: var(--bg);
+      border-radius: 10px; object-fit: cover; background: var(--card2);
     }
     .event-img-placeholder {
       width: 50px; height: 50px; flex-shrink: 0; border-radius: 10px;
-      background: var(--bg); display: flex; align-items: center;
+      background: var(--card2); display: flex; align-items: center;
       justify-content: center; font-size: 22px;
     }
     .event-info { flex: 1; min-width: 0; }
     .event-name {
-      font-size: 13px; font-weight: 600; color: var(--text);
+      font-size: 13px; font-weight: 700; color: var(--text);
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px;
     }
     .event-meta { font-size: 11px; color: var(--text-dim); margin-bottom: 1px; }
@@ -535,103 +484,122 @@
       font-family: var(--mono); font-size: 12px; color: var(--amber);
       white-space: nowrap; flex-shrink: 0;
     }
-    .events-find-btn {
+    .find-btn, .events-find-btn {
       width: 100%; padding: 20px; background: none; border: none;
-      font-family: var(--ui); font-size: 13px; font-weight: 600;
-      color: var(--text-sec); cursor: pointer; transition: color .2s;
+      font-family: var(--ui); font-size: 13px; font-weight: 800;
+      color: var(--text-dim); cursor: pointer; transition: color .2s;
     }
-    .events-find-btn:hover { color: var(--accent); }
+    .find-btn:hover, .events-find-btn:hover { color: var(--green); }
     .events-empty {
-      padding: 24px; text-align: center; font-size: 13px; color: var(--text-dim);
+      padding: 22px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-dim);
     }
+
+    /* AI Recommendations */
+    #recs-list {
+      max-height: 320px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      display: flex; flex-direction: column;
+    }
+    #recs-list::-webkit-scrollbar { display: none; }
+    .recs-hdr { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .recs-hdr-left { display: flex; flex-direction: column; gap: 2px; }
+    .recs-hdr-lbl { font-size: 12px; font-weight: 800; letter-spacing: .1em; color: var(--text-sec); text-transform: uppercase; }
+    .recs-geo-note { font-size: 11px; color: var(--green); font-weight: 600; }
+    .rec-card {
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .rec-card:last-child { border-bottom: none; }
+    .rec-name-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .rec-name { font-size: 14px; font-weight: 900; color: var(--text); }
+    .rec-dist { font-family: var(--mono); font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+    .rec-meta { font-size: 11px; color: var(--amber); font-weight: 700; }
+    .rec-why  { font-size: 13px; color: var(--text-sec); line-height: 1.5; }
+    .rec-address { font-size: 11px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rec-maps-link {
+      display: inline-flex; align-items: center; margin-top: 4px; align-self: flex-start;
+      font-size: 11px; font-weight: 800; letter-spacing: .05em;
+      color: var(--green); text-decoration: none;
+      padding: 5px 14px; border-radius: var(--r-pill);
+      border: 1px solid rgba(30,200,106,.3);
+    }
+    .rec-maps-link:hover { background: rgba(30,200,106,.1); }
 
     /* ═══ TRIPS ═══ */
     .section-lbl {
-      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      font-size: 11px; font-weight: 800; letter-spacing: .12em;
       color: var(--text-dim); text-transform: uppercase;
     }
     .trip-list { display: flex; flex-direction: column; gap: 10px; }
     .trip-card {
-      background: var(--bg-card); border-radius: var(--r);
-      box-shadow: var(--sh);
+      background: var(--card); border-radius: var(--r);
       padding: 16px 16px 16px 20px;
-      border-left: 4px solid rgba(0,200,150,.2);
+      border-left: 4px solid rgba(255,255,255,.08);
       cursor: pointer; transition: all .18s; position: relative;
     }
-    .trip-card:hover { transform: translateY(-1px); box-shadow: var(--sh-up); }
+    .trip-card:hover { border-left-color: rgba(30,200,106,.4); }
     .trip-card:active { transform: scale(.99); }
     .trip-card.active {
-      border-left-color: var(--accent);
-      background: linear-gradient(120deg, rgba(0,200,150,.06) 0%, #fff 70%);
+      border-left-color: var(--green);
+      box-shadow: -4px 0 20px rgba(30,200,106,.12);
     }
     .trip-card-name {
-      font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px;
+      font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 4px;
+      padding-right: 60px;
     }
-    .trip-card-meta { font-size: 12px; color: var(--text-sec); margin-bottom: 5px; }
+    .trip-card-meta { font-size: 12px; color: var(--text-sec); margin-bottom: 5px; font-weight: 600; }
     .trip-card-budget {
-      font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--accent-dk);
+      font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--green);
     }
     .trip-active-pill {
       position: absolute; top: 14px; right: 14px;
-      font-size: 10px; font-weight: 700; letter-spacing: .06em;
-      background: var(--accent); color: #fff;
+      font-size: 10px; font-weight: 900; letter-spacing: .06em;
+      background: var(--green); color: #000;
       padding: 4px 12px; border-radius: var(--r-pill);
     }
 
     .new-mission-btn {
       width: 100%; padding: 18px;
-      background: none; border: 2px dashed rgba(0,200,150,.3); border-radius: var(--r);
-      font-family: var(--ui); font-size: 14px; font-weight: 700; color: var(--accent);
+      background: none; border: 1px dashed rgba(30,200,106,.3); border-radius: var(--r);
+      font-family: var(--ui); font-size: 14px; font-weight: 900; color: var(--green);
       cursor: pointer; transition: all .18s;
     }
-    .new-mission-btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+    .new-mission-btn:hover { background: rgba(30,200,106,.06); border-color: var(--green); }
 
     /* Trip form */
     .trip-form {
-      background: var(--bg-card); border-radius: var(--r);
-      box-shadow: var(--sh-up); padding: 20px;
+      background: var(--card); border-radius: var(--r); padding: 20px;
       display: flex; flex-direction: column; gap: 14px;
       animation: fadeUp .2s ease;
     }
-    .form-title {
-      font-size: 16px; font-weight: 800; color: var(--text);
-    }
+    .form-title { font-size: 18px; font-weight: 900; color: var(--text); }
     .form-field { display: flex; flex-direction: column; gap: 5px; }
     .form-row { display: flex; gap: 10px; }
     .form-row .form-field { flex: 1; }
     .rf-label {
-      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      font-size: 11px; font-weight: 800; letter-spacing: .1em;
       color: var(--text-dim); text-transform: uppercase;
     }
     .rf-input {
-      width: 100%; background: var(--bg); border: 1.5px solid rgba(0,0,0,.08);
-      border-radius: var(--r-sm); padding: 11px 14px;
-      color: var(--text); font-family: var(--ui); font-size: 14px; font-weight: 500;
-      outline: none; transition: border-color .18s, background .18s;
+      width: 100%; background: var(--card2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 14px;
+      color: var(--text); font-family: var(--ui); font-size: 14px; font-weight: 700;
+      outline: none; transition: border-color .18s;
     }
-    .rf-input:focus { border-color: var(--accent); background: #fff; }
+    .rf-input:focus { border-color: var(--green); }
     .rf-input::placeholder { color: var(--text-dim); }
-    .rf-input[type="date"] { color-scheme: light; }
+    .rf-input[type="date"] { color-scheme: dark; }
     .form-actions { display: flex; gap: 10px; margin-top: 2px; }
     .form-actions .ghost-btn { flex: 1; text-align: center; }
     .form-actions .cta-btn  { flex: 2; padding: 14px; font-size: 14px; }
 
-    /* Skeleton shimmer */
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes spin    { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes fadeUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes shimmer { 0%{background-position:-300px 0} 100%{background-position:300px 0} }
     .skeleton {
-      background: linear-gradient(90deg, #E4EAF1 25%, #EEF3F8 50%, #E4EAF1 75%);
+      background: linear-gradient(90deg, #1A1A1A 25%, #242424 50%, #1A1A1A 75%);
       background-size: 600px 100%; border-radius: 8px; height: 14px;
       animation: shimmer 1.4s infinite;
-    }
-    @keyframes shimmer {
-      0%   { background-position: -300px 0; }
-      100% { background-position:  300px 0; }
-    }
-
-    /* Animations */
-    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(8px); }
-      to   { opacity:1; transform:translateY(0); }
     }
   </style>
 </head>
@@ -641,7 +609,7 @@
   <!-- ══════════ HEADER ══════════ -->
   <header id="header">
     <div class="wordmark">Travel<em>Buddy</em></div>
-    <div class="header-trip" id="header-trip">No trip selected</div>
+    <div class="header-trip" id="header-trip">No trip</div>
     <div class="bunq-badge">bunq</div>
   </header>
 
@@ -671,37 +639,38 @@
   <!-- ══════════ SCREEN: DASHBOARD ══════════ -->
   <div id="screen-dashboard" class="screen">
 
-    <div class="dash-hero">
-      <div class="mission-title">Active Journey</div>
-      <div class="mission-name-row">
-        <span id="mission-name">—</span>
+    <div class="dash-name-section">
+      <div class="dash-eyebrow">Active Journey</div>
+      <span id="mission-name">—</span>
+    </div>
+
+    <div class="gauge-card">
+      <div class="gauge-lbl-top">Budget Remaining</div>
+      <div class="gauge-wrap">
+        <div class="gauge-svg-wrap">
+          <svg class="gauge-svg" viewBox="0 0 200 200">
+            <circle class="g-track" cx="100" cy="100" r="78"/>
+            <circle class="g-arc"   id="g-arc"   cx="100" cy="100" r="78"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-pct" id="gauge-pct">—%</div>
+            <div class="gauge-amt" id="gauge-amt">—</div>
+            <div class="gauge-lbl">remaining</div>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <div class="gauge-card">
-        <div class="gauge-wrap">
-          <div class="gauge-svg-wrap">
-            <svg class="gauge-svg" viewBox="0 0 200 200">
-              <circle class="g-track" cx="100" cy="100" r="78"/>
-              <circle class="g-arc"   id="g-arc"   cx="100" cy="100" r="78"/>
-            </svg>
-            <div class="gauge-center">
-              <div class="gauge-pct" id="gauge-pct">—%</div>
-              <div class="gauge-amt" id="gauge-amt">—</div>
-              <div class="gauge-lbl">Remaining</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="stat-pills">
-          <div class="stat-pill">
-            <div class="stat-pill-lbl">Total Budget</div>
-            <div class="stat-pill-val" id="stat-budget">—</div>
-          </div>
-          <div class="stat-pill">
-            <div class="stat-pill-lbl">Per Day Left</div>
-            <div class="stat-pill-val" id="stat-per-day">—</div>
-          </div>
-        </div>
+    <div class="stat-grid">
+      <div class="stat-card stat-card--purple">
+        <div class="stat-card-icon">💰</div>
+        <div class="stat-card-lbl">Total Budget</div>
+        <div class="stat-card-val" id="stat-budget">—</div>
+      </div>
+      <div class="stat-card stat-card--amber">
+        <div class="stat-card-icon">📅</div>
+        <div class="stat-card-lbl">Per Day Left</div>
+        <div class="stat-card-val" id="stat-per-day">—</div>
       </div>
     </div>
 
@@ -711,10 +680,10 @@
     </div>
     <div class="ccy-rate-row" id="ccy-rate" style="display:none"></div>
 
-    <div class="payment-section">
-      <div class="payment-hdr">
-        <span class="payment-hdr-lbl">Payment Log</span>
-        <button class="refresh-btn" id="refresh-btn" title="Refresh">↺</button>
+    <div class="section-card">
+      <div class="section-card-hdr">
+        <span class="section-card-lbl">Payment Log</span>
+        <button class="icon-btn" id="refresh-btn">↺</button>
       </div>
       <div class="payment-list" id="payment-list">
         <div class="pay-empty">Select a trip to see payments</div>
@@ -738,20 +707,20 @@
     <div class="recs-section">
       <div class="recs-hdr">
         <div class="recs-hdr-left">
-          <span class="recs-hdr-lbl">AI NEARBY</span>
+          <span class="recs-hdr-lbl">AI Nearby</span>
           <span class="recs-geo-note" id="recs-geo-note" style="display:none"></span>
         </div>
-        <button class="refresh-btn" id="recs-refresh-btn" title="Get AI recommendations">↺</button>
+        <button class="icon-btn" id="recs-refresh-btn">↺</button>
       </div>
       <div id="recs-list">
-        <button class="events-find-btn" onclick="loadRecommendations()">⊕ GET AI RECOMMENDATIONS</button>
+        <button class="find-btn" onclick="loadRecommendations()">+ Get AI recommendations</button>
       </div>
     </div>
 
-    <div class="events-section">
-      <div class="events-hdr">
-        <span class="events-hdr-lbl">Events Nearby</span>
-        <button class="refresh-btn" id="events-refresh-btn" title="Find events">↺</button>
+    <div class="section-card">
+      <div class="section-card-hdr">
+        <span class="section-card-lbl">Events Nearby</span>
+        <button class="icon-btn" id="events-refresh-btn">↺</button>
       </div>
       <div class="events-list" id="events-list">
         <button class="events-find-btn" id="events-find-btn" onclick="loadEvents()">+ Find local events</button>
@@ -760,45 +729,47 @@
 
   </div>
 
-  <!-- ══════════ SCREEN: TRIPS ══════════ -->
-  <div id="screen-trips" class="screen">
-    <div class="section-lbl">Your Trips</div>
-    <div class="trip-list" id="trip-list"></div>
-    <button class="new-mission-btn" id="new-mission-btn">+ New Trip</button>
-    <div id="trip-form-wrap"></div>
-  </div>
-
   <!-- ══════════ BOTTOM NAV ══════════ -->
   <nav id="nav">
     <button class="nav-tab active" data-screen="scanner">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M3 9V6a1 1 0 011-1h3M3 15v3a1 1 0 001 1h3m9-16h3a1 1 0 011 1v3m0 9v3a1 1 0 01-1 1h-3"/>
-        <circle cx="12" cy="12" r="3"/>
-      </svg>
+      <div class="nav-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9V6a1 1 0 011-1h3M3 15v3a1 1 0 001 1h3m9-16h3a1 1 0 011 1v3m0 9v3a1 1 0 01-1 1h-3"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
       Scan
     </button>
     <button class="nav-tab" data-screen="dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        <circle cx="12" cy="12" r="9"/>
-        <path d="M12 7v5l3.5 3.5"/>
-      </svg>
+      <div class="nav-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 7v5l3.5 3.5"/>
+        </svg>
+      </div>
       Journey
     </button>
     <button class="nav-tab" data-screen="explore">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="9"/>
-        <path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/>
-      </svg>
-      EXPLORE
+      <div class="nav-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/>
+        </svg>
+      </div>
+      Explore
     </button>
     <button class="nav-tab" data-screen="trips">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M3 17l9-13 9 13H3z"/>
-        <path d="M12 4v3M9 17v2M15 17v2"/>
-      </svg>
+      <div class="nav-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 17l9-13 9 13H3z"/>
+          <path d="M12 4v3M9 17v2M15 17v2"/>
+        </svg>
+      </div>
       Trips
     </button>
   </nav>
+
+  <div class="rainbow-strip"></div>
 
 </div><!-- #app -->
 
@@ -811,8 +782,8 @@ const S = {
   trips: [],
   scanMode: 'photo',
   selectedFile: null,
-  dash: null,      // cached dashboard data for currency toggle
-  destRate: null,  // EUR→destCcy multiplier (1/totalEur for 1 destCcy unit)
+  dash: null,
+  destRate: null,
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -855,11 +826,9 @@ uploadAltBtn.addEventListener('click', () => {
   fileInput.click();
 });
 
-// Camera state: 'idle' | 'live' | 'captured'
 let cameraState  = 'idle';
 let cameraStream = null;
 
-// Voice state: 'idle' | 'recording' | 'processing'
 let voiceState    = 'idle';
 let mediaRecorder = null;
 let audioChunks   = [];
@@ -893,7 +862,6 @@ function applyMode(mode) {
     vfStatus.textContent = 'Ready to record';
     scanBtn.textContent = 'Start Recording';
   } else {
-    // photo or menu — start live camera + show upload fallback
     fileInput.setAttribute('hidden', '');
     uploadAltBtn.style.display = '';
     startCamera();
@@ -913,7 +881,6 @@ async function startCamera() {
     vfStatus.textContent = '';
     scanBtn.textContent = S.scanMode === 'menu' ? 'Capture Menu' : 'Capture';
   } catch (err) {
-    // Camera denied or unavailable — fall back to file picker
     cameraVideo.classList.remove('live');
     fileInput.removeAttribute('hidden');
     vfStatus.textContent = 'Camera unavailable — select file';
@@ -943,12 +910,11 @@ function captureFrame() {
     vfPreview.innerHTML = `<img src="${url}" alt="capture">`;
     viewfinder.classList.add('has-file');
     cameraState = 'captured';
-    vfStatus.textContent = 'Price detected';
+    vfStatus.textContent = 'Ready to scan';
     scanBtn.textContent = S.scanMode === 'menu' ? 'Read Menu' : 'Scan Price';
   }, 'image/jpeg', 0.92);
 }
 
-// Upload mode: file picker handler
 fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   if (!file) return;
@@ -957,7 +923,7 @@ fileInput.addEventListener('change', () => {
   cameraState = 'captured';
   const url = URL.createObjectURL(file);
   vfPreview.innerHTML = `<img src="${url}" alt="preview" style="opacity:1">`;
-  vfStatus.textContent = 'Price detected';
+  vfStatus.textContent = 'Ready to scan';
   vfStatus.classList.add('live');
   viewfinder.classList.add('has-file');
   scanBtn.textContent = 'Scan Price';
@@ -965,19 +931,12 @@ fileInput.addEventListener('change', () => {
 
 scanBtn.addEventListener('click', async () => {
   if (S.scanMode === 'voice') {
-    if (voiceState === 'idle')      startRecording();
+    if (voiceState === 'idle')           startRecording();
     else if (voiceState === 'recording') stopRecording();
     return;
   }
-  if (cameraState === 'live') {
-    captureFrame();
-    return;
-  }
-  if (cameraState === 'captured' && S.selectedFile) {
-    await performScan();
-    return;
-  }
-  // Fallback: no camera, no file — open picker
+  if (cameraState === 'live') { captureFrame(); return; }
+  if (cameraState === 'captured' && S.selectedFile) { await performScan(); return; }
   fileInput.removeAttribute('hidden');
   fileInput.click();
 });
@@ -995,7 +954,6 @@ async function performScan() {
   const fd = new FormData();
   fd.append('file', file);
   fd.append('payment_type', 'card');
-
   const endpoint = S.scanMode === 'menu' ? '/api/menu' : '/api/scan';
 
   try {
@@ -1040,12 +998,9 @@ function renderMenuResult(d) {
       <td class="td-price">${esc(item.original_price || '—')}</td>
       <td class="td-eur">${item.eur != null ? '€' + fmt2(item.eur) : '—'}</td>
     </tr>`).join('');
-
   resultArea.innerHTML = `
     <div class="menu-panel">
-      <div class="menu-panel-header">
-        Menu Scan · <span>${d.items.length} items</span> · ${esc(d.currency_iso || '—')}
-      </div>
+      <div class="menu-panel-header">Menu · ${d.items.length} items · ${esc(d.currency_iso || '—')}</div>
       <table class="menu-table">
         <thead><tr><th>Item</th><th>Price</th><th>EUR</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -1061,11 +1016,9 @@ function resetScan() {
   vfStatus.classList.remove('live');
   viewfinder.classList.remove('has-file');
   resultArea.innerHTML = '';
-  // Stop any active streams
   clearInterval(recTimer);
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   stopCamera();
-  // Restart for camera modes; re-draw mic UI for voice
   uploadAltBtn.style.display = (S.scanMode === 'photo' || S.scanMode === 'menu') ? '' : 'none';
   if (S.scanMode === 'photo' || S.scanMode === 'menu') {
     startCamera();
@@ -1101,9 +1054,8 @@ async function startRecording() {
     vfStatus.textContent = 'REC 00:00';
     vfStatus.classList.add('live');
 
-    // Build waveform canvas + overlay
     vfPreview.innerHTML = `
-      <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+      <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0C0C0C;">
         <canvas id="wave-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
         <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;">
           <div class="rec-dot"></div>
@@ -1111,7 +1063,6 @@ async function startRecording() {
         </div>
       </div>`;
 
-    // Wire up Web Audio analyser
     audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
     analyser  = audioCtx.createAnalyser();
     analyser.fftSize = 256;
@@ -1129,9 +1080,9 @@ async function startRecording() {
       analyser.getByteTimeDomainData(dataArr);
       wCtx.clearRect(0, 0, canvas.width, canvas.height);
       wCtx.lineWidth   = 2;
-      wCtx.strokeStyle = 'rgba(0,217,134,0.85)';
-      wCtx.shadowBlur  = 8;
-      wCtx.shadowColor = 'rgba(0,217,134,0.6)';
+      wCtx.strokeStyle = 'rgba(30,200,106,0.9)';
+      wCtx.shadowBlur  = 10;
+      wCtx.shadowColor = 'rgba(30,200,106,0.5)';
       wCtx.beginPath();
       const sliceW = canvas.width / bufLen;
       let x = 0;
@@ -1147,7 +1098,6 @@ async function startRecording() {
     drawWaveform();
 
     scanBtn.textContent = 'Stop';
-
     recTimer = setInterval(() => {
       recSecs++;
       const mm = String(Math.floor(recSecs / 60)).padStart(2, '0');
@@ -1166,12 +1116,10 @@ async function startRecording() {
 function stopRecording() {
   clearInterval(recTimer);
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-  // Freeze the waveform — cancel draw loop but leave canvas in place
   if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
   if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
   voiceState = 'processing';
   vfStatus.textContent = 'Analysing...';
-  // Overlay label on top of the frozen waveform
   const overlay = document.createElement('div');
   overlay.id = 'wave-overlay';
   overlay.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.12em;';
@@ -1213,7 +1161,7 @@ async function submitVoice(blob, mimeType) {
         total_eur: data.total_eur, total_fees: data.total_fees,
         source: data.source, payment_type: data.payment_type,
       });
-      resetVoice(false); // reset controls but keep result
+      resetVoice(false);
     }
   } catch (err) {
     resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`;
@@ -1229,8 +1177,7 @@ function showCurrencyPicker(data) {
       <div class="ccy-picker-amount">${esc(String(data.amount))}</div>
       <div class="ccy-picker-label">Currency not detected — enter below</div>
       <div class="ccy-picker-row">
-        <input class="rf-input" id="voice-ccy" placeholder="e.g. JPY" maxlength="3"
-               style="text-transform:uppercase">
+        <input class="rf-input" id="voice-ccy" placeholder="e.g. JPY" maxlength="3" style="text-transform:uppercase">
         <button class="cta-btn" style="width:auto;padding:10px 18px;font-size:13px"
                 onclick="convertVoice(${data.amount})">Convert</button>
       </div>
@@ -1282,11 +1229,11 @@ function resetVoice(resetUI = true) {
 /* ══════════════════════════════════════════════════════════
    DASHBOARD
 ══════════════════════════════════════════════════════════ */
-const CIRC = 2 * Math.PI * 78; // ≈ 490.09
+const CIRC = 2 * Math.PI * 78;
 
 async function loadDashboard() {
   if (!S.activeTrip) {
-    document.getElementById('mission-name').textContent = 'None selected';
+    document.getElementById('mission-name').textContent = '—';
     setGauge(0, 0, 1, 'EUR');
     document.getElementById('stat-budget').textContent = '—';
     document.getElementById('stat-per-day').textContent = '—';
@@ -1317,9 +1264,8 @@ async function loadDashboard() {
       : null;
 
     S.dash = { remaining, budget: trip.budget_eur, ownCcy, destCcy, payments: d.payments || [], daysLeft };
-    S.destRate = null; // reset rate cache on fresh load
+    S.destRate = null;
 
-    // Reset toggle to home-currency side
     document.getElementById('ccy-own-btn').classList.add('active');
     document.getElementById('ccy-dest-btn').classList.remove('active');
 
@@ -1332,7 +1278,6 @@ async function loadDashboard() {
       toggle.style.display = 'none';
     }
 
-    // Pre-fetch rate automatically — populates S.destRate and shows rate label
     document.getElementById('ccy-rate').style.display = 'none';
     if (destCcy) fetchDestRate(destCcy);
 
@@ -1347,16 +1292,14 @@ function setGauge(pct, remaining, total, ccy) {
   const arc = document.getElementById('g-arc');
   arc.style.strokeDashoffset = CIRC * (1 - pct);
   const color = pct > .6 ? 'var(--accent)' : pct > .3 ? 'var(--amber)' : 'var(--red)';
-  const glow  = pct > .6 ? '#00d986'        : pct > .3 ? '#ffb347'       : '#ff4757';
+  const glow  = pct > .6 ? '#1EC86A'        : pct > .3 ? '#F5A623'      : '#FF6060';
   arc.style.stroke = color;
-  arc.style.filter = `drop-shadow(0 0 6px ${glow})`;
+  arc.style.filter = `drop-shadow(0 0 8px ${glow})`;
   document.getElementById('gauge-pct').textContent = `${Math.round(pct * 100)}%`;
   const amtLabel = (!ccy || ccy === 'EUR') ? `€${fmt2(remaining)}` : `${fmt2(remaining)} ${ccy}`;
   document.getElementById('gauge-amt').textContent = amtLabel;
   document.getElementById('gauge-amt').style.color = color;
 }
-
-// ── Currency toggle ────────────────────────────────────────────────────────────
 
 document.getElementById('ccy-own-btn').addEventListener('click', () => {
   if (!S.dash) return;
@@ -1387,7 +1330,6 @@ async function applyDashCurrency(useDestCcy) {
     return;
   }
 
-  // Fetch EUR→destCcy rate lazily (convert 1 destCcy → EUR, then invert)
   if (!S.destRate) {
     try {
       const res = await fetch('/api/convert', {
@@ -1403,15 +1345,13 @@ async function applyDashCurrency(useDestCcy) {
   }
 
   const rate = S.destRate || 1;
-  const remD   = remaining * rate;
+  const remD    = remaining * rate;
   const budgetD = budget * rate;
-  const pct    = Math.max(0, Math.min(1, remD / budgetD));
+  const pct     = Math.max(0, Math.min(1, remD / budgetD));
   setGauge(pct, remD, budgetD, destCcy);
   document.getElementById('stat-budget').textContent = `${destCcy} ${fmt2(budgetD)}`;
   document.getElementById('stat-per-day').textContent =
     daysLeft ? `${destCcy} ${fmt2(remD / daysLeft)}` : '—';
-
-  // Convert payment amounts by the same rate
   const converted = payments.map(p => ({ ...p, amount: parseFloat(p.amount) * rate }));
   renderPayments(converted, destCcy);
 }
@@ -1441,13 +1381,12 @@ async function fetchDestRate(destCcy) {
     if (fx.total_eur > 0) {
       S.destRate = 1.0 / fx.total_eur;
       const el = document.getElementById('ccy-rate');
-      // Only show if this destCcy still matches the loaded trip
       if (el && S.dash && S.dash.destCcy === destCcy) {
         el.textContent = `1 EUR ≈ ${fmt2(S.destRate)} ${destCcy}`;
         el.style.display = '';
       }
     }
-  } catch { /* silent — rate display stays hidden */ }
+  } catch { /* silent */ }
 }
 
 function renderPayments(payments, ccy) {
@@ -1490,10 +1429,10 @@ document.getElementById('recs-refresh-btn').addEventListener('click', function (
 async function loadRecommendations() {
   const list = document.getElementById('recs-list');
   if (!S.activeTrip) {
-    list.innerHTML = '<div class="events-empty">SELECT A JOURNEY FIRST</div>';
+    list.innerHTML = '<div class="events-empty">Select a journey first</div>';
     return;
   }
-  list.innerHTML = '<div class="events-empty">CONSULTING AI AGENT...</div>';
+  list.innerHTML = '<div class="events-empty">Consulting AI agent...</div>';
   try {
     const res = await fetch(`/api/recommendations?trip_id=${encodeURIComponent(S.activeTrip.id)}&limit=5`);
     if (!res.ok) {
@@ -1505,17 +1444,17 @@ async function loadRecommendations() {
     const geoEl = document.getElementById('recs-geo-note');
     if (geoEl) {
       const loc = [data.geo_city, data.geo_country].filter(Boolean).join(', ');
-      if (loc) { geoEl.textContent = `loc: ${loc}`; geoEl.style.display = ''; }
+      if (loc) { geoEl.textContent = loc; geoEl.style.display = ''; }
     }
   } catch (err) {
-    list.innerHTML = `<div class="events-empty">⚠ ${esc(err.message)}</div>`;
+    list.innerHTML = `<div class="events-empty">${esc(err.message)}</div>`;
   }
 }
 
 function renderRecommendations(recs) {
   const list = document.getElementById('recs-list');
   if (!recs.length) {
-    list.innerHTML = '<div class="events-empty">NO RECOMMENDATIONS FOUND</div>';
+    list.innerHTML = '<div class="events-empty">No recommendations found</div>';
     return;
   }
   list.innerHTML = recs.map(r => {
@@ -1524,7 +1463,7 @@ function renderRecommendations(recs) {
     const price = r.price_level_label || '';
     const meta  = [r.category, stars, price].filter(Boolean).join(' · ');
     const mapsBtn = r.google_maps_uri
-      ? `<a class="rec-maps-link" href="${esc(r.google_maps_uri)}" target="_blank" rel="noopener">↗ MAPS</a>`
+      ? `<a class="rec-maps-link" href="${esc(r.google_maps_uri)}" target="_blank" rel="noopener">↗ Maps</a>`
       : '';
     return `<div class="rec-card">
       <div class="rec-name-row">
@@ -1578,7 +1517,6 @@ function renderEvents(events) {
     const imgEl = ev.image
       ? `<img class="event-img" src="${esc(ev.image)}" alt="" loading="lazy">`
       : `<div class="event-img-placeholder">🎟</div>`;
-
     return `<a class="event-card" href="${esc(ev.url || '#')}" target="_blank" rel="noopener">
       ${imgEl}
       <div class="event-info">
@@ -1613,9 +1551,7 @@ function renderTripList() {
   }
   el.innerHTML = S.trips.map(trip => {
     const active = S.activeTrip && S.activeTrip.id === trip.id;
-    const dates  = trip.start_date
-      ? `${trip.start_date} → ${trip.end_date || '?'}`
-      : 'Open-ended';
+    const dates  = trip.start_date ? `${trip.start_date} → ${trip.end_date || '?'}` : 'Open-ended';
     return `<div class="trip-card ${active ? 'active' : ''}" data-id="${trip.id}">
       <div class="trip-card-name">${esc(trip.name)}</div>
       <div class="trip-card-meta">${dates}</div>
@@ -1669,9 +1605,7 @@ document.getElementById('new-mission-btn').addEventListener('click', () => {
       </div>
     </div>`;
 
-  document.getElementById('tf-abort').addEventListener('click', () => {
-    wrap.innerHTML = '';
-  });
+  document.getElementById('tf-abort').addEventListener('click', () => { wrap.innerHTML = ''; });
   document.getElementById('tf-launch').addEventListener('click', saveTrip);
 });
 
@@ -1682,14 +1616,9 @@ async function saveTrip() {
   const end    = document.getElementById('tf-end').value   || null;
   const ccy    = (document.getElementById('tf-ccy').value || '').trim().toUpperCase() || null;
 
-  if (!name || isNaN(budget) || budget <= 0) {
-    alert('Trip name and budget are required');
-    return;
-  }
-  if (start && end && end < start) {
-    alert('Return date must be after departure');
-    return;
-  }
+  if (!name || isNaN(budget) || budget <= 0) { alert('Trip name and budget are required'); return; }
+  if (start && end && end < start) { alert('Return date must be after departure'); return; }
+
   try {
     const res = await fetch('/api/trips', {
       method: 'POST',
@@ -1730,7 +1659,7 @@ function fmtDate(s) {
       S.activeTrip = S.trips[0];
       document.getElementById('header-trip').textContent = S.trips[0].name;
     }
-  } catch { /* silent — trips screen will load on demand */ }
+  } catch { /* silent */ }
 })();
 </script>
 </body>
