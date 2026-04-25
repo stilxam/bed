@@ -544,7 +544,6 @@
 
     <div class="mode-tabs">
       <button class="mode-tab active" data-mode="photo">PHOTO</button>
-      <button class="mode-tab" data-mode="upload">UPLOAD</button>
       <button class="mode-tab" data-mode="voice">VOICE</button>
       <button class="mode-tab" data-mode="menu">MENU</button>
     </div>
@@ -718,12 +717,7 @@ document.querySelectorAll('.mode-tab').forEach(tab => {
 });
 
 function applyMode(mode) {
-  if (mode === 'upload') {
-    fileInput.removeAttribute('hidden');
-    uploadAltBtn.style.display = 'none';
-    scanBtn.textContent = 'SELECT IMAGE';
-    vfStatus.textContent = 'READY';
-  } else if (mode === 'voice') {
+  if (mode === 'voice') {
     uploadAltBtn.style.display = 'none';
     fileInput.setAttribute('hidden', '');
     vfPreview.innerHTML = `
@@ -736,9 +730,9 @@ function applyMode(mode) {
     vfStatus.textContent = 'READY TO RECORD';
     scanBtn.textContent = 'START RECORDING';
   } else {
-    // photo or menu — start live camera
+    // photo or menu — start live camera + show upload fallback
     fileInput.setAttribute('hidden', '');
-    uploadAltBtn.style.display = mode === 'menu' ? '' : 'none';
+    uploadAltBtn.style.display = '';
     startCamera();
   }
 }
@@ -809,10 +803,6 @@ scanBtn.addEventListener('click', async () => {
   if (S.scanMode === 'voice') {
     if (voiceState === 'idle')      startRecording();
     else if (voiceState === 'recording') stopRecording();
-    return;
-  }
-  if (S.scanMode === 'upload' && !S.selectedFile) {
-    fileInput.click();
     return;
   }
   if (cameraState === 'live') {
@@ -912,7 +902,7 @@ function resetScan() {
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   stopCamera();
   // Restart for camera modes; re-draw mic UI for voice
-  uploadAltBtn.style.display = S.scanMode === 'menu' ? '' : 'none';
+  uploadAltBtn.style.display = (S.scanMode === 'photo' || S.scanMode === 'menu') ? '' : 'none';
   if (S.scanMode === 'photo' || S.scanMode === 'menu') {
     startCamera();
   } else if (S.scanMode === 'voice') {
