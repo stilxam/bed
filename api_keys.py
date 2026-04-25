@@ -14,6 +14,7 @@ ANTHROPIC_API_KEY          — Claude / Anthropic models          (extractor.py)
 BUNQ_API_KEY               — bunq banking API                   (bunq_client.py)
 AWS_ACCESS_KEY_ID          — Amazon Web Services                (auto_voice_to_eur_aws.py)
 AWS_SECRET_ACCESS_KEY
+GOOGLE_MAPS_API_KEY
 
 Optional variables
 ------------------
@@ -85,3 +86,7 @@ def get_mastercard_private_key_pem() -> str:
 
 def get_wise_api_key() -> str:
     return _get("WISE_API_KEY")  # type: ignore[return-value]
+
+
+def get_google_maps_api_key() -> str:
+    return _get("GOOGLE_MAPS_API_KEY")  # type: ignore[return-value]
