@@ -186,7 +186,6 @@ cython_debug/
 /.continue/
 
 # Auto-generated runtime files
-bunq_context.json
 payment_tags.db
 trips.json
 streamlit_uploads/
