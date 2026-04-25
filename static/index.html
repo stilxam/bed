@@ -368,6 +368,18 @@
     .result-eur { font-size: 42px; font-weight: 900; color: var(--text); letter-spacing: -.6px; line-height: 1.1; }
     .result-meta { font-size: 12px; color: var(--text-sec); font-weight: 600; }
     .result-badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 800; letter-spacing: .04em; background: var(--green-lt); color: var(--green); padding: 5px 14px; border-radius: var(--r-pill); }
+
+    /* ─── RATE COMPARISON ─── */
+    .rate-compare { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border); padding-top: 10px; }
+    .rate-compare-title { font-size: 10px; font-weight: 800; letter-spacing: .08em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 2px; }
+    .rate-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--bg); }
+    .rate-row--best { background: var(--green-lt); }
+    .rate-row-type { font-size: 12px; font-weight: 800; color: var(--text-sec); min-width: 68px; }
+    .rate-row--best .rate-row-type { color: var(--green); }
+    .rate-row-eur { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+    .rate-row--best .rate-row-eur { color: var(--green); }
+    .rate-row-fee { font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+    .rate-row-save { font-size: 10px; font-weight: 800; background: var(--green); color: #fff; padding: 2px 8px; border-radius: var(--r-pill); white-space: nowrap; }
     .error-panel { background: var(--card); border-radius: var(--r); padding: 16px; color: var(--red); font-size: 13px; font-weight: 700; box-shadow: var(--sh-sm); border: 1.5px solid rgba(239,68,68,.15); animation: fadeUp .2s ease; }
     .menu-panel { background: var(--card); border-radius: var(--r); overflow: hidden; animation: fadeUp .2s ease; box-shadow: var(--sh-sm); }
     .menu-panel-header { padding: 12px 16px; font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--text-sec); text-transform: uppercase; border-bottom: 1px solid var(--border); background: rgba(30,200,106,.05); }
@@ -1379,12 +1391,40 @@ async function performScan() {
 }
 
 function renderScanResult(d) {
+  let compareHtml = '';
+  if (d.card && d.transfer) {
+    const cardEur      = d.card.total_eur;
+    const transferEur  = d.transfer.total_eur;
+    const diff         = cardEur - transferEur;
+    const cardBetter   = diff < -0.005;
+    const wireBetter   = diff >  0.005;
+    const savingCard   = cardBetter   ? `<span class="rate-row-save">saves €${fmt2(Math.abs(diff))}</span>` : '';
+    const savingWire   = wireBetter   ? `<span class="rate-row-save">saves €${fmt2(Math.abs(diff))}</span>` : '';
+    const wkndNote     = d.transfer.weekend_fee > 0 ? ' · wknd markup' : '';
+    compareHtml = `
+      <div class="rate-compare">
+        <div class="rate-compare-title">Rate comparison</div>
+        <div class="rate-row${cardBetter ? ' rate-row--best' : ''}">
+          <span class="rate-row-type">💳 Card</span>
+          <span class="rate-row-eur">€ ${fmt2(cardEur)}</span>
+          <span class="rate-row-fee">+€${fmt4(d.card.total_fees)}</span>
+          ${savingCard}
+        </div>
+        <div class="rate-row${wireBetter ? ' rate-row--best' : ''}">
+          <span class="rate-row-type">🏦 Wire</span>
+          <span class="rate-row-eur">€ ${fmt2(transferEur)}</span>
+          <span class="rate-row-fee">+€${fmt4(d.transfer.total_fees)}${wkndNote}</span>
+          ${savingWire}
+        </div>
+      </div>`;
+  }
   resultArea.innerHTML = `
     <div class="result-panel">
       <div class="result-original">${esc(String(d.input_amount))} ${esc(d.input_currency)}</div>
       <div class="result-eur">€ ${fmt2(d.total_eur)}</div>
       <div class="result-meta">+€${fmt4(d.total_fees)} fees · ${esc(d.source || '')}</div>
       <span class="result-badge">${d.payment_type === 'card' ? '💳 Card' : '🏦 Wire'}</span>
+      ${compareHtml}
       <button class="ghost-btn full" onclick="resetScan()">New Scan</button>
     </div>`;
 }
@@ -1467,7 +1507,7 @@ async function submitVoice(blob, mimeType) {
       showCurrencyPicker(data);
     } else {
       if (data.transcript) resultArea.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);padding:4px 2px;letter-spacing:.06em">"${esc(data.transcript)}"</div>`;
-      renderScanResult({ input_amount: data.amount, input_currency: data.currency, total_eur: data.total_eur, total_fees: data.total_fees, source: data.source, payment_type: data.payment_type });
+      renderScanResult({ input_amount: data.amount, input_currency: data.currency, total_eur: data.total_eur, total_fees: data.total_fees, source: data.source, payment_type: data.payment_type, card: data.card, transfer: data.transfer });
       resetVoice(false);
     }
   } catch (err) { resultArea.innerHTML = `<div class="error-panel">Scan failed: ${esc(err.message)}</div>`; resetVoice(false); }
@@ -1485,7 +1525,7 @@ async function convertVoice(amount) {
     const res = await fetch('/api/convert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount, currency: ccy, payment_type: 'card' }) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const fx = await res.json();
-    renderScanResult({ input_amount: amount, input_currency: ccy, total_eur: fx.total_eur, total_fees: fx.total_fees, source: fx.source, payment_type: fx.payment_type });
+    renderScanResult({ input_amount: amount, input_currency: ccy, total_eur: fx.total_eur, total_fees: fx.total_fees, source: fx.source, payment_type: fx.payment_type, card: fx.card, transfer: fx.transfer });
   } catch (err) { alert('Conversion failed: ' + err.message); }
 }
 

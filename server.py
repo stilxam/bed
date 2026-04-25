@@ -109,9 +109,10 @@ async def scan(
         if isinstance(result, CurrencyAmbiguousResult):
             raise HTTPException(422, detail=f"Currency unclear — suggest {result.suggested_currency_iso or 'unknown'}")
 
-        # SuccessResult
-        fx_list = convert_to_eur([(result.amount, result.currency_iso)], payment_type=payment_type)
-        fx = fx_list[0]
+        # SuccessResult — compute both payment types for rate comparison
+        fx_card     = convert_to_eur([(result.amount, result.currency_iso)], payment_type="card")[0]
+        fx_transfer = convert_to_eur([(result.amount, result.currency_iso)], payment_type="transfer")[0]
+        fx = fx_card if payment_type == "card" else fx_transfer
         return {
             "input_amount":   result.amount,
             "input_currency": result.currency_iso,
@@ -123,6 +124,19 @@ async def scan(
             "source":         fx.source,
             "payment_type":   fx.payment_type,
             "is_weekend":     fx.is_weekend,
+            "card": {
+                "total_eur":  fx_card.total_eur,
+                "total_fees": fx_card.total_fees,
+                "source":     fx_card.source,
+                "is_weekend": fx_card.is_weekend,
+            },
+            "transfer": {
+                "total_eur":   fx_transfer.total_eur,
+                "total_fees":  fx_transfer.total_fees,
+                "weekend_fee": fx_transfer.weekend_fee,
+                "source":      fx_transfer.source,
+                "is_weekend":  fx_transfer.is_weekend,
+            },
         }
     except HTTPException:
         raise
@@ -258,8 +272,9 @@ async def voice(
         if not currency:
             return {**base, "status": "needs_currency"}
 
-        fx_list = convert_to_eur([(float(amount), str(currency).upper())], payment_type=payment_type)
-        fx = fx_list[0]
+        fx_card     = convert_to_eur([(float(amount), str(currency).upper())], payment_type="card")[0]
+        fx_transfer = convert_to_eur([(float(amount), str(currency).upper())], payment_type="transfer")[0]
+        fx = fx_card if payment_type == "card" else fx_transfer
         return {
             **base,
             "status":       "success",
@@ -267,6 +282,19 @@ async def voice(
             "total_fees":   fx.total_fees,
             "source":       fx.source,
             "payment_type": fx.payment_type,
+            "card": {
+                "total_eur":  fx_card.total_eur,
+                "total_fees": fx_card.total_fees,
+                "source":     fx_card.source,
+                "is_weekend": fx_card.is_weekend,
+            },
+            "transfer": {
+                "total_eur":   fx_transfer.total_eur,
+                "total_fees":  fx_transfer.total_fees,
+                "weekend_fee": fx_transfer.weekend_fee,
+                "source":      fx_transfer.source,
+                "is_weekend":  fx_transfer.is_weekend,
+            },
         }
     except HTTPException:
         raise
@@ -290,16 +318,28 @@ async def convert(body: ConvertRequest):
     but not the currency — the frontend asks the user then calls this endpoint."""
     try:
         from fx_converter import convert_to_eur
-        fx_list = convert_to_eur(
-            [(body.amount, body.currency.upper().strip())],
-            payment_type=body.payment_type,
-        )
-        fx = fx_list[0]
+        pair = (body.amount, body.currency.upper().strip())
+        fx_card     = convert_to_eur([pair], payment_type="card")[0]
+        fx_transfer = convert_to_eur([pair], payment_type="transfer")[0]
+        fx = fx_card if body.payment_type == "card" else fx_transfer
         return {
             "total_eur":    fx.total_eur,
             "total_fees":   fx.total_fees,
             "source":       fx.source,
             "payment_type": fx.payment_type,
+            "card": {
+                "total_eur":  fx_card.total_eur,
+                "total_fees": fx_card.total_fees,
+                "source":     fx_card.source,
+                "is_weekend": fx_card.is_weekend,
+            },
+            "transfer": {
+                "total_eur":   fx_transfer.total_eur,
+                "total_fees":  fx_transfer.total_fees,
+                "weekend_fee": fx_transfer.weekend_fee,
+                "source":      fx_transfer.source,
+                "is_weekend":  fx_transfer.is_weekend,
+            },
         }
     except Exception as exc:
         raise HTTPException(500, detail=str(exc))
