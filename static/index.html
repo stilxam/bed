@@ -452,6 +452,13 @@
     .sheet-trip-item-name { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .sheet-trip-item-meta { font-size: 12px; color: var(--text-sec); margin-bottom: 3px; }
     .sheet-trip-item-budget { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--green); }
+    .sheet-trip-delete {
+      width: 28px; height: 28px; border-radius: 50%; border: none; background: none;
+      color: var(--text-dim); flex-shrink: 0; display: flex; align-items: center;
+      justify-content: center; font-size: 16px; cursor: pointer; transition: all .18s;
+      line-height: 1;
+    }
+    .sheet-trip-delete:hover { background: #FEE2E2; color: #EF4444; }
     .sheet-trip-check {
       width: 26px; height: 26px; border-radius: 50%;
       background: var(--green); color: #fff; flex-shrink: 0;
@@ -952,8 +959,27 @@ function renderSheetTripList() {
         <div class="sheet-trip-item-budget">€${fmt2(trip.budget_eur)}</div>
       </div>
       ${active ? '<div class="sheet-trip-check">✓</div>' : ''}
+      <button class="sheet-trip-delete" title="Delete trip" onclick="event.stopPropagation();deleteTrip('${esc(trip.id)}','${esc(trip.name)}')">✕</button>
     </div>`;
   }).join('');
+}
+
+async function deleteTrip(tripId, tripName) {
+  if (!confirm(`Delete "${tripName}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}`, { method: 'DELETE' });
+    if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+    S.trips = S.trips.filter(t => t.id !== tripId);
+    if (S.activeTrip && S.activeTrip.id === tripId) {
+      S.activeTrip = S.trips[0] || null;
+      const name = S.activeTrip ? S.activeTrip.name : 'No trip';
+      document.getElementById('header-trip').textContent = S.activeTrip ? name : '';
+      document.getElementById('trip-selector-name').textContent = name;
+      loadHome();
+      renderExploreTripCard();
+    }
+    renderSheetTripList();
+  } catch (err) { alert('Could not delete trip: ' + err.message); }
 }
 
 function selectTrip(tripId) {
