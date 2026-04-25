@@ -333,3 +333,96 @@ with st.container(border=True):
     else:
         st.divider()
         st.caption("Set trip dates to see bunq payment candidates.")
+
+
+# ── Nearby Recommendations (Claude agent) ──────────────────────────────────────
+
+for _sk in ("nearby_recs", "nearby_geo", "nearby_ts"):
+    if _sk not in st.session_state:
+        st.session_state[_sk] = None
+
+with st.container(border=True):
+    _nh_col, _nb_col = st.columns([5, 1])
+    with _nh_col:
+        st.markdown("**📍 Nearby Recommendations**")
+    with _nb_col:
+        _find = st.button("🔍", key="find_nearby", use_container_width=True,
+                          help="Find nearby places powered by Claude + Google Maps")
+
+    _cached_recs = st.session_state["nearby_recs"]
+    _cached_geo  = st.session_state["nearby_geo"]
+    _cached_ts   = st.session_state["nearby_ts"]
+
+    if _find:
+        with st.spinner("Locating you · planning search · asking Claude…"):
+            try:
+                import os
+                from geo1 import (
+                    get_geo_context as _get_geo1,
+                    get_time_context as _get_tc,
+                    get_nearby_recommendations as _get_recs,
+                    BudgetInfo,
+                )
+                from api_keys import get_google_maps_api_key as _gmk
+                os.environ.setdefault("GOOGLE_MAPS_API_KEY", _gmk())
+
+                _geo1 = _get_geo1()
+                if _geo1 is None or _geo1.latitude is None:
+                    st.warning("Could not detect your location. Check VPN or network.")
+                else:
+                    _tc = _get_tc(_geo1)
+
+                    _bi = BudgetInfo(
+                        total_budget_eur=trip.budget_eur,
+                        spent_eur=spent,
+                        remaining_eur=budget_left,
+                        home_currency=own_ccy,
+                        days_total=total_days if (trip.start_date and trip.end_date) else None,
+                        days_remaining=days_remaining if (trip.start_date and trip.end_date) else None,
+                        budget_per_day_eur=budget_per_day,
+                        budget_left_per_day_eur=budget_left_per_day,
+                    )
+
+                    _recs = _get_recs(geo=_geo1, time_context=_tc, budget_info=_bi, limit=5)
+                    st.session_state["nearby_recs"] = _recs
+                    st.session_state["nearby_geo"]  = _geo1
+                    st.session_state["nearby_ts"]   = datetime.datetime.now()
+                    _cached_recs = _recs
+                    _cached_geo  = _geo1
+                    _cached_ts   = st.session_state["nearby_ts"]
+            except Exception as _exc:
+                st.warning(f"Recommendations unavailable: `{_exc}`")
+
+    if _cached_ts and _cached_geo:
+        _loc_str = ", ".join(filter(None, [_cached_geo.city, _cached_geo.country_name]))
+        st.caption(f"📍 {_loc_str} · {_cached_ts.strftime('%H:%M')}")
+
+    if _cached_recs:
+        for _rec in _cached_recs:
+            _rc1, _rc2 = st.columns([5, 1])
+            with _rc1:
+                _meta_parts = []
+                if _rec.distance_m is not None:
+                    _meta_parts.append(f"{_rec.distance_m:.0f} m")
+                if _rec.rating:
+                    _cnt = f" ({_rec.user_rating_count:,})" if _rec.user_rating_count else ""
+                    _meta_parts.append(f"⭐ {_rec.rating:.1f}{_cnt}")
+                if _rec.price_level_label:
+                    _meta_parts.append(_rec.price_level_label)
+                st.markdown(f"**{_rec.place_name}**")
+                if _meta_parts:
+                    st.caption(" · ".join(_meta_parts))
+                if _rec.why:
+                    st.markdown(
+                        f'<div class="pay-meta" style="color:#3C3C43;margin-top:2px">{_rec.why}</div>',
+                        unsafe_allow_html=True,
+                    )
+            with _rc2:
+                if _rec.google_maps_uri:
+                    st.link_button("📍", _rec.google_maps_uri, use_container_width=True)
+            st.markdown(
+                '<div style="border-bottom:1px solid #F2F2F7;margin:4px 0 8px"></div>',
+                unsafe_allow_html=True,
+            )
+    elif not _find:
+        st.caption("Tap 🔍 to get AI-powered recommendations based on your budget and time of day.")

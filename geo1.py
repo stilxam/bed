@@ -26,7 +26,7 @@ SONNET = "claude-sonnet-4-6"
 # Claude price extraction prompt
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT = """\
+PRICE_EXTRACTION_SYSTEM_PROMPT = """\
 You are a price extraction assistant for spoken audio. You receive transcripts of spoken prices in any language and extract structured price data.
 
 Extract the single most prominent price from the transcript. Return ONLY a JSON object:
@@ -39,6 +39,66 @@ Rules:
 - If currency cannot be inferred, set currency_iso to null and currency_confidence to "low".
 - Pick the most prominent single price only.
 - No text outside the JSON object.
+"""
+
+QUERY_PLANNER_SYSTEM_PROMPT = """\
+You are a travel search query planner for a budgeting app.
+
+Given the traveler's time of day, budget level, and location, decide the best type of place to search for on Google Maps right now.
+
+Return ONLY valid JSON with no other text:
+{
+  "query": "<Google Places text search query, 2-6 words>",
+  "included_type": "<one of: restaurant, cafe, bar, shopping_mall, tourist_attraction — or null>",
+  "reason": "<one sentence explaining why this fits the context>"
+}
+"""
+
+RECOMMENDATION_SYSTEM_PROMPT = """\
+You are an intelligent travel recommendation assistant integrated into a bunq travel budgeting app.
+
+You receive live data from three sources:
+1. The traveler's budget snapshot pulled from their bunq banking account
+2. The current local time and time-of-day classification
+3. Nearby places retrieved from the Google Maps Places API
+
+Your job: curate the 3–5 best places for this specific traveler RIGHT NOW.
+
+Reasoning framework:
+
+BUDGET — match price level to remaining daily budget:
+- Under €15/day remaining → cheap options only (€, free)
+- €15–40/day remaining → moderate (€ to €€)
+- Over €40/day remaining → any price level; favour quality and rating
+
+TIME OF DAY — match venue type to the hour:
+- morning (5–11h): cafes, bakeries, breakfast spots
+- lunch (11–14h): restaurants, casual lunch places
+- afternoon (14–17h): cafes, pastry shops, light snacks, nearby sights
+- evening (17–22h): dinner restaurants, bars, cocktail venues
+- night (22h+): late-night food, bars if open
+
+QUALITY — favour places worth the visit:
+- Prefer rating ≥ 4.2 with 50+ reviews
+- A 4.4 with 800 reviews beats a 4.9 with 8 reviews
+- Shorter distance wins when quality is comparable
+
+For each selected place, write a "why" field (1–2 tight sentences) that references the traveler's actual numbers — their remaining daily budget, the time of day, the distance. Be specific, not generic.
+
+Return ONLY a valid JSON array with no surrounding text or markdown fences:
+[
+  {
+    "place_name": "string",
+    "category": "string or null",
+    "distance_m": number or null,
+    "price_level_label": "string",
+    "google_maps_uri": "string or null",
+    "rating": number or null,
+    "user_rating_count": number or null,
+    "formatted_address": "string or null",
+    "why": "string"
+  }
+]
 """
 
 
@@ -189,6 +249,33 @@ ExtractionResult = (
     | CurrencyAmbiguousResult
     | FailureResult
 )
+
+
+@dataclass
+class BudgetInfo:
+    """Structured budget snapshot passed into the recommendation agent."""
+    total_budget_eur: float
+    spent_eur: float
+    remaining_eur: float
+    home_currency: str
+    days_total: int | None = None
+    days_remaining: int | None = None
+    budget_per_day_eur: float | None = None
+    budget_left_per_day_eur: float | None = None
+
+
+@dataclass
+class AgentRecommendation:
+    """A single place recommendation produced by the Claude agent."""
+    place_name: str
+    why: str
+    category: str | None = None
+    distance_m: float | None = None
+    price_level_label: str = ""
+    google_maps_uri: str | None = None
+    rating: float | None = None
+    user_rating_count: int | None = None
+    formatted_address: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -1027,7 +1114,7 @@ def call_claude(
         model=model,
         max_tokens=200,
         temperature=0,
-        system=SYSTEM_PROMPT,
+        system=PRICE_EXTRACTION_SYSTEM_PROMPT,
         messages=messages,
     )
 
@@ -1182,6 +1269,222 @@ def extract_price_with_geo_time_budget_and_places(
             reason="api_error",
             details=str(exc),
         )
+
+
+# ---------------------------------------------------------------------------
+# Public geo helper
+# ---------------------------------------------------------------------------
+
+def get_geo_context() -> GeoContext | None:
+    """Detect user location with coordinates. Returns None on failure."""
+    try:
+        return geo_from_location_result(detect_location())
+    except Exception:
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Recommendation agent — internal helpers
+# ---------------------------------------------------------------------------
+
+def _plan_search_query(
+    geo: GeoContext | None,
+    time_context: TimeContext,
+    budget_info: BudgetInfo,
+    client: Anthropic,
+) -> tuple[str, str | None]:
+    """
+    Claude Haiku decides what type of place to search for right now.
+    Returns (query, included_type). Falls back to rule-based on error.
+    """
+    budget_tier = get_budget_tier(budget_info.budget_left_per_day_eur)
+    parts = [f"Time of day: {time_context.time_of_day}"]
+    if time_context.local_time:
+        parts[0] += f" (local time: {time_context.local_time})"
+    parts.append(f"Budget tier: {budget_tier}")
+    if budget_info.budget_left_per_day_eur is not None:
+        parts.append(f"Daily budget remaining: €{budget_info.budget_left_per_day_eur:.2f}")
+    if geo:
+        parts.append(f"Location: {geo.city or 'unknown'}, {geo.country_name or 'unknown'}")
+    else:
+        parts.append("Location: unknown")
+
+    try:
+        resp = client.messages.create(
+            model=HAIKU,
+            max_tokens=150,
+            temperature=0,
+            system=QUERY_PLANNER_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": "\n".join(parts)}],
+        )
+        data = json.loads(resp.content[0].text.strip())
+        return data.get("query", "food nearby"), data.get("included_type")
+    except Exception:
+        ctx = choose_place_query(geo, time_context, budget_info.budget_left_per_day_eur)
+        return ctx.place_query, None
+
+
+def _curate_recommendations(
+    places: list[dict[str, Any]],
+    budget_info: BudgetInfo,
+    time_context: TimeContext,
+    geo: GeoContext | None,
+    client: Anthropic,
+) -> list[AgentRecommendation]:
+    """
+    Claude Sonnet curates and explains the best nearby places.
+    Falls back to a simple top-N list if the agent call fails.
+    """
+    if not places:
+        return []
+
+    budget_lines = [
+        f"Total trip budget: €{budget_info.total_budget_eur:.2f}",
+        f"Spent so far: €{budget_info.spent_eur:.2f}",
+        f"Remaining: €{budget_info.remaining_eur:.2f}",
+    ]
+    if budget_info.days_remaining is not None:
+        budget_lines.append(f"Days remaining: {budget_info.days_remaining}")
+    if budget_info.budget_per_day_eur is not None:
+        budget_lines.append(f"Planned daily budget: €{budget_info.budget_per_day_eur:.2f}")
+    if budget_info.budget_left_per_day_eur is not None:
+        budget_lines.append(f"Daily budget remaining today: €{budget_info.budget_left_per_day_eur:.2f}")
+
+    location_str = (
+        f"{geo.city or ''}, {geo.country_name or ''}".strip(", ")
+        if geo else "unknown"
+    )
+
+    places_json = json.dumps(
+        [
+            {
+                "name": p.get("name"),
+                "category": p.get("category"),
+                "distance_m": p.get("distance_m"),
+                "price_level": p.get("price_level_label"),
+                "rating": p.get("rating"),
+                "user_rating_count": p.get("user_rating_count"),
+                "formatted_address": p.get("formatted_address"),
+                "google_maps_uri": p.get("google_maps_uri"),
+            }
+            for p in places
+        ],
+        ensure_ascii=False,
+        indent=2,
+    )
+
+    user_text = (
+        "BUDGET SNAPSHOT:\n"
+        + "\n".join(budget_lines)
+        + f"\n\nTIME CONTEXT:\n"
+        + f"- Local time: {time_context.local_time or 'unknown'}\n"
+        + f"- Time of day: {time_context.time_of_day}\n"
+        + f"\nLOCATION: {location_str}\n"
+        + f"\nNEARBY PLACES FROM GOOGLE MAPS:\n{places_json}\n"
+        + "\nCurate the best 3–5 recommendations for this traveler right now."
+    )
+
+    try:
+        resp = client.messages.create(
+            model=SONNET,
+            max_tokens=1200,
+            temperature=0.3,
+            system=RECOMMENDATION_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_text}],
+        )
+        raw = resp.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
+        return [
+            AgentRecommendation(
+                place_name=r.get("place_name", ""),
+                category=r.get("category"),
+                distance_m=r.get("distance_m"),
+                price_level_label=r.get("price_level_label", ""),
+                google_maps_uri=r.get("google_maps_uri"),
+                rating=r.get("rating"),
+                user_rating_count=r.get("user_rating_count"),
+                formatted_address=r.get("formatted_address"),
+                why=r.get("why", ""),
+            )
+            for r in json.loads(raw)
+            if isinstance(r, dict)
+        ]
+    except Exception:
+        return [
+            AgentRecommendation(
+                place_name=p.get("name", ""),
+                category=p.get("category"),
+                distance_m=p.get("distance_m"),
+                price_level_label=p.get("price_level_label", ""),
+                google_maps_uri=p.get("google_maps_uri"),
+                rating=p.get("rating"),
+                user_rating_count=p.get("user_rating_count"),
+                formatted_address=p.get("formatted_address"),
+                why="Highly rated and nearby.",
+            )
+            for p in places[:5]
+        ]
+
+
+# ---------------------------------------------------------------------------
+# Recommendation agent — main public entry point
+# ---------------------------------------------------------------------------
+
+def get_nearby_recommendations(
+    geo: GeoContext,
+    time_context: TimeContext,
+    budget_info: BudgetInfo,
+    *,
+    client: Anthropic | None = None,
+    limit: int = 5,
+    radius_m: float = 1500.0,
+    min_rating: float = 4.0,
+) -> list[AgentRecommendation]:
+    """
+    AI-powered nearby recommendation engine.
+
+    Pipeline:
+      1. Claude Haiku decides what type of place to search for
+      2. Google Places API fetches candidates within radius_m
+      3. Claude Sonnet curates and explains the best 3–5 picks
+
+    Requires ANTHROPIC_API_KEY and GOOGLE_MAPS_API_KEY (set via api_keys.py
+    or environment variables).
+    """
+    import os
+    from api_keys import get_anthropic_api_key, get_google_maps_api_key
+
+    os.environ.setdefault("ANTHROPIC_API_KEY", get_anthropic_api_key())
+    os.environ.setdefault("GOOGLE_MAPS_API_KEY", get_google_maps_api_key())
+
+    _client = client or Anthropic()
+
+    query, _ = _plan_search_query(geo, time_context, budget_info, _client)
+
+    budget_tier = get_budget_tier(budget_info.budget_left_per_day_eur)
+    rec_ctx = RecommendationContext(
+        daily_budget=budget_info.budget_left_per_day_eur,
+        budget_tier=budget_tier,
+        time_of_day=time_context.time_of_day,
+        place_query=query,
+        recommendation_reason="",
+        google_price_levels=BUDGET_TO_GOOGLE_PRICE_LEVELS.get(
+            budget_tier, BUDGET_TO_GOOGLE_PRICE_LEVELS["unknown"]
+        ),
+    )
+
+    places = recommend_nearby_places(
+        geo=geo,
+        query=query,
+        limit=limit * 3,
+        recommendation_context=rec_ctx,
+        radius_m=radius_m,
+        min_rating=min_rating,
+        require_open_for_next_hour=False,
+    )
+
+    return _curate_recommendations(places, budget_info, time_context, geo, _client)
 
 
 # ---------------------------------------------------------------------------
