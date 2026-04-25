@@ -31,6 +31,14 @@ AWS_BEDROCK_MODEL_ID: str = "amazon.nova-lite-v1:0"
 TRANSCRIBE_LANGUAGE_OPTIONS: list[str] = []
 TRANSCRIBE_MULTI_LANGUAGE: bool = False  # True for mixed-language audio
 
+# ── FX / payment settings ─────────────────────────────────────────────────────
+MASTERCARD_USE_SANDBOX: bool = True   # Switch to False for production Mastercard API
+
+# Wise service fee applied to transfer conversions.
+# Wise's actual fee is variable (corridor + amount dependent) and shown in-app.
+# This approximation is used for display only — typical range is 0.3%–1.2%.
+WISE_SERVICE_FEE_RATE: float = 0.0065  # 0.65% approximate average
+
 # ── Visual extractor geolocation hint ────────────────────────────────────────
 # Helps resolve ambiguous currency symbols (e.g. "$" → USD vs HKD vs AUD).
 # Leave as None to skip geolocation context entirely.

@@ -44,6 +44,19 @@ def _choose_mode() -> str:
         print("  Please enter 1, 2, or q.")
 
 
+def _choose_payment_type() -> str:
+    print("\n  How will you pay?")
+    print("  1. Card payment  — bunq Mastercard (ZeroFX: Mastercard rate + 0.5%)")
+    print("  2. Transfer      — send via Wise (mid-market rate + Wise service fee)")
+    while True:
+        choice = input("  Payment type [1/2]: ").strip()
+        if choice == "1":
+            return "card"
+        if choice == "2":
+            return "transfer"
+        print("  Please enter 1 or 2.")
+
+
 # ── Visual mode ───────────────────────────────────────────────────────────────
 
 def run_visual() -> list[tuple[float, str]] | None:
@@ -166,8 +179,10 @@ def main() -> None:
             print("  No items extracted. Try again.\n")
             continue
 
+        payment_type = _choose_payment_type()
+
         print(f"\n  Items to convert: {items}")
-        results = convert_to_eur(items)
+        results = convert_to_eur(items, payment_type=payment_type)
         print_results(results)
 
         if input("Open display window? [y/n]: ").strip().lower() == "y":

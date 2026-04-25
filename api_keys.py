@@ -10,15 +10,21 @@ shell before running the pipeline.
 
 Required variables
 ------------------
-ANTHROPIC_API_KEY     — Claude / Anthropic models  (extractor.py)
-BUNQ_API_KEY          — bunq banking API           (bunq_client.py)
-AWS_ACCESS_KEY_ID     — Amazon Web Services        (auto_voice_to_eur_aws.py)
+ANTHROPIC_API_KEY          — Claude / Anthropic models          (extractor.py)
+BUNQ_API_KEY               — bunq banking API                   (bunq_client.py)
+AWS_ACCESS_KEY_ID          — Amazon Web Services                (auto_voice_to_eur_aws.py)
 AWS_SECRET_ACCESS_KEY
 
 Optional variables
 ------------------
-AWS_SESSION_TOKEN     — only needed for temporary / STS credentials
-AWS_DEFAULT_REGION    — defaults to us-east-1
+AWS_SESSION_TOKEN          — only needed for temporary / STS credentials
+AWS_DEFAULT_REGION         — defaults to us-east-1
+MASTERCARD_CONSUMER_KEY    — Mastercard API app key             (fx_converter.py, card mode)
+MASTERCARD_PRIVATE_KEY_PATH — path to RSA private key PEM file  (fx_converter.py, card mode)
+WISE_API_KEY               — Wise platform API token            (fx_converter.py, transfer mode)
+
+If Mastercard or Wise credentials are absent, fx_converter falls back to ECB live rates
+(Frankfurter API) with the same fee model applied on top.
 """
 
 from __future__ import annotations
@@ -66,3 +72,16 @@ def get_aws_session_token() -> str | None:
 
 def get_aws_region() -> str:
     return os.getenv("AWS_DEFAULT_REGION") or "us-east-1"
+
+
+def get_mastercard_consumer_key() -> str:
+    return _get("MASTERCARD_CONSUMER_KEY")  # type: ignore[return-value]
+
+
+def get_mastercard_private_key_pem() -> str:
+    path = _get("MASTERCARD_PRIVATE_KEY_PATH")  # type: ignore[arg-type]
+    return Path(path).read_text()
+
+
+def get_wise_api_key() -> str:
+    return _get("WISE_API_KEY")  # type: ignore[return-value]
