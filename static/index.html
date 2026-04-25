@@ -207,6 +207,49 @@
       animation: crosshair-pulse 1.5s ease-in-out infinite;
     }
 
+    /* Voice UI */
+    .vf-voice {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .vf-voice svg { width: 52px; height: 52px; color: var(--text-dim); }
+    .rec-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 0 rgba(255,71,87,.5);
+      animation: rec-pulse 1.2s ease-in-out infinite;
+    }
+    .rec-timer {
+      font-family: var(--mono); font-size: 20px; letter-spacing: .12em;
+      color: var(--red); text-shadow: 0 0 10px rgba(255,71,87,.5);
+    }
+    @keyframes rec-pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(255,71,87,.6); }
+      70%  { box-shadow: 0 0 0 10px rgba(255,71,87,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,71,87,0); }
+    }
+
+    /* Currency picker (voice ambiguity) */
+    .ccy-picker {
+      background: var(--bg-panel); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      animation: fadeUp .3s ease forwards;
+    }
+    .ccy-picker-transcript {
+      font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+      letter-spacing: .06em; font-style: italic;
+    }
+    .ccy-picker-amount {
+      font-family: var(--mono); font-size: 22px; color: var(--amber);
+      letter-spacing: .06em;
+    }
+    .ccy-picker-label {
+      font-size: 11px; letter-spacing: .1em; color: var(--text-dim); text-transform: uppercase;
+    }
+    .ccy-picker-row { display: flex; gap: 8px; }
+    .ccy-picker-row .rf-input { flex: 1; }
+
     /* ═══ BUTTONS ═══ */
     .cta-btn {
       width: 100%; padding: 15px;
@@ -646,9 +689,16 @@ const viewfinder = document.getElementById('viewfinder');
 const scanBtn    = document.getElementById('scan-btn');
 const resultArea = document.getElementById('result-area');
 
-// 'idle' | 'live' | 'captured'
+// Camera state: 'idle' | 'live' | 'captured'
 let cameraState  = 'idle';
 let cameraStream = null;
+
+// Voice state: 'idle' | 'recording' | 'processing'
+let voiceState    = 'idle';
+let mediaRecorder = null;
+let audioChunks   = [];
+let recTimer      = null;
+let recSecs       = 0;
 
 document.querySelectorAll('.mode-tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -667,8 +717,15 @@ function applyMode(mode) {
     vfStatus.textContent = 'READY';
   } else if (mode === 'voice') {
     fileInput.setAttribute('hidden', '');
-    scanBtn.textContent = 'RECORD PRICE';
-    vfStatus.textContent = 'VOICE MODE · COMING SOON';
+    vfPreview.innerHTML = `
+      <div class="vf-voice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="9" y="2" width="6" height="12" rx="3"/>
+          <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
+        </svg>
+      </div>`;
+    vfStatus.textContent = 'READY TO RECORD';
+    scanBtn.textContent = 'START RECORDING';
   } else {
     // photo or menu — start live camera
     fileInput.setAttribute('hidden', '');
@@ -741,7 +798,8 @@ fileInput.addEventListener('change', () => {
 
 scanBtn.addEventListener('click', async () => {
   if (S.scanMode === 'voice') {
-    alert('VOICE MODE COMING SOON');
+    if (voiceState === 'idle')      startRecording();
+    else if (voiceState === 'recording') stopRecording();
     return;
   }
   if (S.scanMode === 'upload' && !S.selectedFile) {
@@ -840,12 +898,168 @@ function resetScan() {
   vfStatus.classList.remove('live');
   viewfinder.classList.remove('has-file');
   resultArea.innerHTML = '';
+  // Stop any active streams
+  clearInterval(recTimer);
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   stopCamera();
-  // Restart camera for camera modes
+  // Restart for camera modes; re-draw mic UI for voice
   if (S.scanMode === 'photo' || S.scanMode === 'menu') {
     startCamera();
+  } else if (S.scanMode === 'voice') {
+    resetVoice(true);
   } else {
     vfStatus.textContent = 'READY';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   VOICE
+══════════════════════════════════════════════════════════ */
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = ['audio/webm;codecs=opus','audio/webm','audio/mp4']
+      .find(t => MediaRecorder.isTypeSupported(t)) || 'audio/webm';
+    mediaRecorder = new MediaRecorder(stream, { mimeType });
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(audioChunks, { type: mimeType });
+      submitVoice(blob, mimeType);
+    };
+
+    mediaRecorder.start(200);
+    voiceState = 'recording';
+    recSecs = 0;
+
+    vfStatus.textContent = 'REC 00:00';
+    vfStatus.classList.add('live');
+    vfPreview.innerHTML = `
+      <div class="vf-voice">
+        <div class="rec-dot"></div>
+        <div class="rec-timer" id="rec-timer">00:00</div>
+      </div>`;
+    scanBtn.textContent = 'STOP';
+
+    recTimer = setInterval(() => {
+      recSecs++;
+      const mm = String(Math.floor(recSecs / 60)).padStart(2, '0');
+      const ss = String(recSecs % 60).padStart(2, '0');
+      const t = document.getElementById('rec-timer');
+      if (t) t.textContent = `${mm}:${ss}`;
+      vfStatus.textContent = `REC ${mm}:${ss}`;
+    }, 1000);
+
+  } catch (err) {
+    vfStatus.textContent = 'MIC UNAVAILABLE';
+    vfStatus.classList.remove('live');
+  }
+}
+
+function stopRecording() {
+  clearInterval(recTimer);
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  voiceState = 'processing';
+  vfStatus.textContent = 'READING...';
+  vfPreview.innerHTML = `<div class="vf-voice"><div style="font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.12em">ANALYSING AUDIO...</div></div>`;
+  scanBtn.textContent = 'READING...';
+  scanBtn.disabled = true;
+}
+
+async function submitVoice(blob, mimeType) {
+  const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+  const fd = new FormData();
+  fd.append('file', new File([blob], `voice.${ext}`, { type: mimeType }));
+  fd.append('payment_type', 'card');
+
+  try {
+    const res = await fetch('/api/voice', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.detail || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+
+    if (data.status === 'no_amount') {
+      resultArea.innerHTML = `
+        <div class="error-panel">⚠ NO AMOUNT DETECTED
+          ${data.transcript ? `<br><span style="opacity:.7;font-size:11px">"${esc(data.transcript)}"</span>` : ''}
+        </div>`;
+      resetVoice();
+    } else if (data.status === 'needs_currency') {
+      showCurrencyPicker(data);
+    } else {
+      if (data.transcript) {
+        resultArea.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);padding:4px 2px;letter-spacing:.06em">"${esc(data.transcript)}"</div>`;
+      }
+      renderScanResult({
+        input_amount: data.amount, input_currency: data.currency,
+        total_eur: data.total_eur, total_fees: data.total_fees,
+        source: data.source, payment_type: data.payment_type,
+      });
+      resetVoice(false); // reset controls but keep result
+    }
+  } catch (err) {
+    resultArea.innerHTML = `<div class="error-panel">⚠ SCAN FAILED<br>${esc(err.message)}</div>`;
+    resetVoice();
+  }
+}
+
+function showCurrencyPicker(data) {
+  resultArea.innerHTML = `
+    <div class="ccy-picker">
+      <div class="ccy-picker-transcript">"${esc(data.transcript || '')}"</div>
+      <div class="ccy-picker-label">DETECTED AMOUNT</div>
+      <div class="ccy-picker-amount">${esc(String(data.amount))}</div>
+      <div class="ccy-picker-label">CURRENCY NOT DETECTED — ENTER BELOW</div>
+      <div class="ccy-picker-row">
+        <input class="rf-input" id="voice-ccy" placeholder="e.g. JPY" maxlength="3"
+               style="text-transform:uppercase">
+        <button class="cta-btn" style="width:auto;padding:10px 18px;font-size:13px"
+                onclick="convertVoice(${data.amount})">CONVERT</button>
+      </div>
+    </div>`;
+  resetVoice(false);
+}
+
+async function convertVoice(amount) {
+  const ccy = (document.getElementById('voice-ccy').value || '').trim().toUpperCase();
+  if (!ccy || ccy.length !== 3) { alert('ENTER A 3-LETTER CURRENCY CODE'); return; }
+  try {
+    const res = await fetch('/api/convert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, currency: ccy, payment_type: 'card' }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const fx = await res.json();
+    renderScanResult({
+      input_amount: amount, input_currency: ccy,
+      total_eur: fx.total_eur, total_fees: fx.total_fees,
+      source: fx.source, payment_type: fx.payment_type,
+    });
+  } catch (err) {
+    alert('CONVERSION FAILED: ' + err.message);
+  }
+}
+
+function resetVoice(resetUI = true) {
+  voiceState = 'idle';
+  scanBtn.disabled = false;
+  scanBtn.textContent = 'START RECORDING';
+  if (resetUI) {
+    vfStatus.textContent = 'READY TO RECORD';
+    vfStatus.classList.remove('live');
+    vfPreview.innerHTML = `
+      <div class="vf-voice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="9" y="2" width="6" height="12" rx="3"/>
+          <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
+        </svg>
+      </div>`;
+    resultArea.innerHTML = '';
   }
 }
 

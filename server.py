@@ -187,6 +187,121 @@ async def menu(
         tmp_path.unlink(missing_ok=True)
 
 
+# ── Voice ─────────────────────────────────────────────────────────────────────
+
+@app.post("/api/voice")
+async def voice(
+    file: UploadFile = File(...),
+    payment_type: str = Form("card"),
+):
+    """Transcribe speech → extract amount/currency → convert to EUR.
+
+    Returns status="success" with FX data, "needs_currency" if currency was
+    not detected (frontend should call /api/convert with user-supplied currency),
+    or "no_amount" if nothing was found.
+    """
+    data = await file.read()
+    suffix = Path(file.filename or "audio.webm").suffix or ".webm"
+
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(data)
+        tmp_path = Path(tmp.name)
+
+    try:
+        from api_keys import get_aws_region
+        from auto_voice_to_eur_aws import (
+            download_transcript_text, extract_money_with_bedrock,
+            get_language_metadata, start_transcribe_job,
+            upload_to_s3, wait_for_transcribe_job,
+        )
+        from fx_converter import convert_to_eur
+
+        bucket = hyperparams.AWS_S3_BUCKET
+        if not bucket:
+            raise HTTPException(503, detail="AWS_S3_BUCKET not configured in hyperparams.py")
+
+        region = get_aws_region()
+        uid = uuid.uuid4().hex
+        ext = suffix.lstrip(".")
+        s3_key = f"{hyperparams.AWS_S3_PREFIX.rstrip('/')}/voice_{uid}.{ext}"
+        job_name = f"voice-{uid}"
+
+        media_uri = upload_to_s3(tmp_path, bucket, s3_key, region)
+        start_transcribe_job(
+            media_uri=media_uri, region=region, job_name=job_name,
+            language_options=hyperparams.TRANSCRIBE_LANGUAGE_OPTIONS or None,
+            identify_multiple_languages=hyperparams.TRANSCRIBE_MULTI_LANGUAGE,
+        )
+        job = wait_for_transcribe_job(job_name, region)
+        transcript = download_transcript_text(job["Transcript"]["TranscriptFileUri"])
+        money = extract_money_with_bedrock(
+            transcript=transcript, region=region,
+            model_id=hyperparams.AWS_BEDROCK_MODEL_ID,
+        )
+
+        amount = money.get("amount")
+        currency = money.get("currency")
+
+        base = {
+            "transcript": transcript,
+            "amount": amount,
+            "currency": currency,
+            "confidence": money.get("confidence"),
+            **get_language_metadata(job),
+        }
+
+        if amount is None:
+            return {**base, "status": "no_amount"}
+        if not currency:
+            return {**base, "status": "needs_currency"}
+
+        fx_list = convert_to_eur([(float(amount), str(currency).upper())], payment_type=payment_type)
+        fx = fx_list[0]
+        return {
+            **base,
+            "status":       "success",
+            "total_eur":    fx.total_eur,
+            "total_fees":   fx.total_fees,
+            "source":       fx.source,
+            "payment_type": fx.payment_type,
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(500, detail=str(exc))
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+
+# ── Direct FX conversion (used by voice currency-picker) ──────────────────────
+
+class ConvertRequest(BaseModel):
+    amount: float
+    currency: str
+    payment_type: str = "card"
+
+
+@app.post("/api/convert")
+async def convert(body: ConvertRequest):
+    """Convert a known amount+currency to EUR. Used when voice detected an amount
+    but not the currency — the frontend asks the user then calls this endpoint."""
+    try:
+        from fx_converter import convert_to_eur
+        fx_list = convert_to_eur(
+            [(body.amount, body.currency.upper().strip())],
+            payment_type=body.payment_type,
+        )
+        fx = fx_list[0]
+        return {
+            "total_eur":    fx.total_eur,
+            "total_fees":   fx.total_fees,
+            "source":       fx.source,
+            "payment_type": fx.payment_type,
+        }
+    except Exception as exc:
+        raise HTTPException(500, detail=str(exc))
+
+
 # ── Trips CRUD ────────────────────────────────────────────────────────────────
 
 class TripCreate(BaseModel):
