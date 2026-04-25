@@ -503,15 +503,8 @@
       font-size: 12px; font-weight: 700; letter-spacing: .08em;
       color: var(--text-sec); text-transform: uppercase;
     }
-    .events-list {
-      display: flex; flex-direction: column;
-      max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    }
-    .events-list::-webkit-scrollbar { display: none; }
-    #recs-list {
-      max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    }
-    #recs-list::-webkit-scrollbar { display: none; }
+    .events-list { display: flex; flex-direction: column; }
+    #recs-list    { display: flex; flex-direction: column; }
     .event-card {
       display: flex; gap: 12px; align-items: center;
       padding: 12px 16px; border-bottom: 1px solid var(--border);
@@ -728,6 +721,20 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ══════════ SCREEN: TRIPS ══════════ -->
+  <div id="screen-trips" class="screen">
+    <div class="section-lbl">// ACTIVE JOURNEYS</div>
+    <div class="trip-list" id="trip-list"></div>
+    <button class="new-mission-btn" id="new-mission-btn">+ NEW JOURNEY</button>
+    <div id="trip-form-wrap"></div>
+  </div>
+
+  <!-- ══════════ SCREEN: EXPLORE ══════════ -->
+  <div id="screen-explore" class="screen">
+    <div class="section-lbl">// EXPLORE</div>
+
     <div class="recs-section">
       <div class="recs-hdr">
         <div class="recs-hdr-left">
@@ -777,6 +784,13 @@
       </svg>
       Journey
     </button>
+    <button class="nav-tab" data-screen="explore">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/>
+      </svg>
+      EXPLORE
+    </button>
     <button class="nav-tab" data-screen="trips">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M3 17l9-13 9 13H3z"/>
@@ -818,6 +832,7 @@ function showScreen(name) {
   );
   if (name === 'dashboard') loadDashboard();
   if (name === 'trips')     loadTrips();
+  if (name === 'explore')   loadExplore();
   if (name === 'scanner' && (S.scanMode === 'photo' || S.scanMode === 'menu') && cameraState === 'idle') {
     startCamera();
   }
@@ -1401,6 +1416,19 @@ async function applyDashCurrency(useDestCcy) {
   renderPayments(converted, destCcy);
 }
 
+async function fetchRecsGeoHint() {
+  try {
+    const res = await fetch('/api/geo');
+    if (!res.ok) return;
+    const d = await res.json();
+    const el = document.getElementById('recs-geo-note');
+    if (!el) return;
+    const loc = [d.city, d.country_name].filter(Boolean).join(', ');
+    if (loc) { el.textContent = `loc: ${loc}`; el.style.display = ''; }
+    else if (d.country_name) { el.textContent = `loc: ${d.country_name}`; el.style.display = ''; }
+  } catch { /* silent */ }
+}
+
 async function fetchDestRate(destCcy) {
   try {
     const res = await fetch('/api/convert', {
@@ -1448,6 +1476,10 @@ document.getElementById('refresh-btn').addEventListener('click', function () {
   setTimeout(() => this.classList.remove('spin'), 550);
   loadDashboard();
 });
+
+function loadExplore() {
+  fetchRecsGeoHint();
+}
 
 document.getElementById('recs-refresh-btn').addEventListener('click', function () {
   this.classList.add('spin');
