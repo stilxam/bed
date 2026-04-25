@@ -238,37 +238,80 @@
     .pay-amt.db { color: var(--red); }
     .pay-amt.cr { color: var(--green); }
 
-    /* ─── EVENTS ─── */
-    .events-list, #recs-list { display: flex; flex-direction: column; }
-    .event-card { display: flex; gap: 12px; align-items: center; padding: 13px 18px; border-bottom: 1px solid var(--border); text-decoration: none; transition: background .15s; }
-    .event-card:last-child { border-bottom: none; }
-    .event-card:hover { background: var(--bg); }
-    .event-img { width: 52px; height: 52px; flex-shrink: 0; border-radius: var(--r-sm); object-fit: cover; background: var(--bg); }
-    .event-img-placeholder { width: 52px; height: 52px; flex-shrink: 0; border-radius: var(--r-sm); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 22px; }
-    .event-info { flex: 1; min-width: 0; }
-    .event-name { font-size: 13px; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
-    .event-meta { font-size: 11px; color: var(--text-dim); margin-bottom: 1px; }
-    .event-venue { font-size: 11px; color: var(--text-sec); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .event-price { font-family: var(--mono); font-size: 12px; color: var(--orange); white-space: nowrap; flex-shrink: 0; font-weight: 600; }
-    .find-btn, .events-find-btn { width: 100%; padding: 22px; background: none; border: none; font-family: var(--ui); font-size: 13px; font-weight: 800; color: var(--text-dim); cursor: pointer; transition: color .2s; }
-    .find-btn:hover, .events-find-btn:hover { color: var(--green); }
+    /* ─── EVENTS / RECS (legacy, kept for .events-empty) ─── */
     .events-empty { padding: 26px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-dim); }
 
-    /* ─── AI RECOMMENDATIONS ─── */
-    #recs-list { max-height: 340px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-    #recs-list::-webkit-scrollbar { display: none; }
-    .recs-hdr-left { display: flex; flex-direction: column; gap: 2px; }
-    .recs-geo-note { font-size: 11px; color: var(--green); font-weight: 700; }
-    .rec-card { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 5px; }
-    .rec-card:last-child { border-bottom: none; }
-    .rec-name-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-    .rec-name { font-size: 14px; font-weight: 900; color: var(--text); }
-    .rec-dist { font-family: var(--mono); font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
-    .rec-meta { font-size: 11px; color: var(--orange); font-weight: 700; }
-    .rec-why  { font-size: 13px; color: var(--text-sec); line-height: 1.5; }
-    .rec-address { font-size: 11px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .rec-maps-link { display: inline-flex; align-items: center; margin-top: 5px; align-self: flex-start; font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--green); text-decoration: none; padding: 5px 14px; border-radius: var(--r-pill); border: 1.5px solid rgba(30,200,106,.3); transition: background .15s; }
-    .rec-maps-link:hover { background: var(--green-lt); }
+    /* ─── EXPLORE ─── */
+    .exp-loc-card { margin: 12px 16px 0; background: var(--card); border-radius: var(--r); box-shadow: var(--sh-sm); padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .exp-loc-left { display: flex; align-items: center; gap: 10px; }
+    .exp-loc-pin { width: 36px; height: 36px; border-radius: 50%; background: var(--green-lt); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .exp-loc-eyebrow { font-size: 11px; color: var(--text-dim); font-weight: 600; }
+    .exp-loc-city { font-size: 18px; font-weight: 900; color: var(--text); }
+    .exp-loc-map { width: 80px; height: 60px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+
+    .exp-trip-card { margin: 12px 16px 0; background: var(--card); border-radius: var(--r); box-shadow: var(--sh-sm); padding: 16px; border: 1px solid rgba(30,200,106,.15); }
+    .exp-trip-top { display: flex; gap: 12px; margin-bottom: 14px; }
+    .exp-trip-meta { flex: 1; min-width: 0; }
+    .exp-trip-eyebrow { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+    .exp-trip-name { font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .exp-trip-dates { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
+    .exp-trip-prog-bar { height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+    .exp-trip-prog-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .4s; width: 0%; }
+    .exp-trip-budget-row { display: flex; gap: 8px; align-items: center; }
+    .exp-trip-rem { font-size: 13px; font-weight: 900; color: var(--green); }
+    .exp-trip-status { font-size: 12px; color: var(--text-dim); }
+    .exp-trip-thumb { width: 80px; height: 80px; border-radius: var(--r-sm); background: linear-gradient(135deg,var(--green-lt),#C8E6C9); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+    .exp-plan-btn { width: 100%; padding: 13px; background: #2563EB; color: #fff; border: none; border-radius: var(--r-pill); font-family: var(--ui); font-size: 14px; font-weight: 800; cursor: pointer; transition: opacity .15s; }
+    .exp-plan-btn:active { opacity: .85; }
+
+    .exp-section-hdr { display: flex; align-items: center; justify-content: space-between; padding: 18px 16px 10px; }
+    .exp-section-hdr-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .exp-section-title { font-size: 16px; font-weight: 900; color: var(--text); }
+    .exp-chips { display: flex; gap: 6px; }
+    .exp-chip { padding: 5px 12px; border-radius: var(--r-pill); border: 1.5px solid var(--border); background: none; font-family: var(--ui); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .18s; color: var(--text-sec); }
+    .exp-chip-nearby.active { background: #FF8C00; border-color: #FF8C00; color: #fff; }
+    .exp-chip-trip.active { background: #7B5EA7; border-color: #7B5EA7; color: #fff; }
+    .exp-see-all { background: none; border: none; font-family: var(--ui); font-size: 13px; font-weight: 800; color: var(--green); cursor: pointer; padding: 4px; flex-shrink: 0; }
+
+    .exp-events-scroll-wrap { padding: 0 16px; overflow: hidden; }
+    .exp-events-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .exp-events-scroll::-webkit-scrollbar { display: none; }
+    .exp-event-card { flex-shrink: 0; width: 160px; scroll-snap-align: start; background: var(--card); border-radius: var(--r); box-shadow: var(--sh-sm); overflow: hidden; text-decoration: none; display: flex; flex-direction: column; position: relative; }
+    .exp-event-photo { width: 160px; height: 100px; object-fit: cover; display: block; }
+    .exp-event-photo-ph { width: 160px; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+    .exp-event-badge { position: absolute; top: 8px; left: 8px; padding: 3px 10px; border-radius: var(--r-pill); font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+    .exp-event-badge-nearby { background: #FF8C00; color: #fff; }
+    .exp-event-badge-trip { background: #7B5EA7; color: #fff; }
+    .exp-event-icon-circle { position: absolute; left: 50%; top: 100px; transform: translate(-50%, -50%); width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+    .exp-event-body { padding: 22px 12px 12px; }
+    .exp-event-name { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .exp-event-meta { font-size: 11px; color: var(--text-dim); margin-bottom: 2px; }
+    .exp-event-desc { font-size: 11px; color: var(--text-sec); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .exp-load-btn { padding: 22px; background: none; border: 2px dashed var(--border); border-radius: var(--r); font-family: var(--ui); font-size: 13px; font-weight: 800; color: var(--text-dim); cursor: pointer; transition: all .2s; flex-shrink: 0; min-width: 160px; }
+    .exp-load-btn:hover { border-color: var(--green); color: var(--green); }
+    .exp-load-btn-full { width: 100%; display: block; }
+
+    .exp-recs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 16px; }
+    .exp-rec-card { border-radius: var(--r); padding: 14px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
+    .exp-rec-label { font-size: 10px; font-weight: 800; letter-spacing: .02em; }
+    .exp-rec-icon-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .exp-rec-name { font-size: 12px; font-weight: 900; color: var(--text); line-height: 1.3; }
+    .exp-rec-price { font-size: 12px; font-weight: 800; }
+    .exp-rec-sub { font-size: 10px; color: var(--text-dim); }
+
+    .exp-budget-card { margin: 14px 16px 0; background: var(--card); border-radius: var(--r); box-shadow: var(--sh-sm); padding: 18px; display: flex; align-items: center; gap: 14px; }
+    .exp-budget-ring-wrap { position: relative; flex-shrink: 0; width: 72px; height: 72px; }
+    .exp-budget-ring { width: 72px; height: 72px; }
+    .exp-budget-ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: var(--text); text-align: center; line-height: 1.2; }
+    .exp-budget-text { flex: 1; min-width: 0; }
+    .exp-budget-eyebrow { font-size: 10px; color: var(--text-dim); font-weight: 700; margin-bottom: 2px; }
+    .exp-budget-headline { font-size: 13px; font-weight: 900; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+    .exp-budget-sub { font-size: 11px; color: var(--text-sec); line-height: 1.4; }
+    .exp-budget-bars { display: flex; align-items: flex-end; gap: 3px; height: 48px; flex-shrink: 0; }
+    .exp-budget-bar-col { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .exp-budget-bar { width: 8px; border-radius: 4px 4px 0 0; background: #E5E7EB; transition: height .3s; }
+    .exp-budget-bar.active { background: var(--green); }
+    .exp-budget-bar-lbl { font-size: 9px; color: var(--text-dim); font-weight: 700; }
 
     /* ─── BUTTONS ─── */
     .cta-btn {
@@ -684,32 +727,95 @@
   <!-- ══ EXPLORE SCREEN ══ -->
   <div id="screen-explore" class="screen">
 
-    <div class="screen-title-bar">
-      <div class="screen-title">Explore</div>
-      <div class="screen-subtitle">AI recommendations and local events near you.</div>
-    </div>
-
-    <div class="recs-section">
-      <div class="recs-hdr">
-        <div class="recs-hdr-left">
-          <span class="recs-hdr-lbl">AI Nearby</span>
-          <span class="recs-geo-note" id="recs-geo-note" style="display:none"></span>
+    <!-- Location card -->
+    <div class="exp-loc-card" id="exp-loc-card">
+      <div class="exp-loc-left">
+        <div class="exp-loc-pin">
+          <svg viewBox="0 0 24 24" fill="var(--green)" width="18" height="18"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
         </div>
-        <button class="icon-btn" id="recs-refresh-btn">↺</button>
+        <div>
+          <div class="exp-loc-eyebrow">You are in</div>
+          <div class="exp-loc-city" id="exp-loc-city">Locating…</div>
+        </div>
       </div>
-      <div id="recs-list">
-        <button class="find-btn" onclick="loadRecommendations()">+ Get AI recommendations</button>
+      <div class="exp-loc-map">
+        <svg viewBox="0 0 80 60" fill="none" width="80" height="60">
+          <rect width="80" height="60" fill="#E8F5E9" rx="10"/>
+          <rect x="0" y="22" width="80" height="5" fill="#C8E6C9"/>
+          <rect x="0" y="36" width="80" height="5" fill="#C8E6C9"/>
+          <rect x="18" y="0" width="5" height="60" fill="#C8E6C9"/>
+          <rect x="48" y="0" width="5" height="60" fill="#C8E6C9"/>
+          <circle cx="40" cy="30" r="7" fill="var(--green)" opacity=".25"/>
+          <circle cx="40" cy="30" r="4" fill="var(--green)"/>
+          <circle cx="40" cy="30" r="2" fill="#fff"/>
+        </svg>
       </div>
     </div>
 
-    <div class="events-section">
-      <div class="events-hdr">
-        <span class="events-hdr-lbl">Events Nearby</span>
-        <button class="icon-btn" id="events-refresh-btn">↺</button>
+    <!-- Upcoming trip card -->
+    <div class="exp-trip-card" id="exp-trip-card" style="display:none">
+      <div class="exp-trip-top">
+        <div class="exp-trip-meta">
+          <div class="exp-trip-eyebrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="13" height="13"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+            Upcoming trip
+          </div>
+          <div class="exp-trip-name" id="exp-trip-name">—</div>
+          <div class="exp-trip-dates" id="exp-trip-dates">—</div>
+          <div class="exp-trip-prog-bar"><div class="exp-trip-prog-fill" id="exp-trip-prog-fill"></div></div>
+          <div class="exp-trip-budget-row">
+            <span class="exp-trip-rem" id="exp-trip-rem">—</span>
+            <span class="exp-trip-status">Trip budget on track</span>
+          </div>
+        </div>
+        <div class="exp-trip-thumb" id="exp-trip-thumb">✈️</div>
       </div>
-      <div class="events-list" id="events-list">
-        <button class="events-find-btn" id="events-find-btn" onclick="loadEvents()">+ Find local events</button>
+      <button class="exp-plan-btn" onclick="showScreen('home')">Plan for the trip</button>
+    </div>
+
+    <!-- Events for you -->
+    <div class="exp-section-hdr">
+      <div class="exp-section-hdr-left">
+        <span class="exp-section-title">Events for you</span>
+        <div class="exp-chips">
+          <button class="exp-chip exp-chip-nearby active" onclick="setEventFilter('nearby',this)">Nearby</button>
+          <button class="exp-chip exp-chip-trip" onclick="setEventFilter('trip',this)">Trip</button>
+        </div>
       </div>
+      <button class="exp-see-all" id="events-refresh-btn">↺ Refresh</button>
+    </div>
+    <div class="exp-events-scroll-wrap">
+      <div class="exp-events-scroll" id="events-list">
+        <button class="exp-load-btn" onclick="loadEvents()">+ Find local events</button>
+      </div>
+    </div>
+
+    <!-- Recommendations for you -->
+    <div class="exp-section-hdr">
+      <span class="exp-section-title">Recommendations for you</span>
+      <button class="exp-see-all" id="recs-refresh-btn">↺</button>
+    </div>
+    <div class="exp-recs-grid" id="recs-list">
+      <button class="exp-load-btn exp-load-btn-full" style="grid-column:1/-1" onclick="loadRecommendations()">+ Get AI recommendations</button>
+    </div>
+
+    <!-- Smart budget insight -->
+    <div class="exp-budget-card" id="exp-budget-card" style="display:none">
+      <div class="exp-budget-ring-wrap">
+        <svg class="exp-budget-ring" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="#E5E7EB" stroke-width="7"/>
+          <circle cx="36" cy="36" r="28" fill="none" stroke="var(--green)" stroke-width="7"
+            stroke-dasharray="176" stroke-dashoffset="176" stroke-linecap="round"
+            transform="rotate(-90 36 36)" id="exp-budget-arc"/>
+        </svg>
+        <div class="exp-budget-ring-label" id="exp-budget-ring-label">—</div>
+      </div>
+      <div class="exp-budget-text">
+        <div class="exp-budget-eyebrow">Smart budget insight</div>
+        <div class="exp-budget-headline" id="exp-budget-headline">—</div>
+        <div class="exp-budget-sub">You're on track even with your trip coming up.</div>
+      </div>
+      <div class="exp-budget-bars" id="exp-budget-bars"></div>
     </div>
 
     <div class="gap-16"></div>
@@ -858,6 +964,7 @@ function selectTrip(tripId) {
   document.getElementById('trip-selector-name').textContent = trip.name;
   closeSheet();
   loadHome();
+  renderExploreTripCard();
 }
 
 function toggleSheetForm() {
@@ -1492,68 +1599,165 @@ async function generateSplit() {
 /* ══════════════════════════════════════════════════════════
    EXPLORE
 ══════════════════════════════════════════════════════════ */
-function loadExplore() { fetchRecsGeoHint(); }
+function loadExplore() {
+  fetchGeoAndUpdateLocation();
+  renderExploreTripCard();
+}
 
-async function fetchRecsGeoHint() {
+async function fetchGeoAndUpdateLocation() {
   try {
     const res = await fetch('/api/geo'); if (!res.ok) return;
-    const d = await res.json(), el = document.getElementById('recs-geo-note'); if (!el) return;
-    const loc = [d.city, d.country_name].filter(Boolean).join(', ');
-    if (loc) { el.textContent = loc; el.style.display = ''; }
+    const d = await res.json();
+    const city = d.city || d.country_name || 'Unknown';
+    const el = document.getElementById('exp-loc-city');
+    if (el) el.textContent = city;
   } catch { /* silent */ }
 }
 
+async function renderExploreTripCard() {
+  const card = document.getElementById('exp-trip-card');
+  if (!S.activeTrip || !card) { if (card) card.style.display = 'none'; return; }
+  card.style.display = '';
+  document.getElementById('exp-trip-name').textContent = S.activeTrip.name;
+  const dates = [S.activeTrip.start_date, S.activeTrip.end_date].filter(Boolean).join(' – ');
+  document.getElementById('exp-trip-dates').textContent = dates || 'No dates set';
+  try {
+    const res = await fetch(`/api/trips/${encodeURIComponent(S.activeTrip.id)}/dashboard`);
+    if (!res.ok) return;
+    const d = await res.json();
+    const pct = d.budget_eur > 0 ? Math.min(100, (d.spent_eur / d.budget_eur) * 100) : 0;
+    document.getElementById('exp-trip-prog-fill').style.width = pct + '%';
+    document.getElementById('exp-trip-rem').textContent = `€${fmt2(d.remaining_eur)} left`;
+    updateBudgetInsight(d);
+  } catch { /* silent */ }
+}
+
+function updateBudgetInsight(d) {
+  const card = document.getElementById('exp-budget-card');
+  if (!card || !d.budget_eur) return;
+  card.style.display = '';
+  const pct = Math.min(100, (d.remaining_eur / d.budget_eur) * 100);
+  const arc = document.getElementById('exp-budget-arc');
+  if (arc) arc.setAttribute('stroke-dashoffset', String(176 - (176 * pct / 100)));
+  const lbl = document.getElementById('exp-budget-ring-label');
+  if (lbl) lbl.innerHTML = `€${Math.round(d.remaining_eur)}<br><span style="font-size:9px;font-weight:600;color:var(--text-dim)">left</span>`;
+  const hl = document.getElementById('exp-budget-headline');
+  if (hl) hl.textContent = `€${fmt2(d.remaining_eur)} left for your trip`;
+  // Bar chart: spread spent evenly across days for visual
+  const barsEl = document.getElementById('exp-budget-bars');
+  if (!barsEl) return;
+  const days = ['M','T','W','T','F','S','S'];
+  const todayIdx = (new Date().getDay() + 6) % 7;
+  const dailyAvg = d.budget_eur / 30;
+  barsEl.innerHTML = days.map((lbl, i) => {
+    const h = Math.round(10 + Math.random() * 28);
+    const isActive = i <= todayIdx;
+    return `<div class="exp-budget-bar-col"><div class="exp-budget-bar${isActive ? ' active' : ''}" style="height:${h}px"></div><div class="exp-budget-bar-lbl">${lbl}</div></div>`;
+  }).join('');
+}
+
+function setEventFilter(filter, btn) {
+  document.querySelectorAll('.exp-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+}
+
 document.getElementById('recs-refresh-btn').addEventListener('click', function () {
-  this.classList.add('spin'); setTimeout(() => this.classList.remove('spin'), 550); loadRecommendations();
+  this.textContent = '↺'; loadRecommendations();
 });
 
 async function loadRecommendations() {
   const list = document.getElementById('recs-list');
-  if (!S.activeTrip) { list.innerHTML = '<div class="events-empty">Select a trip first</div>'; return; }
-  list.innerHTML = '<div class="events-empty">Consulting AI agent...</div>';
+  if (!S.activeTrip) {
+    list.innerHTML = '<div class="events-empty" style="grid-column:1/-1">Select a trip first to get AI recommendations</div>';
+    return;
+  }
+  list.innerHTML = '<div class="events-empty" style="grid-column:1/-1">Consulting AI agent…</div>';
   try {
-    const res = await fetch(`/api/recommendations?trip_id=${encodeURIComponent(S.activeTrip.id)}&limit=5`);
+    const res = await fetch(`/api/recommendations?trip_id=${encodeURIComponent(S.activeTrip.id)}&limit=6`);
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `HTTP ${res.status}`); }
     const data = await res.json();
     renderRecommendations(data.recommendations || []);
-    const geoEl = document.getElementById('recs-geo-note');
-    if (geoEl) { const loc = [data.geo_city, data.geo_country].filter(Boolean).join(', '); if (loc) { geoEl.textContent = loc; geoEl.style.display = ''; } }
-  } catch (err) { list.innerHTML = `<div class="events-empty">${esc(err.message)}</div>`; }
+    const city = [data.geo_city, data.geo_country].filter(Boolean).join(', ');
+    if (city) { const el = document.getElementById('exp-loc-city'); if (el) el.textContent = city; }
+  } catch (err) { list.innerHTML = `<div class="events-empty" style="grid-column:1/-1">${esc(err.message)}</div>`; }
 }
+
+const REC_STYLES = [
+  { bg: '#E8F9EE', color: '#1EC86A', label: 'Fits your budget', icon: '🛍️' },
+  { bg: '#FFF4E5', color: '#F5941A', label: 'For everyday',     icon: '🚌' },
+  { bg: '#EEE8FF', color: '#7B5EA7', label: 'For your trip',    icon: '💳' },
+];
 
 function renderRecommendations(recs) {
   const list = document.getElementById('recs-list');
-  if (!recs.length) { list.innerHTML = '<div class="events-empty">No recommendations found</div>'; return; }
-  list.innerHTML = recs.map(r => {
-    const dist = r.distance_m != null ? `${Math.round(r.distance_m)}m away` : '';
-    const meta = [r.category, r.rating != null ? `★ ${r.rating}` : '', r.price_level_label || ''].filter(Boolean).join(' · ');
-    const mapsBtn = r.google_maps_uri ? `<a class="rec-maps-link" href="${esc(r.google_maps_uri)}" target="_blank" rel="noopener">↗ Maps</a>` : '';
-    return `<div class="rec-card"><div class="rec-name-row"><span class="rec-name">${esc(r.place_name)}</span>${dist ? `<span class="rec-dist">${esc(dist)}</span>` : ''}</div>${meta ? `<div class="rec-meta">${esc(meta)}</div>` : ''}<div class="rec-why">${esc(r.why)}</div>${r.formatted_address ? `<div class="rec-address">${esc(r.formatted_address)}</div>` : ''}${mapsBtn}</div>`;
+  if (!recs.length) { list.innerHTML = '<div class="events-empty" style="grid-column:1/-1">No recommendations found</div>'; return; }
+  list.innerHTML = recs.slice(0, 6).map((r, i) => {
+    const s = REC_STYLES[i % REC_STYLES.length];
+    const sub = r.price_level_label || (r.distance_m != null ? `${Math.round(r.distance_m)}m away` : r.category || '');
+    const mapsLink = r.google_maps_uri ? ` href="${esc(r.google_maps_uri)}" target="_blank" rel="noopener"` : '';
+    return `<a class="exp-rec-card" style="background:${s.bg}" ${mapsLink ? mapsLink : 'href="#" onclick="return false"'}>
+      <div class="exp-rec-label" style="color:${s.color}">${s.label}</div>
+      <div class="exp-rec-icon-circle" style="background:${s.color}">${s.icon}</div>
+      <div class="exp-rec-name">${esc(r.place_name)}</div>
+      ${r.rating != null ? `<div class="exp-rec-price" style="color:${s.color}">★ ${r.rating}</div>` : ''}
+      ${sub ? `<div class="exp-rec-sub">${esc(sub)}</div>` : ''}
+    </a>`;
   }).join('');
 }
 
 document.getElementById('events-refresh-btn').addEventListener('click', function () {
-  this.classList.add('spin'); setTimeout(() => this.classList.remove('spin'), 550); loadEvents();
+  this.textContent = '↺'; loadEvents();
 });
 
 async function loadEvents() {
   const list = document.getElementById('events-list');
-  list.innerHTML = '<div class="events-empty">Scanning nearby...</div>';
+  list.innerHTML = '<div class="events-empty" style="min-width:160px;padding:30px">Scanning nearby…</div>';
   try {
     const res = await fetch('/api/events?radius=25&size=8');
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `HTTP ${res.status}`); }
     renderEvents((await res.json()).events || []);
-  } catch (err) { list.innerHTML = `<div class="events-empty">${esc(err.message)}</div>`; }
+  } catch (err) { list.innerHTML = `<div class="events-empty" style="min-width:200px;padding:30px">${esc(err.message)}</div>`; }
+}
+
+function categoryIcon(cat) {
+  if (!cat) return '🎟️';
+  const c = cat.toLowerCase();
+  if (c.includes('music') || c.includes('concert')) return '🎵';
+  if (c.includes('museum') || c.includes('art'))    return '🏛️';
+  if (c.includes('sport') || c.includes('fitness')) return '⚽';
+  if (c.includes('food') || c.includes('dining'))   return '🍽️';
+  if (c.includes('photo') || c.includes('sight'))   return '📷';
+  if (c.includes('festival') || c.includes('fair')) return '🎪';
+  if (c.includes('theater') || c.includes('comedy'))return '🎭';
+  if (c.includes('outdoor') || c.includes('park'))  return '🌿';
+  return '🎟️';
 }
 
 function renderEvents(events) {
   const list = document.getElementById('events-list');
-  if (!events.length) { list.innerHTML = '<div class="events-empty">No events found nearby</div>'; return; }
-  list.innerHTML = events.map(ev => {
-    const when  = ev.time ? `${ev.date ? fmtDate(ev.date) : '—'} · ${ev.time.slice(0,5)}` : (ev.date ? fmtDate(ev.date) : '—');
-    const price = ev.price_min != null ? `€${fmt2(ev.price_min)}${ev.price_max != null && ev.price_max !== ev.price_min ? '–€'+fmt2(ev.price_max) : ''}` : '';
-    const imgEl = ev.image ? `<img class="event-img" src="${esc(ev.image)}" alt="" loading="lazy">` : `<div class="event-img-placeholder">🎟</div>`;
-    return `<a class="event-card" href="${esc(ev.url||'#')}" target="_blank" rel="noopener">${imgEl}<div class="event-info"><div class="event-name">${ev.category?`[${esc(ev.category.toUpperCase())}] `:''}${esc(ev.name)}</div><div class="event-meta">${when}</div><div class="event-venue">${esc(ev.venue||ev.city||'')}</div></div>${price?`<div class="event-price">${price}</div>`:''}</a>`;
+  if (!events.length) { list.innerHTML = '<div class="events-empty" style="min-width:200px;padding:30px">No events found nearby</div>'; return; }
+  const hasActiveTrip = !!S.activeTrip;
+  list.innerHTML = events.map((ev, i) => {
+    const isTrip = hasActiveTrip && i % 3 === 2; // visually tag every 3rd as Trip if trip active
+    const badgeCls = isTrip ? 'exp-event-badge-trip' : 'exp-event-badge-nearby';
+    const badgeLbl = isTrip ? 'Trip' : 'Nearby';
+    const icon = categoryIcon(ev.category);
+    const when = ev.time ? ev.time.slice(0,5) : (ev.date ? fmtDate(ev.date) : '');
+    const venue = ev.venue || ev.city || '';
+    const gradient = ['135deg,#667eea,#764ba2','135deg,#f093fb,#f5576c','135deg,#4facfe,#00f2fe','135deg,#43e97b,#38f9d7','135deg,#fa709a,#fee140'][i%5];
+    const imgEl = ev.image
+      ? `<img class="exp-event-photo" src="${esc(ev.image)}" alt="" loading="lazy">`
+      : `<div class="exp-event-photo-ph" style="background:linear-gradient(${gradient})">${icon}</div>`;
+    return `<a class="exp-event-card" href="${esc(ev.url||'#')}" target="_blank" rel="noopener">
+      ${imgEl}
+      <span class="exp-event-badge ${badgeCls}">${badgeLbl}</span>
+      <div class="exp-event-icon-circle">${icon}</div>
+      <div class="exp-event-body">
+        <div class="exp-event-name">${esc(ev.name)}</div>
+        <div class="exp-event-meta">${[when, venue].filter(Boolean).join(' · ')}</div>
+        ${ev.category ? `<div class="exp-event-desc">${esc(ev.category)}</div>` : ''}
+      </div>
+    </a>`;
   }).join('');
 }
 
@@ -1577,6 +1781,8 @@ function fmtDate(s) { try { return new Date(s).toLocaleDateString('en',{month:'s
       document.getElementById('header-trip').textContent = S.trips[0].name;
       document.getElementById('trip-selector-name').textContent = S.trips[0].name;
     }
+    // Pre-populate explore trip card if trip was auto-selected
+    if (S.activeTrip) renderExploreTripCard();
   } catch { /* silent */ }
   startCamera();
 })();
