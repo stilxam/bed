@@ -743,8 +743,7 @@ async function startCamera() {
     cameraVideo.srcObject = cameraStream;
     cameraVideo.classList.add('live');
     cameraState = 'live';
-    vfStatus.textContent = 'LIVE';
-    vfStatus.classList.add('live');
+    vfStatus.textContent = '';
     scanBtn.textContent = S.scanMode === 'menu' ? 'CAPTURE MENU' : 'CAPTURE';
   } catch (err) {
     // Camera denied or unavailable — fall back to file picker
