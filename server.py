@@ -403,6 +403,83 @@ async def trip_dashboard(trip_id: str):
     }
 
 
+# ── Events (Ticketmaster) ─────────────────────────────────────────────────────
+
+@app.get("/api/events")
+async def events_nearby(radius: int = 20, size: int = 8):
+    """Return upcoming events near the user's IP-detected location."""
+    try:
+        import requests as _req
+        from api_keys import get_ticketmaster_api_key
+
+        api_key = get_ticketmaster_api_key()
+
+        lat, lon = None, None
+        try:
+            from geo1 import detect_location, geo_from_location_result
+            loc = detect_location()
+            if loc:
+                geo = geo_from_location_result(loc)
+                lat, lon = geo.latitude, geo.longitude
+        except Exception:
+            pass
+
+        if lat is None or lon is None:
+            raise HTTPException(503, detail="Could not determine location for events")
+
+        params = {
+            "apikey": api_key,
+            "latlong": f"{lat},{lon}",
+            "radius": radius,
+            "unit": "km",
+            "sort": "date,asc",
+            "size": size,
+            "locale": "*",
+        }
+        resp = _req.get(
+            "https://app.ticketmaster.com/discovery/v2/events.json",
+            params=params,
+            timeout=12,
+        )
+        resp.raise_for_status()
+        raw = resp.json().get("_embedded", {}).get("events", [])
+
+        events = []
+        for ev in raw:
+            dates = ev.get("dates", {})
+            start = dates.get("start", {})
+            venues = ev.get("_embedded", {}).get("venues", [{}])
+            venue = venues[0] if venues else {}
+            images = ev.get("images", [])
+            img = next(
+                (i["url"] for i in images if i.get("ratio") == "16_9" and i.get("width", 0) >= 640),
+                images[0]["url"] if images else None,
+            )
+            classifications = ev.get("classifications", [{}])
+            segment = classifications[0].get("segment", {}).get("name", "") if classifications else ""
+            price_ranges = ev.get("priceRanges", [])
+            events.append({
+                "id":        ev.get("id", ""),
+                "name":      ev.get("name", ""),
+                "date":      start.get("localDate", ""),
+                "time":      start.get("localTime", ""),
+                "venue":     venue.get("name", ""),
+                "city":      venue.get("city", {}).get("name", ""),
+                "category":  segment,
+                "url":       ev.get("url", ""),
+                "image":     img,
+                "price_min": price_ranges[0].get("min") if price_ranges else None,
+                "price_max": price_ranges[0].get("max") if price_ranges else None,
+            })
+
+        return {"events": events, "total": len(events)}
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(500, detail=str(exc))
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _build_geo():

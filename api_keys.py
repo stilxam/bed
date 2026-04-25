@@ -15,6 +15,7 @@ BUNQ_API_KEY               — bunq banking API                   (bunq_client.p
 AWS_ACCESS_KEY_ID          — Amazon Web Services                (auto_voice_to_eur_aws.py)
 AWS_SECRET_ACCESS_KEY
 GOOGLE_MAPS_API_KEY
+TICKETMASTER_API_KEY       — Ticketmaster Discovery API        (server.py /api/events)
 
 Optional variables
 ------------------
@@ -90,3 +91,7 @@ def get_wise_api_key() -> str:
 
 def get_google_maps_api_key() -> str:
     return _get("GOOGLE_MAPS_API_KEY")  # type: ignore[return-value]
+
+
+def get_ticketmaster_api_key() -> str:
+    return _get("TICKETMASTER_API_KEY")  # type: ignore[return-value]
