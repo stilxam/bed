@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:doc.bunq.com)"
+      "WebFetch(domain:doc.bunq.com)",
+      "Bash(grep -rn \"from app\\\\|import app\\\\|from gui\\\\|import gui\\\\|from model_interface\\\\|from call_fx\\\\|from number_to\\\\|from extract_geo\\\\|from main\" /home/maxwell/bed/server.py /home/maxwell/bed/*.py)"
     ]
   }
 }

@@ -416,7 +416,7 @@ async def events_nearby(radius: int = 20, size: int = 8):
 
         lat, lon = None, None
         try:
-            from geo1 import detect_location, geo_from_location_result
+            from recommendations import detect_location, geo_from_location_result
             loc = detect_location()
             if loc:
                 geo = geo_from_location_result(loc)
@@ -488,7 +488,7 @@ async def recommendations(trip_id: str, limit: int = 5):
     try:
         import dataclasses
         from anthropic import Anthropic
-        from geo1 import (
+        from recommendations import (
             BudgetInfo, get_geo_context, get_nearby_recommendations, get_time_context,
         )
 

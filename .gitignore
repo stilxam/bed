@@ -184,3 +184,21 @@ cython_debug/
 
 *.tar.gz
 /.continue/
+
+# Auto-generated runtime files
+bunq_context.json
+payment_tags.db
+trips.json
+streamlit_uploads/
+
+# Test/sample images
+*.jpg
+swedish_menu.jpg
+menu.png
+
+# Notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# IDE
+.idea/
