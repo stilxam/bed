@@ -874,9 +874,10 @@ fileInput.addEventListener('change', () => {
   const file = fileInput.files[0];
   if (!file) return;
   S.selectedFile = file;
+  stopCamera();
   cameraState = 'captured';
   const url = URL.createObjectURL(file);
-  vfPreview.innerHTML = `<img src="${url}" alt="preview">`;
+  vfPreview.innerHTML = `<img src="${url}" alt="preview" style="opacity:1">`;
   vfStatus.textContent = 'PRICE DETECTED';
   vfStatus.classList.add('live');
   viewfinder.classList.add('has-file');
