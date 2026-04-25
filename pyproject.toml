@@ -6,8 +6,15 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "anthropic>=0.97.0",
-    "dotenv>=0.9.9",
+    "boto3>=1.42.96",
+    "cryptography>=47.0.0",
     "gradio>=6.13.0",
+    "gtts>=2.5.4",
     "openai-whisper>=20250625",
     "opencv-python>=4.13.0.92",
+    "python-dotenv>=1.2.2",
+    "requests>=2.33.1",
+    "scipy>=1.17.1",
+    "sounddevice>=0.5.5",
+    "streamlit>=1.56.0",
 ]
