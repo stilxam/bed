@@ -484,7 +484,7 @@
   <!-- ══════════ HEADER ══════════ -->
   <header id="header">
     <div class="wordmark">TRAVEL BUDDY<span class="cursor">_</span></div>
-    <div class="header-trip" id="header-trip">NO MISSION</div>
+    <div class="header-trip" id="header-trip">NO JOURNEY</div>
     <div class="bunq-badge">bunq</div>
   </header>
 
@@ -501,12 +501,12 @@
     <div class="viewfinder" id="viewfinder">
       <div class="rc tl"></div><div class="rc tr"></div>
       <div class="rc bl"></div><div class="rc br"></div>
-      <div class="vf-status" id="vf-status">AWAITING INPUT</div>
+      <div class="vf-status" id="vf-status">READY</div>
       <div class="vf-preview" id="vf-preview"></div>
       <input type="file" class="vf-input" id="file-input" accept="image/*" capture="environment">
     </div>
 
-    <button class="cta-btn" id="scan-btn">ACQUIRE TARGET</button>
+    <button class="cta-btn" id="scan-btn">SCAN PRICE</button>
     <div id="result-area"></div>
 
   </div>
@@ -514,7 +514,7 @@
   <!-- ══════════ SCREEN: DASHBOARD ══════════ -->
   <div id="screen-dashboard" class="screen">
 
-    <div class="mission-title">MISSION: <span class="hi" id="mission-name">—</span></div>
+    <div class="mission-title">JOURNEY: <span class="hi" id="mission-name">—</span></div>
 
     <div class="gauge-wrap">
       <div class="gauge-svg-wrap">
@@ -552,7 +552,7 @@
         <button class="refresh-btn" id="refresh-btn" title="Refresh">↺</button>
       </div>
       <div class="payment-list" id="payment-list">
-        <div class="pay-empty">SELECT A MISSION IN TRIPS</div>
+        <div class="pay-empty">SELECT A JOURNEY IN TRIPS</div>
       </div>
     </div>
 
@@ -560,9 +560,9 @@
 
   <!-- ══════════ SCREEN: TRIPS ══════════ -->
   <div id="screen-trips" class="screen">
-    <div class="section-lbl">// ACTIVE MISSIONS</div>
+    <div class="section-lbl">// ACTIVE JOURNEYS</div>
     <div class="trip-list" id="trip-list"></div>
-    <button class="new-mission-btn" id="new-mission-btn">+ NEW MISSION</button>
+    <button class="new-mission-btn" id="new-mission-btn">+ NEW JOURNEY</button>
     <div id="trip-form-wrap"></div>
   </div>
 
@@ -580,7 +580,7 @@
         <circle cx="12" cy="12" r="9"/>
         <path d="M12 7v5l3.5 3.5"/>
       </svg>
-      MISSION
+      JOURNEY
     </button>
     <button class="nav-tab" data-screen="trips">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -646,18 +646,18 @@ function applyMode(mode) {
   if (mode === 'photo') {
     fileInput.setAttribute('capture', 'environment');
     fileInput.removeAttribute('hidden');
-    scanBtn.textContent = 'ACQUIRE TARGET';
-    vfStatus.textContent = 'AWAITING INPUT';
+    scanBtn.textContent = 'SCAN PRICE';
+    vfStatus.textContent = 'READY';
   } else if (mode === 'upload') {
     fileInput.removeAttribute('capture');
     fileInput.removeAttribute('hidden');
-    scanBtn.textContent = 'ACQUIRE TARGET';
-    vfStatus.textContent = 'AWAITING INPUT';
+    scanBtn.textContent = 'SCAN PRICE';
+    vfStatus.textContent = 'READY';
   } else if (mode === 'menu') {
     fileInput.setAttribute('capture', 'environment');
     fileInput.removeAttribute('hidden');
-    scanBtn.textContent = 'SCAN MENU';
-    vfStatus.textContent = 'POINT AT MENU';
+    scanBtn.textContent = 'READ MENU';
+    vfStatus.textContent = 'AIM AT MENU';
   } else if (mode === 'voice') {
     fileInput.setAttribute('hidden', '');
     scanBtn.textContent = 'RECORD PRICE';
@@ -671,7 +671,7 @@ fileInput.addEventListener('change', () => {
   S.selectedFile = file;
   const url = URL.createObjectURL(file);
   vfPreview.innerHTML = `<img src="${url}" alt="preview">`;
-  vfStatus.textContent = 'TARGET LOCKED';
+  vfStatus.textContent = 'PRICE DETECTED';
   vfStatus.classList.add('live');
   viewfinder.classList.add('has-file');
   // Add crosshair
@@ -685,7 +685,7 @@ fileInput.addEventListener('change', () => {
 
 scanBtn.addEventListener('click', async () => {
   if (S.scanMode === 'voice') {
-    alert('VOICE MODE AVAILABLE IN FULL APP');
+    alert('VOICE MODE COMING SOON');
     return;
   }
   if (!S.selectedFile) {
@@ -699,8 +699,8 @@ async function performScan() {
   const file = S.selectedFile;
   if (!file) return;
 
-  const label = S.scanMode === 'menu' ? 'SCAN MENU' : 'ACQUIRE TARGET';
-  scanBtn.textContent = 'PROCESSING...';
+  const label = S.scanMode === 'menu' ? 'READ MENU' : 'SCAN PRICE';
+  scanBtn.textContent = 'READING...';
   scanBtn.classList.add('amber');
   scanBtn.disabled = true;
   resultArea.innerHTML = '';
@@ -721,7 +721,7 @@ async function performScan() {
     if (S.scanMode === 'menu') renderMenuResult(data);
     else renderScanResult(data);
   } catch (err) {
-    resultArea.innerHTML = `<div class="error-panel">⚠ ACQUISITION FAILED<br>${esc(err.message)}</div>`;
+    resultArea.innerHTML = `<div class="error-panel">⚠ SCAN FAILED<br>${esc(err.message)}</div>`;
   } finally {
     scanBtn.textContent = label;
     scanBtn.classList.remove('amber');
@@ -771,7 +771,7 @@ function resetScan() {
   S.selectedFile = null;
   fileInput.value = '';
   vfPreview.innerHTML = '';
-  vfStatus.textContent = S.scanMode === 'menu' ? 'POINT AT MENU' : 'AWAITING INPUT';
+  vfStatus.textContent = S.scanMode === 'menu' ? 'AIM AT MENU' : 'READY';
   vfStatus.classList.remove('live');
   viewfinder.classList.remove('has-file');
   const ch = viewfinder.querySelector('.vf-crosshair');
@@ -791,7 +791,7 @@ async function loadDashboard() {
     document.getElementById('stat-budget').textContent = '—';
     document.getElementById('stat-per-day').textContent = '—';
     document.getElementById('payment-list').innerHTML =
-      '<div class="pay-empty">SELECT A MISSION IN TRIPS</div>';
+      '<div class="pay-empty">SELECT A JOURNEY IN TRIPS</div>';
     return;
   }
 
@@ -893,7 +893,7 @@ async function loadTrips() {
 function renderTripList() {
   const el = document.getElementById('trip-list');
   if (!S.trips.length) {
-    el.innerHTML = '<div class="pay-empty">NO MISSIONS — CREATE ONE BELOW</div>';
+    el.innerHTML = '<div class="pay-empty">NO JOURNEYS — CREATE ONE BELOW</div>';
     return;
   }
   el.innerHTML = S.trips.map(trip => {
@@ -925,9 +925,9 @@ document.getElementById('new-mission-btn').addEventListener('click', () => {
   if (wrap.children.length) { wrap.innerHTML = ''; return; }
   wrap.innerHTML = `
     <div class="trip-form">
-      <div class="form-title">// NEW MISSION</div>
+      <div class="form-title">// NEW JOURNEY</div>
       <div class="form-field">
-        <div class="rf-label">MISSION NAME</div>
+        <div class="rf-label">JOURNEY NAME</div>
         <input class="rf-input" id="tf-name" placeholder="e.g. TOKYO SPRING 2026">
       </div>
       <div class="form-field">
@@ -945,8 +945,8 @@ document.getElementById('new-mission-btn').addEventListener('click', () => {
         </div>
       </div>
       <div class="form-actions">
-        <button class="ghost-btn" id="tf-abort">ABORT</button>
-        <button class="cta-btn"   id="tf-launch">LAUNCH</button>
+        <button class="ghost-btn" id="tf-abort">DISCARD</button>
+        <button class="cta-btn"   id="tf-launch">CREATE TRIP</button>
       </div>
     </div>`;
 
@@ -963,7 +963,7 @@ async function saveTrip() {
   const end    = document.getElementById('tf-end').value   || null;
 
   if (!name || isNaN(budget) || budget <= 0) {
-    alert('MISSION NAME AND BUDGET REQUIRED');
+    alert('JOURNEY NAME AND BUDGET REQUIRED');
     return;
   }
   try {
@@ -980,7 +980,7 @@ async function saveTrip() {
     document.getElementById('trip-form-wrap').innerHTML = '';
     renderTripList();
   } catch (err) {
-    alert('LAUNCH FAILED: ' + err.message);
+    alert('CREATION FAILED: ' + err.message);
   }
 }
 
