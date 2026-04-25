@@ -705,6 +705,9 @@ let mediaRecorder = null;
 let audioChunks   = [];
 let recTimer      = null;
 let recSecs       = 0;
+let audioCtx      = null;
+let analyser      = null;
+let animFrame     = null;
 
 document.querySelectorAll('.mode-tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -936,11 +939,52 @@ async function startRecording() {
 
     vfStatus.textContent = 'REC 00:00';
     vfStatus.classList.add('live');
+
+    // Build waveform canvas + overlay
     vfPreview.innerHTML = `
-      <div class="vf-voice">
-        <div class="rec-dot"></div>
-        <div class="rec-timer" id="rec-timer">00:00</div>
+      <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+        <canvas id="wave-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+        <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;">
+          <div class="rec-dot"></div>
+          <div class="rec-timer" id="rec-timer">00:00</div>
+        </div>
       </div>`;
+
+    // Wire up Web Audio analyser
+    audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+    analyser  = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    audioCtx.createMediaStreamSource(stream).connect(analyser);
+
+    const canvas = document.getElementById('wave-canvas');
+    canvas.width  = canvas.offsetWidth  || 300;
+    canvas.height = canvas.offsetHeight || 200;
+    const wCtx   = canvas.getContext('2d');
+    const bufLen  = analyser.frequencyBinCount;
+    const dataArr = new Uint8Array(bufLen);
+
+    function drawWaveform() {
+      animFrame = requestAnimationFrame(drawWaveform);
+      analyser.getByteTimeDomainData(dataArr);
+      wCtx.clearRect(0, 0, canvas.width, canvas.height);
+      wCtx.lineWidth   = 2;
+      wCtx.strokeStyle = 'rgba(0,217,134,0.85)';
+      wCtx.shadowBlur  = 8;
+      wCtx.shadowColor = 'rgba(0,217,134,0.6)';
+      wCtx.beginPath();
+      const sliceW = canvas.width / bufLen;
+      let x = 0;
+      for (let i = 0; i < bufLen; i++) {
+        const v = dataArr[i] / 128;
+        const y = (v * canvas.height) / 2;
+        i === 0 ? wCtx.moveTo(x, y) : wCtx.lineTo(x, y);
+        x += sliceW;
+      }
+      wCtx.lineTo(canvas.width, canvas.height / 2);
+      wCtx.stroke();
+    }
+    drawWaveform();
+
     scanBtn.textContent = 'STOP';
 
     recTimer = setInterval(() => {
@@ -961,9 +1005,18 @@ async function startRecording() {
 function stopRecording() {
   clearInterval(recTimer);
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  // Freeze the waveform — cancel draw loop but leave canvas in place
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
   voiceState = 'processing';
-  vfStatus.textContent = 'READING...';
-  vfPreview.innerHTML = `<div class="vf-voice"><div style="font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.12em">ANALYSING AUDIO...</div></div>`;
+  vfStatus.textContent = 'ANALYSING...';
+  // Overlay "ANALYSING AUDIO..." label on top of the frozen waveform
+  const overlay = document.createElement('div');
+  overlay.id = 'wave-overlay';
+  overlay.style.cssText = 'position:absolute;bottom:12px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.12em;';
+  overlay.textContent = 'ANALYSING AUDIO...';
+  const wrapper = vfPreview.querySelector('div');
+  if (wrapper) wrapper.appendChild(overlay);
   scanBtn.textContent = 'READING...';
   scanBtn.disabled = true;
 }
@@ -1046,6 +1099,8 @@ async function convertVoice(amount) {
 }
 
 function resetVoice(resetUI = true) {
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  if (audioCtx)  { audioCtx.close(); audioCtx = null; analyser = null; }
   voiceState = 'idle';
   scanBtn.disabled = false;
   scanBtn.textContent = 'START RECORDING';
